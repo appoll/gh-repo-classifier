@@ -14,3 +14,9 @@ https://developer.github.com/v3/repos/contents/#get-the-readme
 As a starting point, we could fool with classifying the README documents based on the contained text paragraphs and the bag-of-words approach, using the below as a skeleton:
   - https://github.com/scikit-learn/scikit-learn/blob/master/examples/text/document_classification_20newsgroups.py
   - http://scikit-learn.org/stable/auto_examples/text/document_classification_20newsgroups.html#sphx-glr-auto-examples-text-document-classification-20newsgroups-py
+
+
+
+High order feature extraction is confirmed as an important but difficult task [ML - a probabilistic perspective, page 6]. 
+[http://clopinet.com/fextract-book/IntroFS.pdf](An introduction to feature extraction): features can be binary/categorical/continuous and building up a data representation is highly domain specific. The raw input data needs to be converted into a set of useful features, by human expertise which is best complimented by automatic methods. Features are rankable according to their predictive power.	
+
