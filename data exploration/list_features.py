@@ -2,7 +2,7 @@ import json
 import re
 
 # open stored meta data of an example repo
-f = open('../data exploration/DEV_homeworkr_basic.txt', 'r')
+f = open('data exploration/DEV_homeworkr_basic.txt', 'r')
 
 # conversion from json data types to python data types
 object = json.load(f)
