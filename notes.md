@@ -14,6 +14,7 @@ https://developer.github.com/v3/repos/contents/#get-the-readme
 As a starting point, we could fool with classifying the README documents based on the contained text paragraphs and the bag-of-words approach, using the below as a skeleton:
   - https://github.com/scikit-learn/scikit-learn/blob/master/examples/text/document_classification_20newsgroups.py
   - http://scikit-learn.org/stable/auto_examples/text/document_classification_20newsgroups.html#sphx-glr-auto-examples-text-document-classification-20newsgroups-py
+  - http://scikit-learn.org/stable/tutorial/text_analytics/working_with_text_data.html
 
 
 
