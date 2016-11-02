@@ -18,7 +18,7 @@ Colons can be used to align columns.
 
 ##Data analysis
   - build visual assessments of feature correlations and target class
-  - use the feature candidates in plots and assert their value
+  - use the feature candidates in plots and assert their value (PCA)
 
 ##Build prediction model
   - use information gained in previous milestone to nail down a usable prediction model
