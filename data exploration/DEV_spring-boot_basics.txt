@@ -1,8 +1,4 @@
 {
-  "message": "Not Found",
-  "documentation_url": "https://developer.github.com/v3"
-}
-{
   "id": 6296790,
   "name": "spring-boot",
   "full_name": "spring-projects/spring-boot",

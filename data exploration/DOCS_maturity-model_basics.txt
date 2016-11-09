@@ -1,8 +1,4 @@
 {
-  "message": "Not Found",
-  "documentation_url": "https://developer.github.com/v3"
-}
-{
   "id": 49589537,
   "name": "maturity-model",
   "full_name": "github/maturity-model",

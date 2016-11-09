@@ -1,9 +1,0 @@
-{
-  "message": "Not Found",
-  "documentation_url": "https://developer.github.com/v3"
-}
-{
-  "message": "Moved Permanently",
-  "url": "https://api.github.com/repositories/55964282",
-  "documentation_url": "https://developer.github.com/v3/#http-redirects"
-}
