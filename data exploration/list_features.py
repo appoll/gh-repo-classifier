@@ -21,7 +21,6 @@ regexExclusions = [
     'description', # word list -> further processing
     'full_name', # further processing (?)
     'name', # further processing (?)
-    'language',
     'default_branch',
     'id'
 ]
@@ -46,12 +45,12 @@ for feature in features2:
     featureDict2[feature] = object2[feature]
 
 vec = DictVectorizer()
-#print vec.fit_transform([featureDict1,featureDict2]).toarray()
+print vec.fit_transform([featureDict1,featureDict2]).toarray()
 
 # pca = pca()
 # pca.fit_transform(vec.fit_transform([featuredict1,featuredict2]).toarray())
 # print pca.explained_variance_
-# print vec.get_feature_names()
+print vec.get_feature_names()
 #
 # plt.figure(1, figsize=(4, 3))
 # plt.clf()
