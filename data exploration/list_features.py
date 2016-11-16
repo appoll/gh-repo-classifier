@@ -5,8 +5,8 @@ from sklearn.decomposition import PCA
 import matplotlib.pyplot as plt
 
 # open stored meta data of an example repo
-f1 = open('data exploration/DEV_homeworkr_basics.txt', 'r')
-f2 = open('data exploration/DATA_housing_basics.txt', 'r')
+f1 = open('DEV_homeworkr_basics.txt', 'r')
+f2 = open('DATA_housing_basics.txt', 'r')
 
 # conversion from json data types to python data types
 object1 = json.load(f1)
