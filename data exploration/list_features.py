@@ -36,7 +36,7 @@ featureDict2 = dict()
 
 # print all features
 #for feature in features:
-#   print str(feature)+': '+str(type(object[feature]))
+#    print str(feature)+': '+str(type(object[feature]))
 
 for feature in features1:
     featureDict1[feature] = object1[feature]
