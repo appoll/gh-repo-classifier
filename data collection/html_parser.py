@@ -41,7 +41,14 @@ hw_files = []
 hw_files.append(open('hw/m2mtech_calculator-2015.html', 'r'))
 hw_files.append(open('hw/bcaffo_751and2.html', 'r'))
 
+edu_files = []
+edu_files.append(open('edu/DataScienceSpecialization_courses.html', 'r'))
+edu_files.append(open('edu/githubteacher_intro-november-2015.html', 'r'))
+edu_files.append(open('edu/alex_what-happens-when.html', 'r'))
+edu_files.append(open('edu/MostlyAdequate_mostly-adequate-guide.html', 'r'))
+edu_files.append(open('edu/AllThingsSmitty_jquery-tips-everyone-should-know.html', 'r'))
+
 matching_urls = re.compile("data-ng-href=\"(.*)\" target")
 matching_similarity = re.compile("Similarity: (0|[1-9][0-9]*)")
 
-read_and_store_repo_names(hw_files, Labels.hw)
+read_and_store_repo_names(edu_files, Labels.edu)
