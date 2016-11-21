@@ -31,24 +31,33 @@ def read_and_store_repo_names(files, label):
                     #    print similarity.group(1)
 
 
-dev_files = []
-dev_files.append(open('dev/spring-projects_spring-boot.html', 'r'))
-dev_files.append(open('dev/facebook_react.html', 'r'))
-dev_files.append(open('dev/nodegit_nodegit.html', 'r'))
-dev_files.append(open('dev/scipy_scipy.html', 'r'))
+# dev_files = []
+# dev_files.append(open('dev/spring-projects_spring-boot.html', 'r'))
+# dev_files.append(open('dev/facebook_react.html', 'r'))
+# dev_files.append(open('dev/nodegit_nodegit.html', 'r'))
+# dev_files.append(open('dev/scipy_scipy.html', 'r'))
+#
+# hw_files = []
+# hw_files.append(open('hw/m2mtech_calculator-2015.html', 'r'))
+# hw_files.append(open('hw/bcaffo_751and2.html', 'r'))
+#
+# edu_files = []
+# edu_files.append(open('edu/DataScienceSpecialization_courses.html', 'r'))
+# edu_files.append(open('edu/githubteacher_intro-november-2015.html', 'r'))
+# edu_files.append(open('edu/alex_what-happens-when.html', 'r'))
+# edu_files.append(open('edu/MostlyAdequate_mostly-adequate-guide.html', 'r'))
+# edu_files.append(open('edu/AllThingsSmitty_jquery-tips-everyone-should-know.html', 'r'))
 
-hw_files = []
-hw_files.append(open('hw/m2mtech_calculator-2015.html', 'r'))
-hw_files.append(open('hw/bcaffo_751and2.html', 'r'))
+docs_files = []
+docs_files.append(open('docs/bundestag_gesetze.html', 'r'))
+docs_files.append(open('docs/fsr-itse_docs.html', 'r'))
+docs_files.append(open('docs/raspberrypi_documentation.html', 'r'))
+docs_files.append(open('docs/github_maturity-model.html', 'r'))
+docs_files.append(open('docs/CMSgov_HealthCare.gov-Styleguide.html', 'r'))
 
-edu_files = []
-edu_files.append(open('edu/DataScienceSpecialization_courses.html', 'r'))
-edu_files.append(open('edu/githubteacher_intro-november-2015.html', 'r'))
-edu_files.append(open('edu/alex_what-happens-when.html', 'r'))
-edu_files.append(open('edu/MostlyAdequate_mostly-adequate-guide.html', 'r'))
-edu_files.append(open('edu/AllThingsSmitty_jquery-tips-everyone-should-know.html', 'r'))
+
 
 matching_urls = re.compile("data-ng-href=\"(.*)\" target")
 matching_similarity = re.compile("Similarity: (0|[1-9][0-9]*)")
 
-read_and_store_repo_names(edu_files, Labels.edu)
+read_and_store_repo_names(docs_files, Labels.docs)

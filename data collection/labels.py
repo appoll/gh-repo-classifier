@@ -4,3 +4,4 @@ class Labels(Enum):
     dev = 'dev'
     hw = 'hw'
     edu = 'edu'
+    docs = 'docs'
