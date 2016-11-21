@@ -60,7 +60,14 @@ web_files.append(open('web/ianli_elbowpatched-boilerplate.html', 'r'))
 web_files.append(open('web/BloombergMedia_whatiscode.html', 'r'))
 
 
+data_files = []
+data_files.append(open('data/ericfischer_housing-inventory.html', 'r'))
+data_files.append(open('data/GSA_data.html', 'r'))
+data_files.append(open('data/OpenExoplanetCatalogue_open_exoplanet_catalogue.html', 'r'))
+data_files.append(open('data/Hipo_university-domains-list.html', 'r'))
+data_files.append(open('data/minimaxir_big-list-of-naughty-strings.html', 'r'))
+
 matching_urls = re.compile("data-ng-href=\"(.*)\" target")
 matching_similarity = re.compile("Similarity: (0|[1-9][0-9]*)")
 
-read_and_store_repo_names(web_files, Labels.web)
+read_and_store_repo_names(data_files, Labels.data)

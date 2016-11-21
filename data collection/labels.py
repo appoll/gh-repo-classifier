@@ -6,3 +6,4 @@ class Labels(Enum):
     edu = 'edu'
     docs = 'docs'
     web = 'web'
+    data = 'data'
