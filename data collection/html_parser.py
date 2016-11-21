@@ -48,16 +48,19 @@ def read_and_store_repo_names(files, label):
 # edu_files.append(open('edu/MostlyAdequate_mostly-adequate-guide.html', 'r'))
 # edu_files.append(open('edu/AllThingsSmitty_jquery-tips-everyone-should-know.html', 'r'))
 
-docs_files = []
-docs_files.append(open('docs/bundestag_gesetze.html', 'r'))
-docs_files.append(open('docs/fsr-itse_docs.html', 'r'))
-docs_files.append(open('docs/raspberrypi_documentation.html', 'r'))
-docs_files.append(open('docs/github_maturity-model.html', 'r'))
-docs_files.append(open('docs/CMSgov_HealthCare.gov-Styleguide.html', 'r'))
+# docs_files = []
+# docs_files.append(open('docs/bundestag_gesetze.html', 'r'))
+# docs_files.append(open('docs/fsr-itse_docs.html', 'r'))
+# docs_files.append(open('docs/raspberrypi_documentation.html', 'r'))
+# docs_files.append(open('docs/github_maturity-model.html', 'r'))
+# docs_files.append(open('docs/CMSgov_HealthCare.gov-Styleguide.html', 'r'))
 
+web_files = []
+web_files.append(open('web/ianli_elbowpatched-boilerplate.html', 'r'))
+web_files.append(open('web/BloombergMedia_whatiscode.html', 'r'))
 
 
 matching_urls = re.compile("data-ng-href=\"(.*)\" target")
 matching_similarity = re.compile("Similarity: (0|[1-9][0-9]*)")
 
-read_and_store_repo_names(docs_files, Labels.docs)
+read_and_store_repo_names(web_files, Labels.web)

@@ -5,3 +5,4 @@ class Labels(Enum):
     hw = 'hw'
     edu = 'edu'
     docs = 'docs'
+    web = 'web'
