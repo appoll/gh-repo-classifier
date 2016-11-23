@@ -11,8 +11,8 @@ from labels import Labels
 class ExampleData:
     def __init__(self):
         self.username, self.password = ConfigReader().getCredentials()
-        self.repos_names = "../data collection/%s/%s_repos_names.txt"
-        self.repos_folder = "../data collection/%s/repos/"
+        self.repos_names = "../collection/%s/%s_repos_names.txt"
+        self.repos_folder = "../collection/%s/repos/"
 
     def get(self, label):
         names = self.repos_names % (label, label)
