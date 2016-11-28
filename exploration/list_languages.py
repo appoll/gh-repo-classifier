@@ -10,6 +10,18 @@ dict_label_path = {}
 dict_label_repos = {}
 dict_label_repo_name = {}
 
+features = [
+    'forks',
+    'size',
+    'open_issues',
+    'stargazers_count',
+    #'has_issues',
+    #'has_downloads',
+    'watchers_count',
+    'subscribers_count',
+    'network_count'
+]
+
 for label in Labels.toArray():
     repo_folder_path = repos_folder_path % label
     repos_folders.append(repo_folder_path)
@@ -41,6 +53,17 @@ for label in sorted(dict_label_path.keys()):
     print repoNames
     print repoObjects
     for i in range (0, len(repoNames)):
-        f.write(repoNames[i] + "," + str(repoObjects[i]['language']) + "," + label)
+        #line = repoNames[i]
+        line = ""
+        for feature in features:
+            #line = line + " " + str(repoObjects[i][feature])
+            line = line + str(repoObjects[i][feature]) + " "
+        if label == Labels.dev.value:
+            #line = line + " " + "1"
+            line = line + "1"
+        else:
+            line = line + "0"
+        #line = line + " " + label
+        f.write(line)
         f.write('\n')
 f.close()
