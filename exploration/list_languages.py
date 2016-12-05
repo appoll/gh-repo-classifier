@@ -3,7 +3,7 @@ import json
 
 from collection.labels import Labels
 
-repos_folder_path = "../collection/%s/repos/"
+repos_folder_path = "../collection/%s/updated_repos/"
 
 repos_folders = []
 dict_label_path = {}
@@ -19,7 +19,11 @@ features = [
     #'has_downloads',
     'watchers_count',
     'subscribers_count',
-    'network_count'
+    'network_count',
+    'languages_count',
+    'labels_count',
+    'contributors_count',
+    'tags_count'
 ]
 
 for label in Labels.toArray():

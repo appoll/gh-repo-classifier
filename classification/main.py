@@ -1,27 +1,33 @@
-from matplotlib import pyplot as plt
-
 import numpy as np
-from sklearn.svm import SVC
+from sklearn.svm import LinearSVC
 
-from logistic_regression import LogisticRegression
-from sklearn import svm
+from classification import svc
+from classification import svc_linear
+
 
 def read():
     initial_matrix = np.genfromtxt(open("../exploration/data.txt", "r"), delimiter=" ", dtype=int)
     print initial_matrix
     print '###'
-    return np.array(initial_matrix).astype('int')
+    mat = np.array(initial_matrix).astype('int')
+    examples = mat[:, :-1]
+    labels = mat[:, -1:]
+    labels = np.ravel(labels)
+    return examples, labels
 
-mat = read()
-print mat
 
-features_and_samples = mat[:-10,:-1]
-classes = mat[:-10,-1:]
-classes = np.ravel(classes)
+x, y = read()
 
-clf = svm.SVC()
-print clf.fit(features_and_samples, classes)
+training_score, testing_score = svc_linear.run(x, y)
 
-#predicted = clf.predict([[55, 2310, 11, 133, 133, 62, 55]])
-predicted = clf.predict([[5695, 24191, 135, 15393, 15393, 592, 5695]])
-print predicted
+print training_score
+print testing_score
+
+# training_score, testing_score = svc.runLinear(x, y)
+# print training_score
+# print testing_score
+
+# training_score, testing_score = svc.runPolynomial(x, y)
+# print training_score
+# print testing_score
+
