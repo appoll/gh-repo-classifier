@@ -1,10 +1,12 @@
 import re
 
+import numpy as np
 import pandas as pd
 from bs4 import BeautifulSoup
 from nltk.corpus import stopwords
 from sklearn.feature_extraction.text import CountVectorizer
-import numpy as np
+
+from classification import svc
 
 train = pd.read_csv("../exploration/text_data.txt", delimiter=" ", header=0)
 
@@ -40,6 +42,29 @@ def raw_to_words(content):
     return (" ".join(meaningful_words))
 
 
+def print_words_and_count(vectorizer):
+    vocab = vectorizer.get_feature_names()
+    # print vocab
+    # Sum up the counts of each vocabulary word
+    dist = np.sum(train_data_features, axis=0)
+    # print dist
+
+    # For each, print the vocabulary word and the number of times it
+    # appears in the training set
+    for tag, count in zip(vocab, dist):
+        print count, tag
+
+
+def print_feature_matrix(features, withCorrespondingExample=False):
+    if withCorrespondingExample == True:
+        for row in range(0, features.shape[0]):
+            print features[row]
+            print train['label'][row]
+            print train['readme_filename'][row]
+    else:
+        print features
+
+
 rows = train['readme_filename'].size
 clean_readmes = []
 for i in xrange(0, rows):
@@ -48,28 +73,23 @@ for i in xrange(0, rows):
     content = readmeContent(train['readme_filename'][i])
     clean_readmes.append(raw_to_words(content))
 
-print clean_readmes[100]
-
 vectorizer = CountVectorizer(analyzer="word",
                              tokenizer=None,
                              preprocessor=None,
                              stop_words=None,
-                             max_features=5000)
+                             max_features=3)
 
 train_data_features = vectorizer.fit_transform(clean_readmes)
 train_data_features = train_data_features.toarray()
 
-print train_data_features[20][30]
+print_words_and_count(vectorizer=vectorizer)
 
-print max(train_data_features[20])
+print_feature_matrix(train_data_features)
+# print_feature_matrix(train_data_features, withCorrespondingExample=True)
 
-vocab = vectorizer.get_feature_names()
-print vocab
+labels = train['label']
 
-# Sum up the counts of each vocabulary word
-dist = np.sum(train_data_features, axis=0)
+training_score, testing_score = svc.runLinear(train_data_features, labels)
 
-# For each, print the vocabulary word and the number of times it
-# appears in the training set
-for tag, count in zip(vocab, dist):
-    print count, tag
+print training_score
+print testing_score
