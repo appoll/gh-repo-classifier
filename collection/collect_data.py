@@ -15,6 +15,7 @@ class ExampleData:
         self.repos_names = "../collection/%s/%s_repos_names.txt"
         self.repos_folder = "../collection/%s/repos/"
         self.readmes_repos_folder = "../collection/%s/readmes/"
+        self.commit_activity_repos_folder = "../collection/%s/commit_activity/"
         self.repos_names_search = "../collection/%s/%s_repos_names_%s.txt"
         self.encoding = "base64",
 
@@ -58,6 +59,28 @@ class ExampleData:
                     file.write(decoded)
                     file.close()
 
+
+    def getCommitActivity(self, label):
+        names = self.repos_names % (label, label)
+        folder = self.commit_activity_repos_folder % label
+
+        with open(names, 'r') as file:
+            repos = file.readlines()
+        for repo in repos:
+            r = requests.get("https://api.github.com/repos/" + repo[:-1] + "/stats/commit_activity",
+                             auth=HTTPBasicAuth(self.username, self.password))
+            print "status code: ", r.status_code
+            if r.status_code == 200:
+                filename = folder + repo[:-1].split('/')[1] + ".json"
+                if not os.path.exists(os.path.dirname(filename)):
+                    os.makedirs(os.path.dirname(filename))
+                with open(filename, 'w') as file:
+                    print "Writing to %s" % file.name
+                    jsonContent = json.dumps((r.json()))
+                    file.write(jsonContent)
+                    file.close()
+
+
     # gets the first 30 repos which best match the keyword -- TBD: pagination
     def get_repos_by_keyword(self, label, keyword):
 
@@ -87,4 +110,11 @@ data = ExampleData()
 # data.getReadmes(label=Labels.dev.value)
 # data.getReadmes(label=Labels.web.value)
 
-data.get_repos_by_keyword(label=Labels.hw.value,keyword="homework")
+#data.getCommitActivity(label=Labels.edu.value)
+#data.getCommitActivity(label=Labels.hw.value)
+#data.getCommitActivity(label=Labels.docs.value)
+#data.getCommitActivity(label=Labels.data.value)
+#data.getCommitActivity(label=Labels.dev.value)
+#data.getCommitActivity(label=Labels.web.value)
+
+#data.get_repos_by_keyword(label=Labels.hw.value,keyword="homework")

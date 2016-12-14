@@ -5,13 +5,15 @@ import os
 import requests
 from requests.auth import HTTPBasicAuth
 
+from collection.labels import Labels
 from config.reader import ConfigReader
 
 
-class UrlToNumeric:
+class Transformer:
     def __init__(self):
         self.username, self.password = ConfigReader().getCredentials()
         self.repos_folder = "../collection/%s/repos/"
+        self.commit_activity_folder = "../collection/%s/commit_activity/"
         self.updated_repos_folder = "../collection/%s/updated_repos/"
         self.RESULTS_PER_PAGE = 30
 
@@ -23,6 +25,7 @@ class UrlToNumeric:
             repoObject = json.load(f)
             f.close()
             branches_url = repoObject["branches_url"]
+            branches_url = branches_url.split('{')[0]
             print branches_url
             r = requests.get(branches_url, auth=HTTPBasicAuth(self.username, self.password))
             if r.status_code == 200:
@@ -160,38 +163,74 @@ class UrlToNumeric:
             else:
                 print r.content
 
+    def commit_activity(self, label):
+        """
+        Maps the commit activity present in json files to the repo object, by adding new numerical values:
 
-feature_converter = UrlToNumeric()
+        Commit activity is a JSON array of 52 week objects, which is decoded to a Python list of dictionaries
+
+         "commits_total" - sum over all weeks in the previous year
+         "commits_mean" - mean over all weeks in the previous year
+         "commits_range" - max - min
+        :param label:
+        """
+        folder = self.commit_activity_folder % label
+
+        for filename in glob.glob(folder + '*'):
+            f = open(filename, 'r')
+            year = json.load(f)
+            print filename
+            f.close()
+
+            commits_total = sum(week['total'] for week in year)
+            commits_mean = commits_total / 52
+            commits_max = max(week['total'] for week in year)
+            commits_min = min(week['total'] for week in year)
+            commits_range = commits_max - commits_min
+
+            new_filename = filename.replace("commit_activity", "updated_repos")
+
+            f = open(new_filename, 'r+')
+            repo = json.load(f)
+            repo['commits_total'] = commits_total
+            repo['commits_mean'] = commits_mean
+            repo['commits_range'] = commits_range
+            print "Writing to %s" % f.name
+            f.seek(0)
+            f.write(json.dumps(repo))
+            f.close()
+
+feature_converter = Transformer()
 # feature_converter.branchCount('dev')
 # feature_converter.branchCount('data')
 # feature_converter.branchCount('docs')
-# feature_converter.branchCount('edu')
+feature_converter.branchCount('edu')
 # feature_converter.branchCount('hw')
 # feature_converter.branchCount('web')
 
 # feature_converter.issuesCount('dev')
 # feature_converter.issuesCount('data')
 # feature_converter.issuesCount('docs')
-# feature_converter.issuesCount('edu')
+feature_converter.issuesCount('edu')
 # feature_converter.issuesCount('hw')
 # feature_converter.issuesCount('web')
 
 
-# feature_converter.count('edu', "tags_url", "tags_count")
+feature_converter.count('edu', "tags_url", "tags_count")
 # feature_converter.count('dev', "tags_url", "tags_count")
 # feature_converter.count('web', "tags_url", "tags_count")
 # feature_converter.count('data', "tags_url", "tags_count")
 # feature_converter.count('docs', "tags_url", "tags_count")
 # feature_converter.count('hw', "tags_url", "tags_count")
 
-# feature_converter.count('edu', "contributors_url", "contributors_count")
+feature_converter.count('edu', "contributors_url", "contributors_count")
 # feature_converter.count('dev', "contributors_url", "contributors_count")
 # feature_converter.count('web', "contributors_url", "contributors_count")
 # feature_converter.count('data', "contributors_url", "contributors_count")
 # feature_converter.count('docs', "contributors_url", "contributors_count")
 # feature_converter.count('hw', "contributors_url", "contributors_count")
 
-# feature_converter.count('edu', "labels_url", "labels_count")
+feature_converter.count('edu', "labels_url", "labels_count")
 # feature_converter.count('dev', "labels_url", "labels_count")
 # feature_converter.count('web', "labels_url", "labels_count")
 # feature_converter.count('data', "labels_url", "labels_count")
@@ -199,11 +238,13 @@ feature_converter = UrlToNumeric()
 # feature_converter.count('hw', "labels_url", "labels_count")
 
 feature_converter.count('edu', "languages_url", "languages_count")
-feature_converter.count('dev', "languages_url", "languages_count")
-feature_converter.count('web', "languages_url", "languages_count")
-feature_converter.count('data', "languages_url", "languages_count")
-feature_converter.count('docs', "languages_url", "languages_count")
-feature_converter.count('hw', "languages_url", "languages_count")
+# feature_converter.count('dev', "languages_url", "languages_count")
+# feature_converter.count('web', "languages_url", "languages_count")
+# feature_converter.count('data', "languages_url", "languages_count")
+# feature_converter.count('docs', "languages_url", "languages_count")
+# feature_converter.count('hw', "languages_url", "languages_count")
+
+feature_converter.commit_activity(label=Labels.edu.value)
 
 
 # feature_converter.issuesCountMatplotlib('dev')
