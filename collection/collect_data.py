@@ -81,15 +81,24 @@ class ExampleData:
                     file.close()
 
 
-    # gets the first 30 repos which best match the keyword -- TBD: pagination
     def get_repos_by_keyword(self, label, keyword):
-
-        query = {'q': keyword, 's': 'match'}
+        query = {'q': keyword, 's': 'match', 'per_page': 100}
         r = requests.get("https://api.github.com/search/repositories", params=query,
                          auth=HTTPBasicAuth(self.username, self.password))
         print "status code: ", r.status_code
         if r.status_code == 200:
+
             repos = r.json()["items"]
+            links = r.links
+
+            while 'next' in links:
+                next_page_url = links['next']['url']
+                next_page_request = requests.get(next_page_url, auth=HTTPBasicAuth(self.username, self.password))
+
+                if next_page_request.status_code == 200:
+                    repos.extend(next_page_request.json()["items"])
+                    links = next_page_request.links
+
             filename = self.repos_names_search % (label, label, keyword)
             with open(filename, 'w') as file:
                 print "Writing to %s" % file.name
@@ -117,4 +126,4 @@ data = ExampleData()
 #data.getCommitActivity(label=Labels.dev.value)
 #data.getCommitActivity(label=Labels.web.value)
 
-#data.get_repos_by_keyword(label=Labels.hw.value,keyword="homework")
+data.get_repos_by_keyword(label=Labels.hw.value,keyword="homework")
