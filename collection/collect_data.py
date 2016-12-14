@@ -15,6 +15,7 @@ class ExampleData:
         self.repos_names = "../collection/%s/%s_repos_names.txt"
         self.repos_folder = "../collection/%s/repos/"
         self.readmes_repos_folder = "../collection/%s/readmes/"
+        self.repos_names_search = "../collection/%s/%s_repos_names_%s.txt"
         self.encoding = "base64",
 
     def get(self, label):
@@ -57,13 +58,33 @@ class ExampleData:
                     file.write(decoded)
                     file.close()
 
+    # gets the first 30 repos which best match the keyword -- TBD: pagination
+    def get_repos_by_keyword(self, label, keyword):
+
+        query = {'q': keyword, 's': 'match'}
+        r = requests.get("https://api.github.com/search/repositories", params=query,
+                         auth=HTTPBasicAuth(self.username, self.password))
+        print "status code: ", r.status_code
+        if r.status_code == 200:
+            repos = r.json()["items"]
+            filename = self.repos_names_search % (label, label, keyword)
+            with open(filename, 'w') as file:
+                print "Writing to %s" % file.name
+                for repo in repos:
+                    repo_name = repo["full_name"]
+                    print repo_name
+                    file.writelines(repo_name + "\n")
+                file.close()
+
 
 data = ExampleData()
 #data.get(label=Labels.hw.value)
 
 #data.getReadmes(label=Labels.edu.value)
-data.getReadmes(label=Labels.hw.value)
-data.getReadmes(label=Labels.docs.value)
-data.getReadmes(label=Labels.data.value)
-data.getReadmes(label=Labels.dev.value)
-data.getReadmes(label=Labels.web.value)
+# data.getReadmes(label=Labels.hw.value)
+# data.getReadmes(label=Labels.docs.value)
+# data.getReadmes(label=Labels.data.value)
+# data.getReadmes(label=Labels.dev.value)
+# data.getReadmes(label=Labels.web.value)
+
+data.get_repos_by_keyword(label=Labels.hw.value,keyword="homework")
