@@ -1,6 +1,9 @@
 import glob
 import json
 import os
+import sys
+sys.path.append('..')
+
 
 import requests
 from requests.auth import HTTPBasicAuth
@@ -145,7 +148,7 @@ data = ExampleData()
 
 # data.get_repo_names_by_keyword(label=Labels.data.value, keyword="data")
 
-# data.get_repo_names_by_keyword(label=Labels.edu.value, keyword="course")
+data.get_repo_names_by_keyword('edu', keyword="course")
 
 # data.get_repo_names_by_keyword(label=Labels.dev.value, keyword="framework")
 
@@ -153,8 +156,8 @@ data = ExampleData()
 
 # keywords must be the same as the previously called get_repo_names_by_keyword methods
 
-# data.get_repos_by_keyword(label='hw', keyword="homework")
+#data.get_repos_by_keyword(label='hw', keyword="homework")
 #data.getReadmes(label='hw', keyword="homework")
 
 # below did not complete successfully
-data.getCommitActivity(label='hw', keyword="homework")
+#data.getCommitActivity(label='hw', keyword="homework")
