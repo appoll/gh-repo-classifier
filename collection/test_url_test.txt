@@ -1,7 +1,0 @@
-https://github.com/DataScienceSpecialization/courses
-https://github.com/DataScienceSpecialization/DataScienceSpecialization.github.io
-https://github.com/bcaffo/courses
-https://github.com/swirldev/swirl_courses
-https://github.com/rdpeng/courses
-https://github.com/sux13/DataScienceSpCourseNotes
-https://github.com/jtleek/datasharing

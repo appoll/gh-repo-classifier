@@ -7,12 +7,14 @@ class Labels(Enum):
     docs = 'docs'
     web = 'web'
     data = 'data'
+    uncertain = 'uncertain'
 
     @staticmethod
     def toArray():
-        return [Labels.dev.value,
-                Labels.hw.value,
-                Labels.edu.value,
-                Labels.docs.value,
-                Labels.web.value,
-                Labels.data.value]
+        return [Labels.dev,
+                Labels.hw,
+                Labels.edu,
+                Labels.docs,
+                Labels.web,
+                Labels.data,
+                Labels.uncertain]
