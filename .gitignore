@@ -1,2 +1,10 @@
 # Files containing auth information for github api 
 *.config
+
+# Folders containing many json files representing downloaded repositories
+*/collection/web/json_*/*
+*/collection/data/json_*/*
+*/collection/dev/json_*/*
+*/collection/docs/json_*/*
+*/collection/edu/json_*/*
+*/collection/hw/json_*/*
