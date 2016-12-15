@@ -15,9 +15,11 @@ class Archiver:
         folder = self.repos_folder % label
         tar_location = self.class_folder % label
         file_name = tar_location + self.tar_file_name % label
-        tar = tarfile(file_name)
+        tar = tarfile.open(file_name, 'w')
         for filename in glob.glob(folder + '*'):
-            tar.add(filename)
+            name = filename.rsplit('/',1)[1]
+            print name
+            tar.add(filename, arcname=name)
         tar.close()
 
     def unarchive(self, label):
@@ -26,11 +28,12 @@ class Archiver:
         file_name = tar_location + self.tar_file_name % label
         tar = tarfile.open(file_name, "r")
         print "Unarchiving ", file_name
+        print folder
         tar.extractall(path=folder)
         tar.close()
 
 
+archiver = Archiver()
 
-#archiver = Archiver()
-
-#archiver.archive(Labels.web.value)
+archiver.archive('web')
+archiver.unarchive('web')
