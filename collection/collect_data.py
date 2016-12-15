@@ -148,7 +148,7 @@ data = ExampleData()
 
 # data.get_repo_names_by_keyword(label=Labels.data.value, keyword="data")
 
-data.get_repo_names_by_keyword('edu', keyword="course")
+# data.get_repo_names_by_keyword('edu', keyword="course")
 
 # data.get_repo_names_by_keyword(label=Labels.dev.value, keyword="framework")
 
@@ -161,3 +161,8 @@ data.get_repo_names_by_keyword('edu', keyword="course")
 
 # below did not complete successfully
 #data.getCommitActivity(label='hw', keyword="homework")
+
+
+#data.get_repos_by_keyword(label='data',keyword='data')
+# below did not complete successfully
+#data.getCommitActivity(label='data', keyword="data")

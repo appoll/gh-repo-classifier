@@ -70,11 +70,12 @@ class Archiver:
 
 archiver = Archiver()
 
-archiver.archive('hw', READ_ME)
-archiver.archive('hw', REPO)
-archiver.archive('hw', COMMIT_ACTIVITY)
+# archiver.archive('hw', READ_ME)
+# archiver.archive('hw', REPO)
+# archiver.archive('hw', COMMIT_ACTIVITY)
+#
+# archiver.unarchive('hw', READ_ME)
+# archiver.unarchive('hw', REPO)
+# archiver.unarchive('hw', COMMIT_ACTIVITY)
 
-archiver.unarchive('hw', READ_ME)
-archiver.unarchive('hw', REPO)
-archiver.unarchive('hw', COMMIT_ACTIVITY)
-# archiver.unarchive('web')
+archiver.archive('data', REPO)
