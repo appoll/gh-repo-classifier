@@ -10,3 +10,6 @@
 /collection/docs/json_*/*
 /collection/edu/json_*/*
 /collection/hw/json_*/*
+
+# Byte-Compiled 
+*.pyc
