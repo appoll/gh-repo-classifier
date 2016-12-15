@@ -91,6 +91,7 @@ class ExampleData:
             repos = r.json()["items"]
             links = r.links
 
+            print "repos loaded:", len(repos)
             while 'next' in links:
                 next_page_url = links['next']['url']
                 next_page_request = requests.get(next_page_url, auth=HTTPBasicAuth(self.username, self.password))
@@ -98,13 +99,15 @@ class ExampleData:
                 if next_page_request.status_code == 200:
                     repos.extend(next_page_request.json()["items"])
                     links = next_page_request.links
+                print "repos loaded:", len(repos)
+
 
             filename = self.repos_names_search % (label, label, keyword)
-            with open(filename, 'w') as file:
+            with open(filename, 'a') as file:
                 print "Writing to %s" % file.name
                 for repo in repos:
                     repo_name = repo["full_name"]
-                    print repo_name
+                    # print repo_name
                     file.writelines(repo_name + "\n")
                 file.close()
 
@@ -126,4 +129,17 @@ data = ExampleData()
 #data.getCommitActivity(label=Labels.dev.value)
 #data.getCommitActivity(label=Labels.web.value)
 
-data.get_repos_by_keyword(label=Labels.hw.value,keyword="homework")
+# calls below will append to existing files so uncomment carefully
+
+#data.get_repos_by_keyword(label=Labels.hw.value,keyword="homework")
+
+#data.get_repos_by_keyword(label=Labels.docs.value, keyword="docs")
+#data.get_repos_by_keyword(label=Labels.docs.value, keyword="documentation")
+
+#data.get_repos_by_keyword(label=Labels.data.value, keyword="data")
+
+#data.get_repos_by_keyword(label=Labels.edu.value, keyword="course")
+
+#data.get_repos_by_keyword(label=Labels.dev.value, keyword="framework")
+
+#data.get_repos_by_keyword(label=Labels.web.value, keyword="github.io")
