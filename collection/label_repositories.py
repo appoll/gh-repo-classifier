@@ -1,7 +1,7 @@
 import webbrowser
 import numpy as np
 
-#from labels import Labels
+from labels import Labels
 
 
 class RepoLabelling():
@@ -19,6 +19,35 @@ class RepoLabelling():
 
     def browse_url_file(self):
         print self.urls
+
+    def print_selection(self):
+        labels = Labels.toArray()
+        for i,label in enumerate(labels):
+            print "[ " + str(i+1) + " ]",label
+        self.parse_input()
+
+
+    def parse_input(self):
+        while True:
+            input = raw_input("Choose one repository type: ")
+            if input == "1":
+                return Labels.dev
+            elif input == "2":
+                return Labels.hw
+            elif input == "3":
+                return Labels.edu
+            elif input == "4":
+                return Labels.docs
+            elif input == "5":
+                return Labels.web
+            elif input == "6":
+                return Labels.data
+            elif input == "7":
+                return Labels.uncertain
+            else:
+                print "Wrong input"
+
+
 
 
 class URLFileHandler(object):
@@ -54,7 +83,8 @@ class URLFileHandler(object):
 
 if __name__ == '__main__':
     labelling = RepoLabelling(file_name="test_url_test.txt")
-    labelling.open_next_page()
+    labelling.print_selection()
+    # labelling.open_next_page()
     # labelling.browse_url_file()
     # labelling.open_page("http://www.google.de")
     # handler = URLFileHandler("test_url_test.txt")
