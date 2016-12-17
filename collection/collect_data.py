@@ -1,16 +1,16 @@
-import glob
 import json
 import os
 import sys
-sys.path.append('..')
 
+import time
+
+sys.path.append('..')
 
 import requests
 from requests.auth import HTTPBasicAuth
 
 from config.helper import Helper
 from config.reader import ConfigReader
-from labels import Labels
 
 JSON_REPO_FILE_NAME = "%s_%s.json"
 JSON_COMMIT_ACTIVITY_FILE_NAME = "%s_%s.json"
@@ -79,8 +79,16 @@ class ExampleData:
         for repo in repos:
             r = requests.get("https://api.github.com/repos/" + repo[:-1] + "/stats/commit_activity",
                              auth=HTTPBasicAuth(self.username, self.password))
-            print "status code: ", r.status_code
+
+            if r.status_code == 202:
+                while r.status_code == 202:
+                    print "status code: ", r.status_code
+                    r = requests.get("https://api.github.com/repos/" + repo[:-1] + "/stats/commit_activity",
+                                     auth=HTTPBasicAuth(self.username, self.password))
+                    time.sleep(3)
+
             if r.status_code == 200:
+                print "status code: ", r.status_code
                 filename = Helper().build_path_from_folder_and_repo_name(repo, folder, JSON_COMMIT_ACTIVITY_FILE_NAME)
 
                 if not os.path.exists(os.path.dirname(filename)):
@@ -148,7 +156,7 @@ data = ExampleData()
 
 # data.get_repo_names_by_keyword(label=Labels.data.value, keyword="data")
 
-data.get_repo_names_by_keyword('edu', keyword="course")
+# data.get_repo_names_by_keyword('edu', keyword="course")
 
 # data.get_repo_names_by_keyword(label=Labels.dev.value, keyword="framework")
 
@@ -156,8 +164,13 @@ data.get_repo_names_by_keyword('edu', keyword="course")
 
 # keywords must be the same as the previously called get_repo_names_by_keyword methods
 
-#data.get_repos_by_keyword(label='hw', keyword="homework")
-#data.getReadmes(label='hw', keyword="homework")
+# data.get_repos_by_keyword(label='hw', keyword="homework")
+# data.getReadmes(label='hw', keyword="homework")
+# data.getCommitActivity(label='hw', keyword="homework")
 
-# below did not complete successfully
-#data.getCommitActivity(label='hw', keyword="homework")
+# data.get_repos_by_keyword(label='data',keyword='data')
+# data.getReadmes(label='data', keyword='data')
+# data.getCommitActivity(label='data', keyword="data")
+
+# data.get_repos_by_keyword(label='dev',keyword='framework')
+# data.getReadmes(label='dev',keyword='framework')
