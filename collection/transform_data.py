@@ -12,9 +12,15 @@ from config.reader import ConfigReader
 class Transformer:
     def __init__(self):
         self.username, self.password = ConfigReader().getCredentials()
-        self.repos_folder = "../collection/%s/repos/"
+       # self.repos_folder = "../collection/%s/repos/"
+
+        # unarchived repos folder
+        self.repos_folder = "../collection/%s/json_repos_unarchived/"
+
+        self.updated_repos_folder = "../collection/%s/json_repos_updated/"
+
         self.commit_activity_folder = "../collection/%s/commit_activity/"
-        self.updated_repos_folder = "../collection/%s/updated_repos/"
+        #self.updated_repos_folder = "../collection/%s/updated_repos/"
         self.RESULTS_PER_PAGE = 30
 
     def branchCount(self, label):
@@ -52,7 +58,7 @@ class Transformer:
                 print branches_count
                 repoObject["branches_count"] = branches_count
                 del repoObject["branches_url"]
-                new_filename = filename.replace("repos", "updated_repos")
+                new_filename = filename.replace("repos_unarchived", "repos_updated")
                 if not os.path.exists(os.path.dirname(new_filename)):
                     os.makedirs(os.path.dirname(new_filename))
                 with open(new_filename, 'w') as file:
@@ -201,50 +207,50 @@ class Transformer:
             f.close()
 
 feature_converter = Transformer()
-# feature_converter.branchCount('dev')
+#feature_converter.branchCount('dev')
 # feature_converter.branchCount('data')
 # feature_converter.branchCount('docs')
-feature_converter.branchCount('edu')
+# feature_converter.branchCount('edu')
 # feature_converter.branchCount('hw')
 # feature_converter.branchCount('web')
 
-# feature_converter.issuesCount('dev')
+feature_converter.issuesCount('dev')
 # feature_converter.issuesCount('data')
 # feature_converter.issuesCount('docs')
-feature_converter.issuesCount('edu')
-# feature_converter.issuesCount('hw')
+# feature_converter.issuesCount('edu')
+feature_converter.issuesCount('hw')
 # feature_converter.issuesCount('web')
 
 
-feature_converter.count('edu', "tags_url", "tags_count")
-# feature_converter.count('dev', "tags_url", "tags_count")
+#feature_converter.count('edu', "tags_url", "tags_count")
+feature_converter.count('dev', "tags_url", "tags_count")
 # feature_converter.count('web', "tags_url", "tags_count")
 # feature_converter.count('data', "tags_url", "tags_count")
 # feature_converter.count('docs', "tags_url", "tags_count")
-# feature_converter.count('hw', "tags_url", "tags_count")
+feature_converter.count('hw', "tags_url", "tags_count")
 
-feature_converter.count('edu', "contributors_url", "contributors_count")
-# feature_converter.count('dev', "contributors_url", "contributors_count")
+# feature_converter.count('edu', "contributors_url", "contributors_count")
+feature_converter.count('dev', "contributors_url", "contributors_count")
 # feature_converter.count('web', "contributors_url", "contributors_count")
 # feature_converter.count('data', "contributors_url", "contributors_count")
 # feature_converter.count('docs', "contributors_url", "contributors_count")
-# feature_converter.count('hw', "contributors_url", "contributors_count")
+feature_converter.count('hw', "contributors_url", "contributors_count")
 
-feature_converter.count('edu', "labels_url", "labels_count")
-# feature_converter.count('dev', "labels_url", "labels_count")
+# feature_converter.count('edu', "labels_url", "labels_count")
+feature_converter.count('dev', "labels_url", "labels_count")
 # feature_converter.count('web', "labels_url", "labels_count")
 # feature_converter.count('data', "labels_url", "labels_count")
 # feature_converter.count('docs', "labels_url", "labels_count")
-# feature_converter.count('hw', "labels_url", "labels_count")
+feature_converter.count('hw', "labels_url", "labels_count")
 
-feature_converter.count('edu', "languages_url", "languages_count")
-# feature_converter.count('dev', "languages_url", "languages_count")
+# feature_converter.count('edu', "languages_url", "languages_count")
+feature_converter.count('dev', "languages_url", "languages_count")
 # feature_converter.count('web', "languages_url", "languages_count")
 # feature_converter.count('data', "languages_url", "languages_count")
 # feature_converter.count('docs', "languages_url", "languages_count")
-# feature_converter.count('hw', "languages_url", "languages_count")
+feature_converter.count('hw', "languages_url", "languages_count")
 
-feature_converter.commit_activity(label=Labels.edu.value)
+# feature_converter.commit_activity(label=Labels.edu.value)
 
 
 # feature_converter.issuesCountMatplotlib('dev')
