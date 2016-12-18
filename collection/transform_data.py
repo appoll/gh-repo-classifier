@@ -1,7 +1,8 @@
 import glob
 import json
 import os
-
+import sys
+sys.path.append('..')
 import requests
 from requests.auth import HTTPBasicAuth
 
@@ -96,7 +97,6 @@ class Transformer:
                         issuesObject = req.json()
                     else:
                         print 'Page request failed'
-
                 issues_count = len(issuesObject)
                 if last_page != -1:
                     issues_count += (last_page - 1) * self.RESULTS_PER_PAGE
@@ -208,47 +208,46 @@ class Transformer:
 
 feature_converter = Transformer()
 #feature_converter.branchCount('dev')
-# feature_converter.branchCount('data')
+feature_converter.branchCount('data')
 # feature_converter.branchCount('docs')
 # feature_converter.branchCount('edu')
 # feature_converter.branchCount('hw')
 # feature_converter.branchCount('web')
 
-feature_converter.issuesCount('dev')
-# feature_converter.issuesCount('data')
+#feature_converter.issuesCount('dev')
+feature_converter.issuesCount('data')
 # feature_converter.issuesCount('docs')
 # feature_converter.issuesCount('edu')
-feature_converter.issuesCount('hw')
+#feature_converter.issuesCount('hw')
 # feature_converter.issuesCount('web')
 
-
 #feature_converter.count('edu', "tags_url", "tags_count")
-feature_converter.count('dev', "tags_url", "tags_count")
+#feature_converter.count('dev', "tags_url", "tags_count")
 # feature_converter.count('web', "tags_url", "tags_count")
-# feature_converter.count('data', "tags_url", "tags_count")
+feature_converter.count('data', "tags_url", "tags_count")
 # feature_converter.count('docs', "tags_url", "tags_count")
-feature_converter.count('hw', "tags_url", "tags_count")
+#feature_converter.count('hw', "tags_url", "tags_count")
 
 # feature_converter.count('edu', "contributors_url", "contributors_count")
-feature_converter.count('dev', "contributors_url", "contributors_count")
+#feature_converter.count('dev', "contributors_url", "contributors_count")
 # feature_converter.count('web', "contributors_url", "contributors_count")
-# feature_converter.count('data', "contributors_url", "contributors_count")
+feature_converter.count('data', "contributors_url", "contributors_count")
 # feature_converter.count('docs', "contributors_url", "contributors_count")
-feature_converter.count('hw', "contributors_url", "contributors_count")
+#feature_converter.count('hw', "contributors_url", "contributors_count")
 
 # feature_converter.count('edu', "labels_url", "labels_count")
-feature_converter.count('dev', "labels_url", "labels_count")
+#feature_converter.count('dev', "labels_url", "labels_count")
 # feature_converter.count('web', "labels_url", "labels_count")
-# feature_converter.count('data', "labels_url", "labels_count")
+feature_converter.count('data', "labels_url", "labels_count")
 # feature_converter.count('docs', "labels_url", "labels_count")
-feature_converter.count('hw', "labels_url", "labels_count")
+#feature_converter.count('hw', "labels_url", "labels_count")
 
 # feature_converter.count('edu', "languages_url", "languages_count")
-feature_converter.count('dev', "languages_url", "languages_count")
+#feature_converter.count('dev', "languages_url", "languages_count")
 # feature_converter.count('web', "languages_url", "languages_count")
-# feature_converter.count('data', "languages_url", "languages_count")
+feature_converter.count('data', "languages_url", "languages_count")
 # feature_converter.count('docs', "languages_url", "languages_count")
-feature_converter.count('hw', "languages_url", "languages_count")
+#feature_converter.count('hw', "languages_url", "languages_count")
 
 # feature_converter.commit_activity(label=Labels.edu.value)
 

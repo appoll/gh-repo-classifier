@@ -79,11 +79,11 @@ archiver = Archiver()
 # archiver.unarchive('hw', COMMIT_ACTIVITY)
 # # archiver.unarchive('web')
 
-archiver.unarchive('docs', READ_ME)
-archiver.unarchive('docs', REPO)
+#archiver.unarchive('data', READ_ME)
+archiver.unarchive('data', REPO)
 # archiver.unarchive('data', COMMIT_ACTIVITY)
 
-archiver.unarchive('edu', READ_ME)
-archiver.unarchive('edu', REPO)
+#archiver.unarchive('edu', READ_ME)
+#archiver.unarchive('edu', REPO)
 #archiver.unarchive('dev', COMMIT_ACTIVITY)
 
