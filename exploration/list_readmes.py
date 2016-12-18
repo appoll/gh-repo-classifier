@@ -2,8 +2,7 @@ import glob
 
 from collection.labels import Labels
 
-# repos_folder_path = "../collection/%s/updated_repos/"
-readmes_folder_path = '../collection/%s/readmes/'
+readmes_folder_path = '../collection/%s/json_readmes_unarchived/'
 
 repos_folders = []
 dict_label_path = {}
@@ -11,13 +10,13 @@ dict_label_readmes = {}
 dict_label_repo_name = {}
 
 for label in Labels.toArray():
-    readme_folder_path = readmes_folder_path % label
+    readme_folder_path = readmes_folder_path % label.value
     repos_folders.append(readme_folder_path)
     dict_label_path[label] = readme_folder_path
 
 print dict_label_path
 
-for label in sorted(dict_label_path.keys()):
+for label in Labels.toArray():
     print label
     readmeFilenames = []
     repoNames = []
@@ -29,22 +28,34 @@ for label in sorted(dict_label_path.keys()):
         # textObject = f.read()
         # f.close()
         readmeFilenames.append(filename)
-    dict_label_readmes[label] = readmeFilenames
-    dict_label_repo_name[label] = repoNames
-
+    dict_label_readmes[label.value] = readmeFilenames
+    dict_label_repo_name[label.value] = repoNames
 
 f = open("text_data.txt", 'w')
 header = "label readme_filename\n"
 f.write(header)
-for label in sorted(dict_label_path.keys()):
-    repoNames = dict_label_repo_name[label]
-    readmeFilenames = dict_label_readmes[label]
+for label in Labels.toArray():
+    repoNames = dict_label_repo_name[label.value]
+    readmeFilenames = dict_label_readmes[label.value]
     for i in range(0, len(repoNames)):
         line = ""
-        if label == Labels.dev.value:
-            line = line + "1" + " "
-        else:
+        if label == Labels.data:
             line = line + "0" + " "
+        elif label == Labels.dev:
+            line = line + "1" + " "
+        elif label == Labels.docs:
+            line = line + "2" + " "
+        elif label == Labels.edu:
+            line = line + "3" + " "
+        elif label == Labels.hw:
+            line = line + "4" + " "
+        elif label == Labels.web:
+            line = line + "5" + " "
+        elif label == Labels.uncertain:
+            line = line + "6" + " "
+        else:
+            raise ValueError("Wrong label value!")
+
         line = line + readmeFilenames[i]
         f.write(line)
         f.write('\n')
