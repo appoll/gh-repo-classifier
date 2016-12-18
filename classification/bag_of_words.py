@@ -5,6 +5,7 @@ import pandas as pd
 from bs4 import BeautifulSoup
 from nltk.corpus import stopwords
 from sklearn.feature_extraction.text import CountVectorizer
+from sklearn.feature_extraction.text import TfidfVectorizer
 
 from classification import svc
 
@@ -72,12 +73,21 @@ for i in xrange(0, rows):
     # clean reviews
     content = readmeContent(train['readme_filename'][i])
     clean_readmes.append(raw_to_words(content))
+#
+# vectorizer = CountVectorizer(analyzer="word",
+#                              tokenizer=None,
+#                              preprocessor=None,
+#                              stop_words=None,
+#                              max_features=1000)
 
-vectorizer = CountVectorizer(analyzer="word",
+vectorizer = TfidfVectorizer(analyzer="word",
                              tokenizer=None,
                              preprocessor=None,
-                             stop_words=None,
-                             max_features=3)
+                             stop_words=['docs', 'framework', 'homework', 'course', 'data']
+                             ,ngram_range=(1, 3)
+                             ,max_features = 2000
+                             )
+
 
 train_data_features = vectorizer.fit_transform(clean_readmes)
 train_data_features = train_data_features.toarray()
