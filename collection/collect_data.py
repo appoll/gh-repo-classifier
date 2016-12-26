@@ -14,15 +14,19 @@ from config.reader import ConfigReader
 
 JSON_REPO_FILE_NAME = "%s_%s.json"
 JSON_COMMIT_ACTIVITY_FILE_NAME = "%s_%s.json"
+JSON_COMMITS_FILE_NAME = "%s_%s.json"
 MD_README_FILE_NAME = "%s_%s.md"
 
 
 class ExampleData:
     def __init__(self):
-        self.username, self.password = ConfigReader().getCredentials()
+        reader = ConfigReader()
+        self.username, self.password = reader.get_credentials()
+        self.token = reader.get_oauth_token()
         self.repos_folder = "../collection/%s/json_repos/"
         self.readmes_repos_folder = "../collection/%s/json_readmes/"
         self.commit_activity_repos_folder = "../collection/%s/json_commit_activity/"
+        self.commits_repos_folder = "../collection/%s/json_commits/"
         self.repos_names_search = "../collection/%s/%s_repos_names_%s.txt"
         self.encoding = "base64",
 
@@ -73,10 +77,16 @@ class ExampleData:
     def getCommitActivity(self, label, keyword):
         names = self.repos_names_search % (label, label, keyword)
         folder = self.commit_activity_repos_folder % label
-
         with open(names, 'r') as file:
             repos = file.readlines()
+            print repos.__len__()
         for repo in repos:
+            filename = Helper().build_path_from_folder_and_repo_name(repo, folder, JSON_COMMIT_ACTIVITY_FILE_NAME)
+
+            if os.path.exists(filename):
+                print filename, " exists"
+                continue
+
             r = requests.get("https://api.github.com/repos/" + repo[:-1] + "/stats/commit_activity",
                              auth=HTTPBasicAuth(self.username, self.password))
 
@@ -130,6 +140,49 @@ class ExampleData:
                     file.writelines(repo_name + "\n")
                 file.close()
 
+    def get_last_100_commits(self, label, keyword):
+        graphql_url = "https://api.github.com/graphql"
+        login_payload = {"query": "query {viewer {login bio email }}"}
+        owner_payload = {"query": "query {repositoryOwner (login:\"appoll\")}"}
+        commit_payload = {"query": "query {repository (owner:\"appoll\" name:\"gh-repo-classifier\") {description ref(qualifiedName: \"master\"){target {... on Commit {history(first:100) {edges {node {message}}} } }}} }"}
+        commit_author_payload0 = {"query": "query {repository (owner:\"appoll\" name:\"gh-repo-classifier\") {description ref(qualifiedName: \"master\"){target {... on Commit {history(first:100) {edges {node {message author {name date}}}} } }}} }"}
+        commit_author_payload1 = {"query": "query {repository (owner:\"appoll\" name:\"gh-repo-classifier\") {description ref(qualifiedName: \"master\"){target {... on Commit {history(first:100 since:\"2016-11-24T12:26:03+01:00\") {edges {node {message author {name date}}}} } }}} }"}
+
+
+        names = self.repos_names_search % (label, label, keyword)
+        folder = self.commits_repos_folder % label
+        with open(names, 'r') as file:
+            repos = file.readlines()
+            print repos.__len__()
+        for repo in repos:
+            filename = Helper().build_path_from_folder_and_repo_name(repo, folder, JSON_COMMITS_FILE_NAME)
+            user, repo_name = Helper().get_user_and_repo_name(repo)
+            payload = Helper().build_payload(user, repo_name)
+            if os.path.exists(filename):
+                print filename, " exists"
+                continue
+
+            r = requests.post(graphql_url, json=payload, auth=HTTPBasicAuth(self.username, self.token))
+
+            if r.status_code == 202:
+                while r.status_code == 202:
+                    print "status code: ", r.status_code
+                    r = requests.post(graphql_url, json=payload, auth=HTTPBasicAuth(self.username, self.token))
+                    time.sleep(3)
+
+            if r.status_code == 200:
+                print "status code: ", r.status_code
+                filename = Helper().build_path_from_folder_and_repo_name(repo, folder, JSON_COMMIT_ACTIVITY_FILE_NAME)
+
+                if not os.path.exists(os.path.dirname(filename)):
+                    os.makedirs(os.path.dirname(filename))
+                with open(filename, 'w') as file:
+                    print "Writing to %s" % file.name
+                    jsonContent = json.dumps((r.json()))
+                    file.write(jsonContent)
+                    file.close()
+            else:
+                print r.headers
 
 data = ExampleData()
 
@@ -174,3 +227,9 @@ data = ExampleData()
 
 # data.get_repos_by_keyword(label='dev',keyword='framework')
 # data.getReadmes(label='dev',keyword='framework')
+# data.getCommitActivity(label='dev', keyword="framework")
+#
+#data.getCommitActivity(label='docs', keyword="docs")
+#data.getCommitActivity(label='edu', keyword="course")
+
+data.get_last_100_commits(label='edu', keyword='course')
