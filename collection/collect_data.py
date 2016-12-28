@@ -140,14 +140,80 @@ class ExampleData:
                     file.writelines(repo_name + "\n")
                 file.close()
 
+    def get_all_commits(self, label, keyword):
+        names = self.repos_names_search % (label, label, keyword)
+        folder = self.commits_repos_folder % label
+        query = {'per_page': 100}
+
+        with open(names, 'r') as file:
+            repos = file.readlines()
+            print repos.__len__()
+        for repo in repos:
+            filename = Helper().build_path_from_folder_and_repo_name(repo, folder, JSON_COMMITS_FILE_NAME)
+
+            if os.path.exists(filename):
+                print filename, " exists"
+                continue
+
+            r = requests.get("https://api.github.com/repos/" + repo[:-1] + "/commits", params=query,
+                             auth=HTTPBasicAuth(self.username, self.password))
+
+            if r.status_code == 200:
+                print "status code: ", r.status_code
+                filename = Helper().build_path_from_folder_and_repo_name(repo, folder, JSON_COMMITS_FILE_NAME)
+
+                if not os.path.exists(os.path.dirname(filename)):
+                    os.makedirs(os.path.dirname(filename))
+
+                jsonCommits = r.json()
+                links = r.links
+                print "commits loaded:", len(jsonCommits)
+                while 'next' in links:
+                    next_page_url = links['next']['url']
+                    next_page_request = requests.get(next_page_url, auth=HTTPBasicAuth(self.username, self.password))
+
+                    if next_page_request.status_code == 200:
+                        jsonCommits.extend(next_page_request.json())
+                        links = next_page_request.links
+                    print "commits loaded:", len(jsonCommits)
+
+                jsonCommitsList = []
+                for commit in jsonCommits:
+                    author = commit['commit']['author']
+                    committer = commit['commit']['author']
+                    comment_count = commit['commit']['comment_count']
+
+                    author_date = author['date']
+                    committer_date = committer['date']
+
+                    commit_date = {'author_date': author_date, 'committer_date': committer_date,
+                                   'comment_count': comment_count}
+                    jsonCommitsList.append(commit_date)
+
+                with open(filename, 'w') as file:
+                    print "Writing %d commits to %s" % (jsonCommitsList.__len__(), file.name)
+                    jsonContent = json.dumps(jsonCommitsList)
+                    file.write(jsonContent)
+                    file.close()
+
+
+
+            else:
+                print r.headers
+
+        print 'Successfully loaded commits for %d repos' % len(repos)
+
+    # useless due to 200 api calls limit for graphQL
     def get_last_100_commits(self, label, keyword):
         graphql_url = "https://api.github.com/graphql"
         login_payload = {"query": "query {viewer {login bio email }}"}
         owner_payload = {"query": "query {repositoryOwner (login:\"appoll\")}"}
-        commit_payload = {"query": "query {repository (owner:\"appoll\" name:\"gh-repo-classifier\") {description ref(qualifiedName: \"master\"){target {... on Commit {history(first:100) {edges {node {message}}} } }}} }"}
-        commit_author_payload0 = {"query": "query {repository (owner:\"appoll\" name:\"gh-repo-classifier\") {description ref(qualifiedName: \"master\"){target {... on Commit {history(first:100) {edges {node {message author {name date}}}} } }}} }"}
-        commit_author_payload1 = {"query": "query {repository (owner:\"appoll\" name:\"gh-repo-classifier\") {description ref(qualifiedName: \"master\"){target {... on Commit {history(first:100 since:\"2016-11-24T12:26:03+01:00\") {edges {node {message author {name date}}}} } }}} }"}
-
+        commit_payload = {
+            "query": "query {repository (owner:\"appoll\" name:\"gh-repo-classifier\") {description ref(qualifiedName: \"master\"){target {... on Commit {history(first:100) {edges {node {message}}} } }}} }"}
+        commit_author_payload0 = {
+            "query": "query {repository (owner:\"appoll\" name:\"gh-repo-classifier\") {description ref(qualifiedName: \"master\"){target {... on Commit {history(first:100) {edges {node {message author {name date}}}} } }}} }"}
+        commit_author_payload1 = {
+            "query": "query {repository (owner:\"appoll\" name:\"gh-repo-classifier\") {description ref(qualifiedName: \"master\"){target {... on Commit {history(first:100 since:\"2016-11-24T12:26:03+01:00\") {edges {node {message author {name date}}}} } }}} }"}
 
         names = self.repos_names_search % (label, label, keyword)
         folder = self.commits_repos_folder % label
@@ -229,7 +295,10 @@ data = ExampleData()
 # data.getReadmes(label='dev',keyword='framework')
 # data.getCommitActivity(label='dev', keyword="framework")
 #
-#data.getCommitActivity(label='docs', keyword="docs")
-#data.getCommitActivity(label='edu', keyword="course")
+# data.getCommitActivity(label='docs', keyword="docs")
+# data.getCommitActivity(label='edu', keyword="course")
 
-data.get_last_100_commits(label='edu', keyword='course')
+# data.get_last_100_commits(label='edu', keyword='course')
+# data.get_last_100_commits(label='dev', keyword='framework')
+
+data.get_all_commits(label='docs', keyword='docs')
