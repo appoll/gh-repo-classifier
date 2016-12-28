@@ -11,5 +11,7 @@
 /collection/edu/json_*/*
 /collection/hw/json_*/*
 
+/exploration/additional/json_*/*
+
 # Byte-Compiled 
 *.pyc
