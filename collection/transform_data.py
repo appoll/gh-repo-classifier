@@ -32,6 +32,13 @@ class Transformer:
             branches_url = repoObject["branches_url"]
             branches_url = branches_url.split('{')[0]
             print branches_url
+
+            new_filename = filename.replace("repos_unarchived", "repos_updated")
+
+            if os.path.exists(new_filename):
+                print new_filename, " exists"
+                continue
+
             r = requests.get(branches_url, auth=HTTPBasicAuth(self.username, self.password))
             if r.status_code == 200:
                 if 'last' not in r.links:
@@ -57,7 +64,6 @@ class Transformer:
                 print branches_count
                 repoObject["branches_count"] = branches_count
                 del repoObject["branches_url"]
-                new_filename = filename.replace("repos_unarchived", "repos_updated")
                 if not os.path.exists(os.path.dirname(new_filename)):
                     os.makedirs(os.path.dirname(new_filename))
                 with open(new_filename, 'w') as file:
@@ -78,6 +84,11 @@ class Transformer:
             # del repoObject[branches_url]
             issues_url = issues_url.split('{')[0]
             print issues_url
+
+            if 'issues_count' in repoObject:
+                print 'exists'
+                continue
+
             r = requests.get(issues_url, auth=HTTPBasicAuth(self.username, self.password))
             if r.status_code == 200:
                 if 'last' not in r.links:
@@ -262,7 +273,7 @@ feature_converter = Transformer()
 # feature_converter.issuesCount('docs')
 # feature_converter.issuesCount('edu')
 # feature_converter.issuesCount('hw')
-# feature_converter.issuesCount('web')
+feature_converter.issuesCount('web')
 
 
 # feature_converter.count('edu', "tags_url", "tags_count")
@@ -295,6 +306,8 @@ feature_converter = Transformer()
 
 # feature_converter.commit_activity(label=Labels.edu.value)
 
-feature_converter.languages('docs')
+#feature_converter.languages('docs')
+#feature_converter.languages('data')
+#feature_converter.languages('web')
 
 # feature_converter.issuesCountMatplotlib('dev')
