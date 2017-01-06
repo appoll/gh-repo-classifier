@@ -5,14 +5,13 @@ import os
 import requests
 from requests.auth import HTTPBasicAuth
 
-from collection.labels import Labels
 from config.reader import ConfigReader
 
 
 class Transformer:
     def __init__(self):
-        self.username, self.password = ConfigReader().getCredentials()
-       # self.repos_folder = "../collection/%s/repos/"
+        self.username, self.password = ConfigReader().get_credentials()
+        # self.repos_folder = "../collection/%s/repos/"
 
         # unarchived repos folder
         self.repos_folder = "../collection/%s/json_repos_unarchived/"
@@ -20,7 +19,7 @@ class Transformer:
         self.updated_repos_folder = "../collection/%s/json_repos_updated/"
 
         self.commit_activity_folder = "../collection/%s/commit_activity/"
-        #self.updated_repos_folder = "../collection/%s/updated_repos/"
+        # self.updated_repos_folder = "../collection/%s/updated_repos/"
         self.RESULTS_PER_PAGE = 30
 
     def branchCount(self, label):
@@ -206,51 +205,96 @@ class Transformer:
             f.write(json.dumps(repo))
             f.close()
 
+    def languages(self, label):
+        folder = self.repos_folder % label
+
+        for filename in glob.glob(folder + '*'):
+            print "Checking %s" % filename
+
+            f = open(filename, 'r')
+            updated_folder_filename = filename.replace("unarchived", "updated")
+            updated_folder_file = open(updated_folder_filename, 'r')
+
+            # unarchived repo object, with all repo information
+            repoObject = json.load(f)
+
+            # already updated repo object, with missing urls
+            updatedRepoObject = json.load(updated_folder_file)
+
+            f.close()
+            updated_folder_file.close()
+
+            if 'languages' in updatedRepoObject:
+                print 'exists'
+                continue
+
+            languages_url = repoObject["languages_url"]
+            print languages_url
+            r = requests.get(languages_url, auth=HTTPBasicAuth(self.username, self.password))
+            if r.status_code == 200:
+                languages_object = r.json()
+
+                if len(languages_object) == updatedRepoObject["languages_count"]:
+                    print "yay!"
+                # new_filename = filename.replace("repos", "updated_repos")
+                updatedRepoObject["languages"] = languages_object
+                new_filename = updated_folder_filename
+                if not os.path.exists(os.path.dirname(new_filename)):
+                    os.makedirs(os.path.dirname(new_filename))
+                with open(new_filename, 'w') as file:
+                    print "Writing to %s" % file.name
+                    file.write(json.dumps(updatedRepoObject))
+                    file.close()
+            else:
+                print r
+
+
 feature_converter = Transformer()
-#feature_converter.branchCount('dev')
+# feature_converter.branchCount('dev')
 # feature_converter.branchCount('data')
 # feature_converter.branchCount('docs')
 # feature_converter.branchCount('edu')
 # feature_converter.branchCount('hw')
 # feature_converter.branchCount('web')
 
-feature_converter.issuesCount('dev')
+# feature_converter.issuesCount('dev')
 # feature_converter.issuesCount('data')
 # feature_converter.issuesCount('docs')
 # feature_converter.issuesCount('edu')
-feature_converter.issuesCount('hw')
+# feature_converter.issuesCount('hw')
 # feature_converter.issuesCount('web')
 
 
-#feature_converter.count('edu', "tags_url", "tags_count")
-feature_converter.count('dev', "tags_url", "tags_count")
+# feature_converter.count('edu', "tags_url", "tags_count")
+# feature_converter.count('dev', "tags_url", "tags_count")
 # feature_converter.count('web', "tags_url", "tags_count")
 # feature_converter.count('data', "tags_url", "tags_count")
 # feature_converter.count('docs', "tags_url", "tags_count")
-feature_converter.count('hw', "tags_url", "tags_count")
+# feature_converter.count('hw', "tags_url", "tags_count")
 
 # feature_converter.count('edu', "contributors_url", "contributors_count")
-feature_converter.count('dev', "contributors_url", "contributors_count")
+# feature_converter.count('dev', "contributors_url", "contributors_count")
 # feature_converter.count('web', "contributors_url", "contributors_count")
 # feature_converter.count('data', "contributors_url", "contributors_count")
 # feature_converter.count('docs', "contributors_url", "contributors_count")
-feature_converter.count('hw', "contributors_url", "contributors_count")
+# feature_converter.count('hw', "contributors_url", "contributors_count")
 
 # feature_converter.count('edu', "labels_url", "labels_count")
-feature_converter.count('dev', "labels_url", "labels_count")
+# feature_converter.count('dev', "labels_url", "labels_count")
 # feature_converter.count('web', "labels_url", "labels_count")
 # feature_converter.count('data', "labels_url", "labels_count")
 # feature_converter.count('docs', "labels_url", "labels_count")
-feature_converter.count('hw', "labels_url", "labels_count")
+# feature_converter.count('hw', "labels_url", "labels_count")
 
 # feature_converter.count('edu', "languages_url", "languages_count")
-feature_converter.count('dev', "languages_url", "languages_count")
+# feature_converter.count('dev', "languages_url", "languages_count")
 # feature_converter.count('web', "languages_url", "languages_count")
 # feature_converter.count('data', "languages_url", "languages_count")
 # feature_converter.count('docs', "languages_url", "languages_count")
-feature_converter.count('hw', "languages_url", "languages_count")
+# feature_converter.count('hw', "languages_url", "languages_count")
 
 # feature_converter.commit_activity(label=Labels.edu.value)
 
+feature_converter.languages('docs')
 
 # feature_converter.issuesCountMatplotlib('dev')
