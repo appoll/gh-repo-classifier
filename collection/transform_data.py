@@ -77,17 +77,19 @@ class Transformer:
         folder = self.updated_repos_folder % label
 
         for filename in glob.glob(folder + '*'):
+            print filename
             f = open(filename, 'r')
             repoObject = json.load(f)
             f.close()
-            issues_url = repoObject["issues_url"]
-            # del repoObject[branches_url]
-            issues_url = issues_url.split('{')[0]
-            print issues_url
 
             if 'issues_count' in repoObject:
                 print 'exists'
                 continue
+
+            issues_url = repoObject["issues_url"]
+            # del repoObject[branches_url]
+            issues_url = issues_url.split('{')[0]
+            print issues_url
 
             r = requests.get(issues_url, auth=HTTPBasicAuth(self.username, self.password))
             if r.status_code == 200:
@@ -139,6 +141,7 @@ class Transformer:
             repoObject = json.load(f)
             f.close()
             if url_key not in repoObject:
+                print 'exists'
                 continue
             url = repoObject[url_key]
             if '{' in url:
@@ -224,7 +227,12 @@ class Transformer:
 
             f = open(filename, 'r')
             updated_folder_filename = filename.replace("unarchived", "updated")
-            updated_folder_file = open(updated_folder_filename, 'r')
+            try:
+                updated_folder_file = open(updated_folder_filename, 'r')
+            except IOError:
+                print 'Deleting %s' % filename
+                os.remove(filename)
+                continue
 
             # unarchived repo object, with all repo information
             repoObject = json.load(f)
@@ -262,18 +270,18 @@ class Transformer:
 
 feature_converter = Transformer()
 # feature_converter.branchCount('dev')
-# feature_converter.branchCount('data')
+feature_converter.branchCount('data')
 # feature_converter.branchCount('docs')
 # feature_converter.branchCount('edu')
 # feature_converter.branchCount('hw')
-# feature_converter.branchCount('web')
+#feature_converter.branchCount('web')
 
 # feature_converter.issuesCount('dev')
 # feature_converter.issuesCount('data')
 # feature_converter.issuesCount('docs')
 # feature_converter.issuesCount('edu')
 # feature_converter.issuesCount('hw')
-feature_converter.issuesCount('web')
+#feature_converter.issuesCount('web')
 
 
 # feature_converter.count('edu', "tags_url", "tags_count")
@@ -299,15 +307,22 @@ feature_converter.issuesCount('web')
 
 # feature_converter.count('edu', "languages_url", "languages_count")
 # feature_converter.count('dev', "languages_url", "languages_count")
-# feature_converter.count('web', "languages_url", "languages_count")
-# feature_converter.count('data', "languages_url", "languages_count")
+#feature_converter.count('web', "languages_url", "languages_count")
+feature_converter.count('data', "languages_url", "languages_count")
 # feature_converter.count('docs', "languages_url", "languages_count")
 # feature_converter.count('hw', "languages_url", "languages_count")
 
 # feature_converter.commit_activity(label=Labels.edu.value)
 
-#feature_converter.languages('docs')
+#unsuccessful
 #feature_converter.languages('data')
-#feature_converter.languages('web')
+
+# feature_converter.languages('docs')
+# feature_converter.languages('web')
+# feature_converter.languages('dev')
+# feature_converter.languages('hw')
+# feature_converter.languages('edu')
+
+feature_converter.languages('data')
 
 # feature_converter.issuesCountMatplotlib('dev')
