@@ -2,6 +2,7 @@ import glob
 import json
 import os
 
+import numpy as np
 import requests
 from requests.auth import HTTPBasicAuth
 
@@ -137,13 +138,14 @@ class Transformer:
         folder = self.updated_repos_folder % label
 
         for filename in glob.glob(folder + '*'):
+            print filename
             f = open(filename, 'r')
             repoObject = json.load(f)
             f.close()
-            if url_key not in repoObject:
+            if count_key in repoObject:
                 print 'exists'
                 continue
-            url = repoObject[url_key]
+                url = repoObject[url_key]
             if '{' in url:
                 url = url.split('{')[0]
             print url
@@ -169,9 +171,12 @@ class Transformer:
                 if last_page != -1:
                     count += (last_page - 1) * self.RESULTS_PER_PAGE
 
-                print count
                 repoObject[count_key] = count
-                del repoObject[url_key]
+                try:
+                    del repoObject[url_key]
+                except KeyError:
+                    print 'nothing to delete. move along'
+
                 new_filename = filename
                 if not os.path.exists(os.path.dirname(new_filename)):
                     os.makedirs(os.path.dirname(new_filename))
@@ -179,8 +184,12 @@ class Transformer:
                     print "Writing to %s" % file.name
                     file.write(json.dumps(repoObject))
                     file.close()
+            elif r.status_code == 204:
+                print r.status_code
+                repoObject[count_key] = 0
+                # above is really dumb, never writes back to file
             else:
-                print r.content
+                print r.status_code
 
     def commit_activity(self, label):
         """
@@ -270,18 +279,18 @@ class Transformer:
 
 feature_converter = Transformer()
 # feature_converter.branchCount('dev')
-feature_converter.branchCount('data')
+# feature_converter.branchCount('data')
 # feature_converter.branchCount('docs')
 # feature_converter.branchCount('edu')
 # feature_converter.branchCount('hw')
-#feature_converter.branchCount('web')
+# feature_converter.branchCount('web')
 
 # feature_converter.issuesCount('dev')
 # feature_converter.issuesCount('data')
 # feature_converter.issuesCount('docs')
 # feature_converter.issuesCount('edu')
 # feature_converter.issuesCount('hw')
-#feature_converter.issuesCount('web')
+# feature_converter.issuesCount('web')
 
 
 # feature_converter.count('edu', "tags_url", "tags_count")
@@ -297,7 +306,7 @@ feature_converter.branchCount('data')
 # feature_converter.count('data', "contributors_url", "contributors_count")
 # feature_converter.count('docs', "contributors_url", "contributors_count")
 # feature_converter.count('hw', "contributors_url", "contributors_count")
-
+#
 # feature_converter.count('edu', "labels_url", "labels_count")
 # feature_converter.count('dev', "labels_url", "labels_count")
 # feature_converter.count('web', "labels_url", "labels_count")
@@ -307,22 +316,28 @@ feature_converter.branchCount('data')
 
 # feature_converter.count('edu', "languages_url", "languages_count")
 # feature_converter.count('dev', "languages_url", "languages_count")
-#feature_converter.count('web', "languages_url", "languages_count")
-feature_converter.count('data', "languages_url", "languages_count")
+# feature_converter.count('web', "languages_url", "languages_count")
+# feature_converter.count('data', "languages_url", "languages_count")
 # feature_converter.count('docs', "languages_url", "languages_count")
 # feature_converter.count('hw', "languages_url", "languages_count")
+#
+# feature_converter.count('edu', "branches_url", "branches_count")
+# feature_converter.count('dev', "branches_url", "branches_count")
+# feature_converter.count('web', "branches_url", "branches_count")
+# feature_converter.count('data', "branches_url", "branches_count")
+# feature_converter.count('docs', "branches_url", "branches_count")
+# feature_converter.count('hw', "branches_url", "branches_count")
 
 # feature_converter.commit_activity(label=Labels.edu.value)
 
-#unsuccessful
-#feature_converter.languages('data')
+# unsuccessful
+# feature_converter.languages('data')
 
 # feature_converter.languages('docs')
 # feature_converter.languages('web')
 # feature_converter.languages('dev')
 # feature_converter.languages('hw')
 # feature_converter.languages('edu')
-
-feature_converter.languages('data')
+# feature_converter.languages('data')
 
 # feature_converter.issuesCountMatplotlib('dev')

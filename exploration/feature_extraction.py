@@ -20,6 +20,8 @@ class FeatureExtraction:
 
         self.repos_folder = "../collection/%s/json_repos_updated/"
 
+        self.all_languages = {}
+
     def get_commits_features(self, label, additional):
         if additional:
             folder = self.additional_commits_folder % label
@@ -89,6 +91,7 @@ class FeatureExtraction:
             line = line + " " + "%.2f" % (self.get_unique_authors(commits_list))
             line = line + " " + "%.2f" % (self.get_authors_vs_committers(commits_list))
             line = line + " " + "%.2f" % (self.get_active_days(commits_list))
+
 
             line = line + " " + name.split('.')[0]
 
@@ -201,23 +204,34 @@ class FeatureExtraction:
             folder = self.repos_folder % label
             name = self.features_folder + "languages_data_%s.txt" % label
 
-        all_languages = self.get_all_languages()
+        if len(self.all_languages.keys()) == 0:
+            print 'Initialize all languages dict'
+            self.all_languages = self.get_all_languages()
 
         if not os.path.exists(os.path.dirname(name)):
             os.makedirs(os.path.dirname(name))
         f = open(name, 'w')
-        header = "languages_count total_bytes %s repo_name\n"
-        header = header % str(all_languages.keys())
+        header = "languages_count total_bytes "
+        for language in self.all_languages:
+            language = language.replace(" ", "_")
+            header += language + " "
+
+        header += "repo_name\n"
         f.write(header)
 
         for filename in glob.glob(folder + '*'):
             print filename
-            current_languages = all_languages.fromkeys(all_languages, 0)
+            print len(self.all_languages)
+            current_languages = self.all_languages.fromkeys(self.all_languages, 0)
             json_file = open(filename, 'r')
             name = os.path.basename(filename)
             repo = json.load(json_file)
 
-            languages = repo["languages"]
+            try:
+                languages = repo["languages"]
+            except KeyError:
+                print "Key Error in %s" % filename
+                continue
 
             all_languages_count = len(languages)
             total_bytes = sum(languages.itervalues())
@@ -226,14 +240,18 @@ class FeatureExtraction:
                 print language
                 if language not in current_languages:
                     raise ValueError("Should not be!")
-                current_languages[language] = bytes
+                try:
+                    current_languages[language] = "%.2f" % (float(bytes) / total_bytes)
+                except ZeroDivisionError:
+                    current_languages[language] = "%.2f" % total_bytes
 
-            print current_languages
+            print 'heee'
+            print len(current_languages)
 
             line = "%.2f" % all_languages_count
             line = line + " " + "%.2f" % total_bytes
             for bytes in current_languages.values():
-                line = line + " " + "%.2f" % bytes
+                line = line + " " + str(bytes)
 
             line = line + " " + name.split('.')[0]
 
@@ -255,15 +273,62 @@ class FeatureExtraction:
                 try:
                     languages = repo["languages"]
                 except KeyError:
-                    continue
+                    print 'keyy'
 
                 for language in languages:
                     if language not in used_languages:
                         used_languages[language] = 0
                         print 'Added %s to the list of used languages' % language
-
+        print 'uradura'
+        print len(used_languages.keys())
         return collections.OrderedDict(used_languages)
 
+    def get_repo_features(self, label, additional):
+        if additional:
+            folder = self.repos_folder % label
+            name = self.additional_features_folder + "repo_data_%s.txt" % label
+        else:
+            folder = self.repos_folder % label
+            name = self.features_folder + "repo_data_%s.txt" % label
+
+        if not os.path.exists(os.path.dirname(name)):
+            os.makedirs(os.path.dirname(name))
+        f = open(name, 'w')
+        header = "size labels tags issues branches languages forks repo_name\n"
+        f.write(header)
+
+        for filename in glob.glob(folder + '*'):
+            print filename
+            json_file = open(filename, 'r')
+            name = os.path.basename(filename)
+            repo = json.load(json_file)
+            json_file.close()
+
+            # size in KB
+            size = repo['size']
+            labels = repo['labels_count']
+           # contributors = repo['contributors_count']
+            tags = repo['tags_count']
+            issues = repo['issues_count']
+            branches = repo['branches_count']
+            languages = repo['languages_count']
+            forks = repo['forks']
+
+            line = "%d" % size
+            line = line + " " + "%d" % labels
+            #line = line + " " + "%d" % contributors
+            line = line + " " + "%d" % tags
+            line = line + " " + "%d" % issues
+            line = line + " " + "%d" % branches
+            line = line + " " + "%d" % languages
+            line = line + " " + "%d" % forks
+
+            line = line + " " + name.split('.')[0]
+
+            f.write(line)
+            f.write('\n')
+        print "Wrote repo features to %s" % f.name
+        f.close()
 
 featureExtraction = FeatureExtraction()
 # featureExtraction.get_commits_features('docs', additional=True)
@@ -286,7 +351,19 @@ featureExtraction = FeatureExtraction()
 # featureExtraction.get_commits_features('web', additional=False)
 # featureExtraction.get_commits_features('other', additional=False)
 
-# must all be called together
-featureExtraction.get_language_features('docs', additional=False)
+# must be called all at once
+# featureExtraction.get_language_features('dev', additional=False)
+# featureExtraction.get_language_features('data', additional=False)
+# featureExtraction.get_language_features('docs', additional=False)
+# featureExtraction.get_language_features('edu', additional=False)
+# featureExtraction.get_language_features('hw', additional=False)
+# featureExtraction.get_language_features('web', additional=False)
+
+# featureExtraction.get_repo_features('dev', additional=False)
+# featureExtraction.get_repo_features('data', additional=False)
+# featureExtraction.get_repo_features('docs', additional=False)
+# featureExtraction.get_repo_features('edu', additional=False)
+# featureExtraction.get_repo_features('hw', additional=False)
+# featureExtraction.get_repo_features('web', additional=False)
 
 # featureExtraction.get_all_languages()
