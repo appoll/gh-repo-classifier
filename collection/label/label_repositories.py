@@ -1,31 +1,31 @@
 import webbrowser
 import numpy as np
 
-from labels import Labels
+from collection.labels import Labels
+import os
 
 
 class RepoLabelling():
-
-    def __init__(self, browser_type = 'firefox', file_name = 'test_url.txt'):
-        self. browser = webbrowser.get(browser_type)
+    def __init__(self, browser_type='firefox', file_name='test_url.txt'):
+        print webbrowser._browsers
+        self.browser = webbrowser.get(browser_type)
         self.url_handler = URLFileHandler(file_name)
-
 
     def open_next_page(self):
         url = self.url_handler.nextUrl()
-        #TODO handle empty urls
-        self.browser.open_new(url)
-
+        # due to previously stored names, the above is not a url but a user/repo
+        # TODO handle empty urls
+        github_url = "https://github.com/%s" % url
+        self.browser.open_new(github_url)
 
     def browse_url_file(self):
         print self.urls
 
     def print_selection(self):
         labels = Labels.toArray()
-        for i,label in enumerate(labels):
-            print "[ " + str(i+1) + " ]",label
-        self.parse_input()
-
+        for i, label in enumerate(labels):
+            print "[ " + str(i + 1) + " ]", label
+        chosen_label = self.parse_input()
 
     def parse_input(self):
         while True:
@@ -48,11 +48,11 @@ class RepoLabelling():
                 print "Wrong input"
 
 
-
-
 class URLFileHandler(object):
-
     def __init__(self, filename):
+        if not os.path.exists(filename):
+            raise Exception("File %s should exist!" % filename)
+
         self.url_list = self.read_file(filename)
         self.file_writer = open(filename, 'wb')
 
@@ -67,7 +67,7 @@ class URLFileHandler(object):
         self.file_writer.write('\n'.join(self.url_list))
 
     def nextUrl(self):
-        if  self.url_list:
+        if self.url_list:
             print len(self.url_list)
             current_url = self.url_list.pop(0)
             print current_url, self.url_list
@@ -80,9 +80,8 @@ class URLFileHandler(object):
         self.file_writer.close()
 
 
-
 if __name__ == '__main__':
-    labelling = RepoLabelling(file_name="test_url_test.txt")
+    labelling = RepoLabelling('./web/web_repos_names_github.io.txt')
     labelling.print_selection()
     # labelling.open_next_page()
     # labelling.browse_url_file()
