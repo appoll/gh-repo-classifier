@@ -8,25 +8,17 @@ from collection.labels import Labels
 
 
 def features(label):
-    features = pd.read_csv("../exploration/features/repo_data_%s.txt" % label.value, delimiter=" ", header=0)
+    features = pd.read_csv("../../exploration/features/repo_data_%s.txt" % label.value, delimiter=" ", header=0)
     print("./exploration/features/repo_data_%s.txt" % label.value)
 
     features = features.drop(labels='repo_name', axis=1)
 
-    if label == Labels.data:
-        features['label'] = 0
-    elif label == Labels.dev:
+    if label == Labels.dev:
         features['label'] = 1
-    elif label == Labels.docs:
-        features['label'] = 2
-    elif label == Labels.edu:
-        features['label'] = 3
-    elif label == Labels.hw:
-        features['label'] = 4
-    elif label == Labels.web:
-        features['label'] = 5
-
+    else:
+        features['label'] = 0
     return features
+
 
 data = [features(Labels.edu), features(Labels.data), features(Labels.hw), features(Labels.web), features(Labels.dev),
         features(Labels.docs)]

@@ -8,8 +8,8 @@ from collection.labels import Labels
 
 
 def features(label):
-    features = pd.read_csv("../exploration/features/commit_data_%s.txt" % label.value, delimiter=" ", header=0)
-    print("./exploration/features/commit_data_%s.txt" % label.value)
+    features = pd.read_csv("../../exploration/features/repo_data_%s.txt" % label.value, delimiter=" ", header=0)
+    print("./exploration/features/repo_data_%s.txt" % label.value)
 
     features = features.drop(labels='repo_name', axis=1)
 
@@ -45,7 +45,7 @@ print data.shape
 print train_data.shape
 print test_data.shape
 
-forest_classifier = RandomForestClassifier(n_estimators=100)
+forest_classifier = RandomForestClassifier(n_estimators=500, max_depth=5, max_features=3)
 forest = forest_classifier.fit(train_data, train_labels)
 
 output = forest.predict(test_data)
