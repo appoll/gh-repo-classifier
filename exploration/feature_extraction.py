@@ -14,11 +14,13 @@ class FeatureExtraction:
     def __init__(self):
         self.additional_commits_folder = "../exploration/additional/json_commits_%s/"
         self.additional_features_folder = "../exploration/additional/features/"
+        self.additional_contents_folder = "../exploration/additional/json_contents_%s"
 
-        self.commits_folder = "../collection/%s/json_commits/"
         self.features_folder = "../exploration/features/"
 
+        self.commits_folder = "../collection/%s/json_commits/"
         self.repos_folder = "../collection/%s/json_repos_updated/"
+        self.contents_folder = "../collection/%s/json_contents/"
 
         self.all_languages = {}
 
@@ -91,7 +93,6 @@ class FeatureExtraction:
             line = line + " " + "%.2f" % (self.get_unique_authors(commits_list))
             line = line + " " + "%.2f" % (self.get_authors_vs_committers(commits_list))
             line = line + " " + "%.2f" % (self.get_active_days(commits_list))
-
 
             line = line + " " + name.split('.')[0]
 
@@ -307,7 +308,7 @@ class FeatureExtraction:
             # size in KB
             size = repo['size']
             labels = repo['labels_count']
-           # contributors = repo['contributors_count']
+            # contributors = repo['contributors_count']
             tags = repo['tags_count']
             issues = repo['issues_count']
             branches = repo['branches_count']
@@ -316,7 +317,7 @@ class FeatureExtraction:
 
             line = "%d" % size
             line = line + " " + "%d" % labels
-            #line = line + " " + "%d" % contributors
+            # line = line + " " + "%d" % contributors
             line = line + " " + "%d" % tags
             line = line + " " + "%d" % issues
             line = line + " " + "%d" % branches
@@ -329,6 +330,61 @@ class FeatureExtraction:
             f.write('\n')
         print "Wrote repo features to %s" % f.name
         f.close()
+
+    def get_contents_features(self, label, additional):
+        if additional:
+            folder = self.additional_contents_folder % label
+            name = self.additional_features_folder + "contents_data_%s.txt" % label
+        else:
+            folder = self.contents_folder % label
+            name = self.features_folder + "contents_data_%s.txt" % label
+
+        if not os.path.exists(os.path.dirname(name)):
+            os.makedirs(os.path.dirname(name))
+        f = open(name, 'w')
+        header = "total dirs files repo_name\n"
+        f.write(header)
+
+        for filename in glob.glob(folder + '*'):
+            print filename
+            json_file = open(filename, 'r')
+            name = os.path.basename(filename)
+            contents = json.load(json_file)
+            json_file.close()
+
+            total = len(contents)
+            dir_count = self.get_dir_count(contents)
+            file_count = self.get_file_count(contents)
+
+            line = "%d" % total
+            if total > 0:
+                line = line + " " + "%.2f" % (float(dir_count) / total)
+                line = line + " " + "%.2f" % (float(file_count) / total)
+            else:
+                line = line + " " + "%.2f" % 0
+                line = line + " " + "%.2f" % 0
+
+            line = line + " " + name.split('.')[0]
+
+            f.write(line)
+            f.write('\n')
+        print "Wrote repo features to %s" % f.name
+        f.close()
+
+    def get_dir_count(self, contents):
+        count = 0
+        for entry in contents:
+            if entry['type'] == 'dir':
+                count += 1
+        return count
+
+    def get_file_count(self, contents):
+        count = 0
+        for entry in contents:
+            if entry['type'] == 'file':
+                count += 1
+        return count
+
 
 featureExtraction = FeatureExtraction()
 # featureExtraction.get_commits_features('docs', additional=True)
@@ -367,3 +423,10 @@ featureExtraction = FeatureExtraction()
 # featureExtraction.get_repo_features('web', additional=False)
 
 # featureExtraction.get_all_languages()
+
+featureExtraction.get_contents_features('dev', additional=False)
+featureExtraction.get_contents_features('data', additional=False)
+featureExtraction.get_contents_features('docs', additional=False)
+featureExtraction.get_contents_features('edu', additional=False)
+featureExtraction.get_contents_features('hw', additional=False)
+featureExtraction.get_contents_features('web', additional=False)
