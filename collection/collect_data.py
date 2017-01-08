@@ -219,10 +219,15 @@ class ExampleData:
         with open(names, 'r') as file:
             repos = file.readlines()
         for repo in repos:
+            filename = Helper().build_path_from_folder_and_repo_name(repo, folder, JSON_CONTENTS_FILE_NAME)
+            if os.path.exists(filename):
+                print filename, " exists"
+                continue
+
             r = requests.get("https://api.github.com/repos/" + repo[:-1] + "/contents",
                              auth=HTTPBasicAuth(self.username, self.password))
             if r.status_code == 200:
-                filename = Helper().build_path_from_folder_and_repo_name(repo, folder, JSON_CONTENTS_FILE_NAME)
+
                 if not os.path.exists(os.path.dirname(filename)):
                     os.makedirs(os.path.dirname(filename))
                 with open(filename, 'w') as file:
@@ -422,4 +427,9 @@ data = ExampleData()
 # data.get_all_commits_additional_data(label='web')
 
 
-data.get_contents(label='hw', keyword='homework')
+# data.get_contents(label='hw', keyword='homework')
+data.get_contents(label='edu', keyword='course')
+data.get_contents(label='data', keyword='data')
+data.get_contents(label='web', keyword='github.io')
+data.get_contents(label='dev', keyword='framework')
+data.get_contents(label='docs', keyword="docs")
