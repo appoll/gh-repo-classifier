@@ -16,6 +16,8 @@ JSON_REPO_FILE_NAME = "%s_%s.json"
 JSON_COMMIT_ACTIVITY_FILE_NAME = "%s_%s.json"
 JSON_COMMITS_FILE_NAME = "%s_%s.json"
 MD_README_FILE_NAME = "%s_%s.md"
+JSON_LANGUAGES_FILE_NAME = "%s_%s.json"
+JSON_CONTENTS_FILE_NAME = "%s_%s.json"
 
 
 class ExampleData:
@@ -25,6 +27,7 @@ class ExampleData:
         self.token = reader.get_oauth_token()
         self.repos_folder = "../collection/%s/json_repos/"
         self.readmes_repos_folder = "../collection/%s/json_readmes/"
+        self.contents_repos_folder = "../collection/%s/json_contents/"
         self.commit_activity_repos_folder = "../collection/%s/json_commit_activity/"
         self.commits_repos_folder = "../collection/%s/json_commits/"
         self.repos_names_search = "../collection/%s/%s_repos_names_%s.txt"
@@ -209,6 +212,27 @@ class ExampleData:
 
         print 'Successfully loaded commits for %d repos' % len(repos)
 
+    def get_contents(self, label, keyword):
+        names = self.repos_names_search % (label, label, keyword)
+        folder = self.contents_repos_folder % label
+
+        with open(names, 'r') as file:
+            repos = file.readlines()
+        for repo in repos:
+            r = requests.get("https://api.github.com/repos/" + repo[:-1] + "/contents",
+                             auth=HTTPBasicAuth(self.username, self.password))
+            if r.status_code == 200:
+                filename = Helper().build_path_from_folder_and_repo_name(repo, folder, JSON_CONTENTS_FILE_NAME)
+                if not os.path.exists(os.path.dirname(filename)):
+                    os.makedirs(os.path.dirname(filename))
+                with open(filename, 'w') as file:
+                    print "Writing to %s" % file.name
+                    contents = json.dumps((r.json()))
+                    file.write(contents)
+                    file.close()
+            else:
+                print r.headers
+
     # useless due to 200 api calls limit for graphQL
     def get_last_100_commits(self, label, keyword):
         graphql_url = "https://api.github.com/graphql"
@@ -372,17 +396,30 @@ data = ExampleData()
 # data.getCommitActivity(label='dev', keyword="framework")
 #
 # data.getCommitActivity(label='docs', keyword="docs")
-# data.getCommitActivity(label='edu', keyword="course")
+# data.getCommitActivity(label='edux', keyword="course")
 
 # data.get_last_100_commits(label='edu', keyword='course')
 # data.get_last_100_commits(label='dev', keyword='framework')
 
-#data.get_all_commits(label='docs', keyword='docs')
+# data.get_all_commits(label='docs', keyword='docs')
 
-#data.get_all_commits_additional_data(label='docs')
-data.get_all_commits_additional_data(label='dev')
-data.get_all_commits_additional_data(label='data')
-data.get_all_commits_additional_data(label='edu')
-data.get_all_commits_additional_data(label='hw')
-data.get_all_commits_additional_data(label='other')
-data.get_all_commits_additional_data(label='web')
+# completed 1000
+# data.get_all_commits(label='hw', keyword='homework')
+# data.get_all_commits(label='edu', keyword='course')
+# data.get_all_commits(label='data', keyword='data')
+# data.get_all_commits(label='web', keyword='github.io')
+# data.get_all_commits(label='dev', keyword='framework')
+
+
+
+
+# data.get_all_commits_additional_data(label='docs')
+# data.get_all_commits_additional_data(label='dev')
+# data.get_all_commits_additional_data(label='data')
+# data.get_all_commits_additional_data(label='edu')
+# data.get_all_commits_additional_data(label='hw')
+# data.get_all_commits_additional_data(label='other')
+# data.get_all_commits_additional_data(label='web')
+
+
+data.get_contents(label='hw', keyword='homework')
