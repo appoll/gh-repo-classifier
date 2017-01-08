@@ -346,7 +346,7 @@ class FeatureExtraction:
         if not os.path.exists(os.path.dirname(name)):
             os.makedirs(os.path.dirname(name))
         f = open(name, 'w')
-        header = "total dirs files repo_name\n"
+        header = "total dirs files folder_names file_names fo_and_fi_names repo_name\n"
         f.write(header)
 
         for filename in glob.glob(folder + '*'):
@@ -359,6 +359,9 @@ class FeatureExtraction:
             total = len(contents)
             dir_count = self.get_dir_count(contents)
             file_count = self.get_file_count(contents)
+            folder_names = self.get_folder_names_as_str(contents)
+            file_names = self.get_file_names_as_str(contents)
+            fo_and_fi_names = self.get_folder_and_file_names_as_str(contents)
 
             line = "%d" % total
             if total > 0:
@@ -368,8 +371,14 @@ class FeatureExtraction:
                 line = line + " " + "%.2f" % 0
                 line = line + " " + "%.2f" % 0
 
-            line = line + " " + name.split('.')[0]
+            line = line + " " + folder_names
+            line = line + " " + file_names
+            line = line + " " + fo_and_fi_names
 
+            line = line + " " + name.split('.')[0]
+            print line
+            # line = line.replace(u"\u2019", "'")
+            line = line.encode('utf-8')
             f.write(line)
             f.write('\n')
         print "Wrote repo features to %s" % f.name
@@ -388,6 +397,31 @@ class FeatureExtraction:
             if entry['type'] == 'file':
                 count += 1
         return count
+
+    def get_folder_names_as_str(self, contents):
+        result = "\""
+        for entry in contents:
+            if entry['type'] == 'dir':
+                result += entry['name'] + " "
+        result += "\""
+        return result
+
+    def get_file_names_as_str(self, contents):
+        result = "\""
+        for entry in contents:
+            if entry['type'] == 'file':
+                result += entry['name'] + " "
+        result += "\""
+        return result
+
+    def get_folder_and_file_names_as_str(self, contents):
+        result = "\""
+        for entry in contents:
+            entry_type = entry['type']
+            if entry_type == 'file' or entry_type == 'dir':
+                result += entry['name'] + " "
+        result += "\""
+        return result
 
 
 featureExtraction = FeatureExtraction()
@@ -419,18 +453,18 @@ featureExtraction = FeatureExtraction()
 # featureExtraction.get_language_features('hw', additional=False)
 # featureExtraction.get_language_features('web', additional=False)
 
-featureExtraction.get_repo_features('dev', additional=False)
-featureExtraction.get_repo_features('data', additional=False)
-featureExtraction.get_repo_features('docs', additional=False)
-featureExtraction.get_repo_features('edu', additional=False)
-featureExtraction.get_repo_features('hw', additional=False)
-featureExtraction.get_repo_features('web', additional=False)
+# featureExtraction.get_repo_features('dev', additional=False)
+# featureExtraction.get_repo_features('data', additional=False)
+# featureExtraction.get_repo_features('docs', additional=False)
+# featureExtraction.get_repo_features('edu', additional=False)
+# featureExtraction.get_repo_features('hw', additional=False)
+# featureExtraction.get_repo_features('web', additional=False)
 
 # featureExtraction.get_all_languages()
 
-# featureExtraction.get_contents_features('dev', additional=False)
-# featureExtraction.get_contents_features('data', additional=False)
-# featureExtraction.get_contents_features('docs', additional=False)
-# featureExtraction.get_contents_features('edu', additional=False)
-# featureExtraction.get_contents_features('hw', additional=False)
-# featureExtraction.get_contents_features('web', additional=False)
+featureExtraction.get_contents_features('dev', additional=False)
+featureExtraction.get_contents_features('data', additional=False)
+featureExtraction.get_contents_features('docs', additional=False)
+featureExtraction.get_contents_features('edu', additional=False)
+featureExtraction.get_contents_features('hw', additional=False)
+featureExtraction.get_contents_features('web', additional=False)
