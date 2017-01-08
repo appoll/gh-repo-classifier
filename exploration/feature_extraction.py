@@ -305,18 +305,22 @@ class FeatureExtraction:
             repo = json.load(json_file)
             json_file.close()
 
-            # size in KB
-            size = repo['size']
-            labels = repo['labels_count']
-            # contributors = repo['contributors_count']
-            tags = repo['tags_count']
-            issues = repo['issues_count']
-            branches = repo['branches_count']
-            languages = repo['languages_count']
-            forks = repo['forks']
-            commits = repo['commits_count']
-            comments = repo['comments_count']
-
+            try:
+                # size in KB
+                size = repo['size']
+                labels = repo['labels_count']
+                # contributors = repo['contributors_count']
+                tags = repo['tags_count']
+                issues = repo['issues_count']
+                branches = repo['branches_count']
+                languages = repo['languages_count']
+                forks = repo['forks']
+                commits = repo['commits_count']
+                comments = repo['comments_count']
+            except KeyError:
+                print 'KeyError, not considering repo'
+                continue
+            
             line = "%d" % size
             line = line + " " + "%d" % labels
             # line = line + " " + "%d" % contributors
@@ -453,18 +457,18 @@ featureExtraction = FeatureExtraction()
 # featureExtraction.get_language_features('hw', additional=False)
 # featureExtraction.get_language_features('web', additional=False)
 
-# featureExtraction.get_repo_features('dev', additional=False)
-# featureExtraction.get_repo_features('data', additional=False)
-# featureExtraction.get_repo_features('docs', additional=False)
-# featureExtraction.get_repo_features('edu', additional=False)
-# featureExtraction.get_repo_features('hw', additional=False)
-# featureExtraction.get_repo_features('web', additional=False)
+featureExtraction.get_repo_features('dev', additional=False)
+featureExtraction.get_repo_features('data', additional=False)
+featureExtraction.get_repo_features('docs', additional=False)
+featureExtraction.get_repo_features('edu', additional=False)
+featureExtraction.get_repo_features('hw', additional=False)
+featureExtraction.get_repo_features('web', additional=False)
 
 # featureExtraction.get_all_languages()
 
-featureExtraction.get_contents_features('dev', additional=False)
-featureExtraction.get_contents_features('data', additional=False)
-featureExtraction.get_contents_features('docs', additional=False)
-featureExtraction.get_contents_features('edu', additional=False)
-featureExtraction.get_contents_features('hw', additional=False)
-featureExtraction.get_contents_features('web', additional=False)
+# featureExtraction.get_contents_features('dev', additional=False)
+# featureExtraction.get_contents_features('data', additional=False)
+# featureExtraction.get_contents_features('docs', additional=False)
+# featureExtraction.get_contents_features('edu', additional=False)
+# featureExtraction.get_contents_features('hw', additional=False)
+# featureExtraction.get_contents_features('web', additional=False)
