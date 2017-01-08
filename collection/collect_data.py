@@ -34,6 +34,7 @@ class ExampleData:
 
         self.additional_repos_names = "../exploration/additional/%s.txt"
         self.additional_commits_repos_folder = "../exploration/additional/json_commits_%s/"
+        self.additional_repos_folder = "../exploration/additional/json_repos_%s/"
 
         self.encoding = "base64",
 
@@ -354,6 +355,29 @@ class ExampleData:
 
         print 'Successfully loaded commits for %d repos' % len(repos)
 
+    def get_repos_additional_data(self, label):
+        names = self.additional_repos_names % label
+        folder = self.additional_repos_folder % label
+
+        with open(names, 'r') as file:
+            repos = file.readlines()
+
+        for repo in repos:
+            repo_name = Helper().build_repo_name_from_repo_link(repo)
+            r = requests.get("https://api.github.com/repos/" + repo_name,
+                             auth=HTTPBasicAuth(self.username, self.password))
+            if r.status_code == 200:
+                filename = Helper().build_path_from_folder_and_repo_link(repo, folder, JSON_REPO_FILE_NAME)
+                if not os.path.exists(os.path.dirname(filename)):
+                    os.makedirs(os.path.dirname(filename))
+                with open(filename, 'w') as file:
+                    print "Writing to %s" % file.name
+                    jsonContent = json.dumps((r.json()))
+                    file.write(jsonContent)
+                    file.close()
+            else:
+                print r.headers
+
 
 data = ExampleData()
 
@@ -426,10 +450,18 @@ data = ExampleData()
 # data.get_all_commits_additional_data(label='other')
 # data.get_all_commits_additional_data(label='web')
 
-
-# data.get_contents(label='hw', keyword='homework')
-data.get_contents(label='edu', keyword='course')
-data.get_contents(label='data', keyword='data')
-data.get_contents(label='web', keyword='github.io')
-data.get_contents(label='dev', keyword='framework')
-data.get_contents(label='docs', keyword="docs")
+data.get_repos_additional_data(label='docs')
+data.get_repos_additional_data(label='dev')
+data.get_repos_additional_data(label='data')
+data.get_repos_additional_data(label='edu')
+data.get_repos_additional_data(label='hw')
+data.get_repos_additional_data(label='other')
+data.get_repos_additional_data(label='web')
+#
+#
+# # data.get_contents(label='hw', keyword='homework')
+# data.get_contents(label='edu', keyword='course')
+# data.get_contents(label='data', keyword='data')
+# data.get_contents(label='web', keyword='github.io')
+# data.get_contents(label='dev', keyword='framework')
+# data.get_contents(label='docs', keyword="docs")

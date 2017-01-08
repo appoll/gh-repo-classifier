@@ -13,10 +13,11 @@ from collection.labels import Labels
 class FeatureExtraction:
     def __init__(self):
         self.additional_commits_folder = "../exploration/additional/json_commits_%s/"
-        self.additional_features_folder = "../exploration/additional/features/"
+        self.additional_repos_folder = "../exploration/additional/json_repos_%s/"
         self.additional_contents_folder = "../exploration/additional/json_contents_%s"
 
         self.features_folder = "../exploration/features/"
+        self.additional_features_folder = "../exploration/additional/features/"
 
         self.commits_folder = "../collection/%s/json_commits/"
         self.repos_folder = "../collection/%s/json_repos_updated/"
@@ -286,7 +287,7 @@ class FeatureExtraction:
 
     def get_repo_features(self, label, additional):
         if additional:
-            folder = self.repos_folder % label
+            folder = self.additional_repos_folder % label
             name = self.additional_features_folder + "repo_data_%s.txt" % label
         else:
             folder = self.repos_folder % label
@@ -320,7 +321,11 @@ class FeatureExtraction:
             except KeyError:
                 print 'KeyError, not considering repo'
                 continue
-            
+
+            if size == 0:
+                print 'Not considering empty repos'
+                continue
+
             line = "%d" % size
             line = line + " " + "%d" % labels
             # line = line + " " + "%d" % contributors
@@ -457,12 +462,12 @@ featureExtraction = FeatureExtraction()
 # featureExtraction.get_language_features('hw', additional=False)
 # featureExtraction.get_language_features('web', additional=False)
 
-featureExtraction.get_repo_features('dev', additional=False)
-featureExtraction.get_repo_features('data', additional=False)
-featureExtraction.get_repo_features('docs', additional=False)
-featureExtraction.get_repo_features('edu', additional=False)
-featureExtraction.get_repo_features('hw', additional=False)
-featureExtraction.get_repo_features('web', additional=False)
+featureExtraction.get_repo_features('dev', additional=True)
+featureExtraction.get_repo_features('data', additional=True)
+featureExtraction.get_repo_features('docs', additional=True)
+featureExtraction.get_repo_features('edu', additional=True)
+featureExtraction.get_repo_features('hw', additional=True)
+featureExtraction.get_repo_features('web', additional=True)
 
 # featureExtraction.get_all_languages()
 

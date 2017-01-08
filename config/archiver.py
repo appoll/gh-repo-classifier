@@ -78,7 +78,7 @@ archiver = Archiver()
 # archiver.archive('hw', REPO)
 # archiver.archive('hw', COMMIT_ACTIVITY)
 
-# archiver.archive('data', READ_ME)
+# archiver.archive('data', READ_ME)la
 # archiver.archive('data', REPO)
 # archiver.archive('data', COMMIT_ACTIVITY)
 
@@ -115,4 +115,8 @@ archiver = Archiver()
 
 
 # archiver.archive('dev', UPDATED_REPOS)
-archiver.unarchive('dev', UPDATED_REPOS)
+# archiver.unarchive('dev', UPDATED_REPOS)
+
+#archiver.archive('docs', UPDATED_REPOS)
+
+archiver.unarchive('data', REPO)

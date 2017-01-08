@@ -18,6 +18,8 @@ class Transformer:
 
         self.updated_repos_folder = "../collection/%s/json_repos_updated/"
 
+        self.additional_repos_folder = "../exploration/additional/json_repos_%s/"
+
         self.commit_activity_folder = "../collection/%s/commit_activity/"
         # self.updated_repos_folder = "../collection/%s/updated_repos/"
         self.RESULTS_PER_PAGE = 30
@@ -127,14 +129,21 @@ class Transformer:
             else:
                 print r
 
-    def count(self, label, url_key, count_key):
+    def count(self, label, url_key, count_key, additional):
         """
 
         :param label: label of repositories' class
         :param url: property to be replaced in the current json file
         :param count: new property's name in the current json file
         """
-        folder = self.updated_repos_folder % label
+        if additional == True:
+            folder = self.additional_repos_folder % label
+        else:
+            folder = self.updated_repos_folder % label
+        print folder
+
+        if not os.path.exists(folder):
+            raise Exception("Folder should be there!")
 
         for filename in glob.glob(folder + '*'):
             print filename
@@ -339,18 +348,80 @@ feature_converter = Transformer()
 # feature_converter.languages('edu')
 # feature_converter.languages('data')
 
-feature_converter.count('data', 'commits_url', 'commits_count')
-feature_converter.count('dev', 'commits_url', 'commits_count')
-feature_converter.count('docs', 'commits_url', 'commits_count')
-feature_converter.count('edu', 'commits_url', 'commits_count')
-feature_converter.count('hw', 'commits_url', 'commits_count')
-feature_converter.count('web', 'commits_url', 'commits_count')
+# feature_converter.count('data', 'commits_url', 'commits_count')
+# feature_converter.count('dev', 'commits_url', 'commits_count')
+# feature_converter.count('docs', 'commits_url', 'commits_count')
+# feature_converter.count('edu', 'commits_url', 'commits_count')
+# feature_converter.count('hw', 'commits_url', 'commits_count')
+# feature_converter.count('web', 'commits_url', 'commits_count')
+#
+# feature_converter.count('data', 'comments_url', 'comments_count')
+# feature_converter.count('dev', 'comments_url', 'comments_count')
+# feature_converter.count('docs', 'comments_url', 'comments_count')
+# feature_converter.count('edu', 'comments_url', 'comments_count')
+# feature_converter.count('hw', 'comments_url', 'comments_count')
+# feature_converter.count('web', 'comments_url', 'comments_count')
 
-feature_converter.count('data', 'comments_url', 'comments_count')
-feature_converter.count('dev', 'comments_url', 'comments_count')
-feature_converter.count('docs', 'comments_url', 'comments_count')
-feature_converter.count('edu', 'comments_url', 'comments_count')
-feature_converter.count('hw', 'comments_url', 'comments_count')
-feature_converter.count('web', 'comments_url', 'comments_count')
+feature_converter.count('data', 'branches_url', 'branches_count', True)
+feature_converter.count('dev', 'branches_url', 'branches_count', True)
+feature_converter.count('docs', 'branches_url', 'branches_count', True)
+feature_converter.count('edu', 'branches_url', 'branches_count', True)
+feature_converter.count('hw', 'branches_url', 'branches_count', True)
+feature_converter.count('web', 'branches_url', 'branches_count', True)
+feature_converter.count('other', 'branches_url', 'branches_count', True)
 
-# feature_converter.issuesCountMatplotlib('dev')
+feature_converter.count('data', 'issues_url', 'issues_count', True)
+feature_converter.count('dev', 'issues_url', 'issues_count', True)
+feature_converter.count('docs', 'issues_url', 'issues_count', True)
+feature_converter.count('edu', 'issues_url', 'issues_count', True)
+feature_converter.count('hw', 'issues_url', 'issues_count', True)
+feature_converter.count('web', 'issues_url', 'issues_count', True)
+feature_converter.count('other', 'issues_url', 'issues_count', True)
+
+feature_converter.count('data', 'tags_url', 'tags_count', True)
+feature_converter.count('dev', 'tags_url', 'tags_count', True)
+feature_converter.count('docs', 'tags_url', 'tags_count', True)
+feature_converter.count('edu', 'tags_url', 'tags_count', True)
+feature_converter.count('hw', 'tags_url', 'tags_count', True)
+feature_converter.count('web', 'tags_url', 'tags_count', True)
+feature_converter.count('other', 'tags_url', 'tags_count', True)
+
+feature_converter.count('data', 'contributors_url', 'contributors_count', True)
+feature_converter.count('dev', 'contributors_url', 'contributors_count', True)
+feature_converter.count('docs', 'contributors_url', 'contributors_count', True)
+feature_converter.count('edu', 'contributors_url', 'contributors_count', True)
+feature_converter.count('hw', 'contributors_url', 'contributors_count', True)
+feature_converter.count('web', 'contributors_url', 'contributors_count', True)
+feature_converter.count('other', 'contributors_url', 'contributors_count', True)
+
+feature_converter.count('data', 'labels_url', 'labels_count', True)
+feature_converter.count('dev', 'labels_url', 'labels_count', True)
+feature_converter.count('docs', 'labels_url', 'labels_count', True)
+feature_converter.count('edu', 'labels_url', 'labels_count', True)
+feature_converter.count('hw', 'labels_url', 'labels_count', True)
+feature_converter.count('web', 'labels_url', 'labels_count', True)
+feature_converter.count('other', 'labels_url', 'labels_count', True)
+
+feature_converter.count('data', 'languages_url', 'languages_count', True)
+feature_converter.count('dev', 'languages_url', 'languages_count', True)
+feature_converter.count('docs', 'languages_url', 'languages_count', True)
+feature_converter.count('edu', 'languages_url', 'languages_count', True)
+feature_converter.count('hw', 'languages_url', 'languages_count', True)
+feature_converter.count('web', 'languages_url', 'languages_count', True)
+feature_converter.count('other', 'languages_url', 'languages_count', True)
+
+feature_converter.count('data', 'commits_url', 'commits_count', True)
+feature_converter.count('dev', 'commits_url', 'commits_count', True)
+feature_converter.count('docs', 'commits_url', 'commits_count', True)
+feature_converter.count('edu', 'commits_url', 'commits_count', True)
+feature_converter.count('hw', 'commits_url', 'commits_count', True)
+feature_converter.count('web', 'commits_url', 'commits_count', True)
+feature_converter.count('other', 'commits_url', 'commits_count', True)
+
+feature_converter.count('data', 'comments_url', 'comments_count', True)
+feature_converter.count('dev', 'comments_url', 'comments_count', True)
+feature_converter.count('docs', 'comments_url', 'comments_count', True)
+feature_converter.count('edu', 'comments_url', 'comments_count', True)
+feature_converter.count('hw', 'comments_url', 'comments_count', True)
+feature_converter.count('web', 'comments_url', 'comments_count', True)
+feature_converter.count('other', 'comments_url', 'comments_count', True)
