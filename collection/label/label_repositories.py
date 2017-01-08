@@ -1,21 +1,26 @@
+import os
 import webbrowser
-import numpy as np
 
 from collection.labels import Labels
-import os
 
 
 class RepoLabelling():
-    def __init__(self, browser_type='firefox', file_name='test_url.txt'):
-        print webbrowser._browsers
+    def __init__(self, browser_type='firefox', file_name='test_url_test.txt'):
         self.browser = webbrowser.get(browser_type)
         self.url_handler = URLFileHandler(file_name)
 
-    def open_next_page(self):
-        url = self.url_handler.nextUrl()
+        self.url_to_store = "initial_url_dummy"
+        self.output_file = "web.txt"
+        # if not os.path.exists(os.path.dirname(self.output_file)):
+        #     os.makedirs(os.path.dirname(self.output_file))
+
+    def open_next_page(self, url):
+        #url = self.url_handler.nextUrl()
+        print url
         # due to previously stored names, the above is not a url but a user/repo
         # TODO handle empty urls
         github_url = "https://github.com/%s" % url
+        self.url_to_store = github_url
         self.browser.open_new(github_url)
 
     def browse_url_file(self):
@@ -26,6 +31,11 @@ class RepoLabelling():
         for i, label in enumerate(labels):
             print "[ " + str(i + 1) + " ]", label
         chosen_label = self.parse_input()
+
+        f = open(self.output_file, 'a')
+        line = self.url_to_store + " " + chosen_label.value + '\n'
+        f.write(line)
+        f.close()
 
     def parse_input(self):
         while True:
@@ -54,7 +64,7 @@ class URLFileHandler(object):
             raise Exception("File %s should exist!" % filename)
 
         self.url_list = self.read_file(filename)
-        self.file_writer = open(filename, 'wb')
+        #self.file_writer = open(filename, 'wb')
 
     def read_file(self, filename):
 
@@ -63,8 +73,9 @@ class URLFileHandler(object):
         return urls
 
     def update_file(self):
+        pass
         # self.file_writer.writelines("%s\n" % l for l in self.url_list)
-        self.file_writer.write('\n'.join(self.url_list))
+        # self.file_writer.write('\n'.join(self.url_list))
 
     def nextUrl(self):
         if self.url_list:
@@ -76,15 +87,21 @@ class URLFileHandler(object):
         else:
             return None
 
-    def __del__(self):
-        self.file_writer.close()
-
-
 if __name__ == '__main__':
-    labelling = RepoLabelling('./web/web_repos_names_github.io.txt')
-    labelling.print_selection()
-    # labelling.open_next_page()
-    # labelling.browse_url_file()
-    # labelling.open_page("http://www.google.de")
-    # handler = URLFileHandler("test_url_test.txt")
-    # handler.nextUrl()
+    labelling = RepoLabelling()
+
+    while True:
+        lines = open(labelling.output_file, 'r').readlines()
+        validated = False
+        url = labelling.url_handler.nextUrl()
+        if url is None:
+            print 'You are awesome, the list is empty!'
+            break
+        for line in lines:
+            if url in line:
+                print '%s already validated.' % url
+                validated = True
+                break
+        if not validated:
+            labelling.open_next_page(url)
+            labelling.print_selection()
