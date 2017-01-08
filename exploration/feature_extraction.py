@@ -295,7 +295,7 @@ class FeatureExtraction:
         if not os.path.exists(os.path.dirname(name)):
             os.makedirs(os.path.dirname(name))
         f = open(name, 'w')
-        header = "size labels tags issues branches languages forks repo_name\n"
+        header = "size labels tags issues branches languages forks commits comments repo_name\n"
         f.write(header)
 
         for filename in glob.glob(folder + '*'):
@@ -314,6 +314,8 @@ class FeatureExtraction:
             branches = repo['branches_count']
             languages = repo['languages_count']
             forks = repo['forks']
+            commits = repo['commits_count']
+            comments = repo['comments_count']
 
             line = "%d" % size
             line = line + " " + "%d" % labels
@@ -323,6 +325,8 @@ class FeatureExtraction:
             line = line + " " + "%d" % branches
             line = line + " " + "%d" % languages
             line = line + " " + "%d" % forks
+            line = line + " " + "%d" % commits
+            line = line + " " + "%d" % comments
 
             line = line + " " + name.split('.')[0]
 
@@ -415,18 +419,18 @@ featureExtraction = FeatureExtraction()
 # featureExtraction.get_language_features('hw', additional=False)
 # featureExtraction.get_language_features('web', additional=False)
 
-# featureExtraction.get_repo_features('dev', additional=False)
-# featureExtraction.get_repo_features('data', additional=False)
-# featureExtraction.get_repo_features('docs', additional=False)
-# featureExtraction.get_repo_features('edu', additional=False)
-# featureExtraction.get_repo_features('hw', additional=False)
-# featureExtraction.get_repo_features('web', additional=False)
+featureExtraction.get_repo_features('dev', additional=False)
+featureExtraction.get_repo_features('data', additional=False)
+featureExtraction.get_repo_features('docs', additional=False)
+featureExtraction.get_repo_features('edu', additional=False)
+featureExtraction.get_repo_features('hw', additional=False)
+featureExtraction.get_repo_features('web', additional=False)
 
 # featureExtraction.get_all_languages()
 
-featureExtraction.get_contents_features('dev', additional=False)
-featureExtraction.get_contents_features('data', additional=False)
-featureExtraction.get_contents_features('docs', additional=False)
-featureExtraction.get_contents_features('edu', additional=False)
-featureExtraction.get_contents_features('hw', additional=False)
-featureExtraction.get_contents_features('web', additional=False)
+# featureExtraction.get_contents_features('dev', additional=False)
+# featureExtraction.get_contents_features('data', additional=False)
+# featureExtraction.get_contents_features('docs', additional=False)
+# featureExtraction.get_contents_features('edu', additional=False)
+# featureExtraction.get_contents_features('hw', additional=False)
+# featureExtraction.get_contents_features('web', additional=False)

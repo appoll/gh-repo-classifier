@@ -346,4 +346,11 @@ feature_converter.count('edu', 'commits_url', 'commits_count')
 feature_converter.count('hw', 'commits_url', 'commits_count')
 feature_converter.count('web', 'commits_url', 'commits_count')
 
+feature_converter.count('data', 'comments_url', 'comments_count')
+feature_converter.count('dev', 'comments_url', 'comments_count')
+feature_converter.count('docs', 'comments_url', 'comments_count')
+feature_converter.count('edu', 'comments_url', 'comments_count')
+feature_converter.count('hw', 'comments_url', 'comments_count')
+feature_converter.count('web', 'comments_url', 'comments_count')
+
 # feature_converter.issuesCountMatplotlib('dev')
