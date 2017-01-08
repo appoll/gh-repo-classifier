@@ -2,7 +2,6 @@ import glob
 import json
 import os
 
-import numpy as np
 import requests
 from requests.auth import HTTPBasicAuth
 
@@ -145,7 +144,7 @@ class Transformer:
             if count_key in repoObject:
                 print 'exists'
                 continue
-                url = repoObject[url_key]
+            url = repoObject[url_key]
             if '{' in url:
                 url = url.split('{')[0]
             print url
@@ -339,5 +338,12 @@ feature_converter = Transformer()
 # feature_converter.languages('hw')
 # feature_converter.languages('edu')
 # feature_converter.languages('data')
+
+feature_converter.count('data', 'commits_url', 'commits_count')
+feature_converter.count('dev', 'commits_url', 'commits_count')
+feature_converter.count('docs', 'commits_url', 'commits_count')
+feature_converter.count('edu', 'commits_url', 'commits_count')
+feature_converter.count('hw', 'commits_url', 'commits_count')
+feature_converter.count('web', 'commits_url', 'commits_count')
 
 # feature_converter.issuesCountMatplotlib('dev')
