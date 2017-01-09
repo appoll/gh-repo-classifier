@@ -60,6 +60,7 @@ def update(label, source, dest):
         elif '.md' in repo_name_extension:
             repo_name = repo_name_extension[:-len('.md')]
         else:
+            print repo_name_extension
             raise Exception('should not be!')
 
         if repo_name in dev_labelled_repos_names:
@@ -89,16 +90,24 @@ def update(label, source, dest):
 repos_folder = "../%s/json_repos_unarchived/"
 repos_folder_updated = "../%s/json_repos_updated/"
 readmes_repos_folder = "../%s/json_readmes_unarchived/"
+commits_interval_folder = "../%s/json_commits_interval/"
 
 repos_folder_labelled = "../%s/json_repos_unarchived_labelled/"
 repos_folder_updated_labelled = "../%s/json_repos_updated_labelled/"
 readmes_repos_folder_labelled = "../%s/json_readmes_unarchived_labelled/"
+commits_interval_folder_labelled = "../%s/json_commits_interval_labelled/"
 
 # update(Labels.web.value, repos_folder, repos_folder_labelled)
 # update(Labels.web.value, repos_folder_updated, repos_folder_updated_labelled)
 # update(Labels.web.value, readmes_repos_folder, readmes_repos_folder_labelled)
+# update(Labels.web.value, commits_interval_folder, commits_interval_folder_labelled)
 
-update(Labels.hw.value, repos_folder, repos_folder_labelled)
-update(Labels.hw.value, repos_folder_updated, repos_folder_updated_labelled)
-update(Labels.hw.value, readmes_repos_folder, readmes_repos_folder_labelled)
+# update(Labels.hw.value, repos_folder, repos_folder_labelled)
+# update(Labels.hw.value, repos_folder_updated, repos_folder_updated_labelled)
+# update(Labels.hw.value, readmes_repos_folder, readmes_repos_folder_labelled)
+# update(Labels.hw.value, commits_interval_folder, commits_interval_folder_labelled)
 
+# update(Labels.data.value, repos_folder, repos_folder_labelled)
+# update(Labels.data.value, repos_folder_updated, repos_folder_updated_labelled)
+# update(Labels.data.value, readmes_repos_folder, readmes_repos_folder_labelled)
+# update(Labels.data.value, commits_interval_folder, commits_interval_folder_labelled)

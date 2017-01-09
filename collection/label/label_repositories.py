@@ -119,6 +119,6 @@ def label(labelling):
 if __name__ == '__main__':
     labelling = RepoLabelling()
 
-    # label(labelling)
+    #label(labelling)
 
     labelling.update_existing()
