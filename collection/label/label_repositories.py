@@ -11,7 +11,7 @@ class RepoLabelling():
         self.url_handler = URLFileHandler(file_name)
 
         self.url_to_store = "initial_url_dummy"
-        self.output_file = "web.txt"
+        self.output_file = "hw.txt"
         # if not os.path.exists(os.path.dirname(self.output_file)):
         #     os.makedirs(os.path.dirname(self.output_file))
 
@@ -119,6 +119,6 @@ def label(labelling):
 if __name__ == '__main__':
     labelling = RepoLabelling()
 
-    #label(labelling)
+    # label(labelling)
 
     labelling.update_existing()
