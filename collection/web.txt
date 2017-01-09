@@ -399,3 +399,6 @@ https://github.com/ev3dev/ev3dev.github.io web
 https://github.com/TotomInc/totominc.github.io web
 https://github.com/lyontechhub/lyontechhub.github.io web
 https://github.com/AngularYii2/angularyii2.github.io other
+https://github.com/StanfordACM/stanfordacm.github.io web
+https://github.com/item4/item4.github.io dev
+https://github.com/8bitdash/8bitdash.github.io web
