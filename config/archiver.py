@@ -1,6 +1,9 @@
 import glob
-import sys
 import tarfile
+
+#from collection.labels import Labels
+
+import sys
 
 sys.path.append('..')
 
@@ -79,6 +82,7 @@ archiver = Archiver()
 # archiver.archive('hw', COMMIT_ACTIVITY)
 
 # archiver.archive('data', READ_ME)la
+
 # archiver.archive('data', REPO)
 # archiver.archive('data', COMMIT_ACTIVITY)
 
@@ -120,3 +124,4 @@ archiver = Archiver()
 #archiver.archive('docs', UPDATED_REPOS)
 
 archiver.unarchive('data', REPO)
+

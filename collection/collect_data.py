@@ -14,6 +14,7 @@ from config.reader import ConfigReader
 
 JSON_REPO_FILE_NAME = "%s_%s.json"
 JSON_COMMIT_ACTIVITY_FILE_NAME = "%s_%s.json"
+JSON_PUNCH_CARD_ACTIVITY_FILE_NAME = "%s_%s.json"
 JSON_COMMITS_FILE_NAME = "%s_%s.json"
 MD_README_FILE_NAME = "%s_%s.md"
 JSON_LANGUAGES_FILE_NAME = "%s_%s.json"
@@ -30,6 +31,7 @@ class ExampleData:
         self.readmes_repos_folder = "../collection/%s/json_readmes/"
         self.contents_repos_folder = "../collection/%s/json_contents/"
         self.commit_activity_repos_folder = "../collection/%s/json_commit_activity/"
+        self.punch_card_repos_folder = "../collection/%s/json_punch_card/"
         self.commits_repos_folder = "../collection/%s/json_commits/"
         self.commits_interval_folder = "../collection/%s/json_commits_interval/"
         self.repos_names_search = "../collection/%s/%s_repos_names_%s.txt"
@@ -125,6 +127,44 @@ class ExampleData:
                     file.close()
             else:
                 print r.headers
+
+    def getPunchCard(self, label, keyword):
+        names = self.repos_names_search % (label, label, keyword)
+        folder = self.punch_card_repos_folder % label
+        with open(names, 'r') as file:
+            repos = file.readlines()
+            print repos.__len__()
+        for repo in repos:
+            filename = Helper().build_path_from_folder_and_repo_name(repo, folder, JSON_COMMIT_ACTIVITY_FILE_NAME)
+
+            if os.path.exists(filename):
+                print filename, " exists"
+                continue
+
+            r = requests.get("https://api.github.com/repos/" + repo[:-1] + "/stats/punch_card",
+                             auth=HTTPBasicAuth(self.username, self.password))
+
+            if r.status_code == 202:
+                while r.status_code == 202:
+                    print "status code: ", r.status_code
+                    r = requests.get("https://api.github.com/repos/" + repo[:-1] + "/stats/punch_card",
+                                     auth=HTTPBasicAuth(self.username, self.password))
+                    time.sleep(3)
+
+            if r.status_code == 200:
+                print "status code: ", r.status_code
+                filename = Helper().build_path_from_folder_and_repo_name(repo, folder, JSON_COMMIT_ACTIVITY_FILE_NAME)
+
+                if not os.path.exists(os.path.dirname(filename)):
+                    os.makedirs(os.path.dirname(filename))
+                with open(filename, 'w') as file:
+                    print "Writing to %s" % file.name
+                    jsonContent = json.dumps((r.json()))
+                    file.write(jsonContent)
+                    file.close()
+            else:
+                print r.headers
+
 
     def get_repo_names_by_keyword(self, label, keyword):
         query = {'q': keyword, 's': 'match', 'per_page': 100}
@@ -444,12 +484,12 @@ data = ExampleData()
 # data.getReadmes(label='dev',keyword='framework')
 # data.getCommitActivity(label='dev', keyword="framework")
 
-data.get_commits_interval(label='web', keyword='github.io')
-data.get_commits_interval(label='hw', keyword='homework')
-data.get_commits_interval(label='edu', keyword='course')
-data.get_commits_interval(label='data', keyword='data')
-data.get_commits_interval(label='dev', keyword='framework')
-data.get_commits_interval(label='docs', keyword='docs')
+# data.get_commits_interval(label='web', keyword='github.io')
+# data.get_commits_interval(label='hw', keyword='homework')
+# data.get_commits_interval(label='edu', keyword='course')
+# data.get_commits_interval(label='data', keyword='data')
+# data.get_commits_interval(label='dev', keyword='framework')
+# data.get_commits_interval(label='docs', keyword='docs')
 
 
 # data.getCommitActivity(label='docs', keyword="docs")
@@ -493,3 +533,11 @@ data.get_commits_interval(label='docs', keyword='docs')
 # data.get_contents(label='web', keyword='github.io')
 # data.get_contents(label='dev', keyword='framework')
 # data.get_contents(label='docs', keyword="docs")
+
+
+data.getPunchCard(label='web', keyword='github.io')
+data.getPunchCard(label='hw', keyword='homework')
+data.getPunchCard(label='edu', keyword='course')
+data.getPunchCard(label='data', keyword='data')
+data.getPunchCard(label='dev', keyword='framework')
+data.getPunchCard(label='docs', keyword='docs')
