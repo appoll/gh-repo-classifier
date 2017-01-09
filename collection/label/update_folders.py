@@ -6,7 +6,12 @@ from collection.labels import Labels
 
 
 def extract_labelled_repos_names(labelled):
-    file = open(labelled, 'r')
+    try:
+        file = open(labelled, 'r')
+    except IOError:
+        print 'labelled % has not been created'
+        return []
+
     labelled_repos = file.readlines()
 
     labelled_repos_names = []
@@ -89,6 +94,11 @@ repos_folder_labelled = "../%s/json_repos_unarchived_labelled/"
 repos_folder_updated_labelled = "../%s/json_repos_updated_labelled/"
 readmes_repos_folder_labelled = "../%s/json_readmes_unarchived_labelled/"
 
-update(Labels.web.value, repos_folder, repos_folder_labelled)
-update(Labels.web.value, repos_folder_updated, repos_folder_updated_labelled)
-update(Labels.web.value, readmes_repos_folder, readmes_repos_folder_labelled)
+# update(Labels.web.value, repos_folder, repos_folder_labelled)
+# update(Labels.web.value, repos_folder_updated, repos_folder_updated_labelled)
+# update(Labels.web.value, readmes_repos_folder, readmes_repos_folder_labelled)
+
+update(Labels.hw.value, repos_folder, repos_folder_labelled)
+update(Labels.hw.value, repos_folder_updated, repos_folder_updated_labelled)
+update(Labels.hw.value, readmes_repos_folder, readmes_repos_folder_labelled)
+
