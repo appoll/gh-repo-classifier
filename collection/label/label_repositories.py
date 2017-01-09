@@ -2,6 +2,7 @@ import os
 import webbrowser
 
 from collection.labels import Labels
+from config.helper import Helper
 
 
 class RepoLabelling():
@@ -15,7 +16,7 @@ class RepoLabelling():
         #     os.makedirs(os.path.dirname(self.output_file))
 
     def open_next_page(self, url):
-        #url = self.url_handler.nextUrl()
+        # url = self.url_handler.nextUrl()
         print url
         # due to previously stored names, the above is not a url but a user/repo
         # TODO handle empty urls
@@ -57,6 +58,15 @@ class RepoLabelling():
             else:
                 print "Wrong input"
 
+    def update_existing(self):
+        file = open(self.output_file, 'r')
+        lines = file.readlines()
+        for line in lines:
+            repo_link = line.split(" ")[0]
+            assigned_label = line.split(" ")[1].rstrip('\n')
+
+            labelled_class = open("labelled_%s" % assigned_label, 'a')
+            labelled_class.write(Helper().build_repo_name_from_repo_link(repo_link) + '\n')
 
 class URLFileHandler(object):
     def __init__(self, filename):
@@ -64,7 +74,7 @@ class URLFileHandler(object):
             raise Exception("File %s should exist!" % filename)
 
         self.url_list = self.read_file(filename)
-        #self.file_writer = open(filename, 'wb')
+        # self.file_writer = open(filename, 'wb')
 
     def read_file(self, filename):
 
@@ -87,9 +97,8 @@ class URLFileHandler(object):
         else:
             return None
 
-if __name__ == '__main__':
-    labelling = RepoLabelling()
 
+def label(labelling):
     while True:
         lines = open(labelling.output_file, 'r').readlines()
         validated = False
@@ -105,3 +114,11 @@ if __name__ == '__main__':
         if not validated:
             labelling.open_next_page(url)
             labelling.print_selection()
+
+
+if __name__ == '__main__':
+    labelling = RepoLabelling()
+
+    # label(labelling)
+
+    labelling.update_existing()
