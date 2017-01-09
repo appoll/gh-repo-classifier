@@ -18,6 +18,7 @@ JSON_COMMITS_FILE_NAME = "%s_%s.json"
 MD_README_FILE_NAME = "%s_%s.md"
 JSON_LANGUAGES_FILE_NAME = "%s_%s.json"
 JSON_CONTENTS_FILE_NAME = "%s_%s.json"
+JSON_COMMITS_INTERVAL = "%s_%s.json"
 
 
 class ExampleData:
@@ -30,6 +31,7 @@ class ExampleData:
         self.contents_repos_folder = "../collection/%s/json_contents/"
         self.commit_activity_repos_folder = "../collection/%s/json_commit_activity/"
         self.commits_repos_folder = "../collection/%s/json_commits/"
+        self.commits_interval_folder = "../collection/%s/json_commits_interval/"
         self.repos_names_search = "../collection/%s/%s_repos_names_%s.txt"
 
         self.additional_repos_names = "../exploration/additional/%s.txt"
@@ -67,6 +69,11 @@ class ExampleData:
         with open(names, 'r') as file:
             repos = file.readlines()
         for repo in repos:
+            filename = Helper().build_path_from_folder_and_repo_name(repo, folder, MD_README_FILE_NAME)
+            if os.path.exists(filename):
+                print 'exists'
+                continue
+
             r = requests.get("https://api.github.com/repos/" + repo[:-1] + "/readme",
                              auth=HTTPBasicAuth(self.username, self.password))
             if r.status_code == 200:
@@ -213,6 +220,66 @@ class ExampleData:
 
         print 'Successfully loaded commits for %d repos' % len(repos)
 
+    def get_commits_interval(self, label, keyword):
+        names = self.repos_names_search % (label, label, keyword)
+        folder = self.commits_interval_folder % label
+
+        with open(names, 'r') as file:
+            repos = file.readlines()
+            print repos.__len__()
+        for repo in repos:
+            filename = Helper().build_path_from_folder_and_repo_name(repo, folder, JSON_COMMITS_INTERVAL)
+
+            if os.path.exists(filename):
+                print filename, " exists"
+                continue
+            r = requests.get("https://api.github.com/repos/" + repo[:-1] + "/commits",
+                             auth=HTTPBasicAuth(self.username, self.password))
+
+            if r.status_code == 200:
+                if 'last' not in r.links:
+                    only_page_json_object = r.json()
+                    first_commit = only_page_json_object[0]
+                    last_commit = only_page_json_object[len(only_page_json_object) - 1]
+                    last_page = -1
+                else:
+                    print r.links
+                    first_page_json_object = r.json()
+                    first_commit = first_page_json_object[0]
+                    last_page_url = r.links['last']['url']
+                    last_page = (int)(last_page_url.split('=')[1])
+                    print last_page
+
+                if last_page != -1:
+                    req = requests.get(last_page_url, auth=HTTPBasicAuth(self.username, self.password))
+                    if req.status_code == 200:
+                        last_page_json_object = req.json()
+                        last_commit = last_page_json_object[len(last_page_json_object) - 1]
+                    else:
+                        print 'Page request failed'
+
+                count = len(last_page_json_object)
+                if last_page != -1:
+                    # multiply by results per page
+                    count += (last_page - 1) * 30
+
+                if not os.path.exists(os.path.dirname(filename)):
+                    os.makedirs(os.path.dirname(filename))
+
+                json_interval_object = {"commits_count": count}
+                json_interval_object['first_commit'] = first_commit
+                json_interval_object['last_commit'] = last_commit
+
+                with open(filename, 'w') as file:
+                    print "Writing commits interval and count %d to %s" % (count, file.name)
+                    jsonContent = json.dumps(json_interval_object)
+                    file.write(jsonContent)
+                    file.close()
+            else:
+                print r.headers
+
+        print 'Successfully loaded commits for %d repos' % len(repos)
+
     def get_contents(self, label, keyword):
         names = self.repos_names_search % (label, label, keyword)
         folder = self.contents_repos_folder % label
@@ -235,53 +302,6 @@ class ExampleData:
                     print "Writing to %s" % file.name
                     contents = json.dumps((r.json()))
                     file.write(contents)
-                    file.close()
-            else:
-                print r.headers
-
-    # useless due to 200 api calls limit for graphQL
-    def get_last_100_commits(self, label, keyword):
-        graphql_url = "https://api.github.com/graphql"
-        login_payload = {"query": "query {viewer {login bio email }}"}
-        owner_payload = {"query": "query {repositoryOwner (login:\"appoll\")}"}
-        commit_payload = {
-            "query": "query {repository (owner:\"appoll\" name:\"gh-repo-classifier\") {description ref(qualifiedName: \"master\"){target {... on Commit {history(first:100) {edges {node {message}}} } }}} }"}
-        commit_author_payload0 = {
-            "query": "query {repository (owner:\"appoll\" name:\"gh-repo-classifier\") {description ref(qualifiedName: \"master\"){target {... on Commit {history(first:100) {edges {node {message author {name date}}}} } }}} }"}
-        commit_author_payload1 = {
-            "query": "query {repository (owner:\"appoll\" name:\"gh-repo-classifier\") {description ref(qualifiedName: \"master\"){target {... on Commit {history(first:100 since:\"2016-11-24T12:26:03+01:00\") {edges {node {message author {name date}}}} } }}} }"}
-
-        names = self.repos_names_search % (label, label, keyword)
-        folder = self.commits_repos_folder % label
-        with open(names, 'r') as file:
-            repos = file.readlines()
-            print repos.__len__()
-        for repo in repos:
-            filename = Helper().build_path_from_folder_and_repo_name(repo, folder, JSON_COMMITS_FILE_NAME)
-            user, repo_name = Helper().get_user_and_repo_name(repo)
-            payload = Helper().build_payload(user, repo_name)
-            if os.path.exists(filename):
-                print filename, " exists"
-                continue
-
-            r = requests.post(graphql_url, json=payload, auth=HTTPBasicAuth(self.username, self.token))
-
-            if r.status_code == 202:
-                while r.status_code == 202:
-                    print "status code: ", r.status_code
-                    r = requests.post(graphql_url, json=payload, auth=HTTPBasicAuth(self.username, self.token))
-                    time.sleep(3)
-
-            if r.status_code == 200:
-                print "status code: ", r.status_code
-                filename = Helper().build_path_from_folder_and_repo_name(repo, folder, JSON_COMMIT_ACTIVITY_FILE_NAME)
-
-                if not os.path.exists(os.path.dirname(filename)):
-                    os.makedirs(os.path.dirname(filename))
-                with open(filename, 'w') as file:
-                    print "Writing to %s" % file.name
-                    jsonContent = json.dumps((r.json()))
-                    file.write(jsonContent)
                     file.close()
             else:
                 print r.headers
@@ -423,7 +443,15 @@ data = ExampleData()
 # data.get_repos_by_keyword(label='dev',keyword='framework')
 # data.getReadmes(label='dev',keyword='framework')
 # data.getCommitActivity(label='dev', keyword="framework")
-#
+
+data.get_commits_interval(label='web', keyword='github.io')
+data.get_commits_interval(label='hw', keyword='homework')
+data.get_commits_interval(label='edu', keyword='course')
+data.get_commits_interval(label='data', keyword='data')
+data.get_commits_interval(label='dev', keyword='framework')
+data.get_commits_interval(label='docs', keyword='docs')
+
+
 # data.getCommitActivity(label='docs', keyword="docs")
 # data.getCommitActivity(label='edux', keyword="course")
 
@@ -450,14 +478,14 @@ data = ExampleData()
 # data.get_all_commits_additional_data(label='other')
 # data.get_all_commits_additional_data(label='web')
 
-data.get_repos_additional_data(label='docs')
-data.get_repos_additional_data(label='dev')
-data.get_repos_additional_data(label='data')
-data.get_repos_additional_data(label='edu')
-data.get_repos_additional_data(label='hw')
-data.get_repos_additional_data(label='other')
-data.get_repos_additional_data(label='web')
-#
+# data.get_repos_additional_data(label='docs')
+# data.get_repos_additional_data(label='dev')
+# data.get_repos_additional_data(label='data')
+# data.get_repos_additional_data(label='edu')
+# data.get_repos_additional_data(label='hw')
+# data.get_repos_additional_data(label='other')
+# data.get_repos_additional_data(label='web')
+# #
 #
 # # data.get_contents(label='hw', keyword='homework')
 # data.get_contents(label='edu', keyword='course')

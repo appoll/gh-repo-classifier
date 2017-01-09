@@ -20,10 +20,45 @@ class FeatureExtraction:
         self.additional_features_folder = "../exploration/additional/features/"
 
         self.commits_folder = "../collection/%s/json_commits/"
+        self.commits_interval_folder = "../collection/%s/json_commits_interval/"
         self.repos_folder = "../collection/%s/json_repos_updated/"
         self.contents_folder = "../collection/%s/json_contents/"
 
         self.all_languages = {}
+
+    def get_commits_interval_features(self, label):
+        folder = self.commits_interval_folder % label
+        name = self.features_folder + "commits_interval_data_%s.txt" % label
+
+        if not os.path.exists(os.path.dirname(name)):
+            os.makedirs(os.path.dirname(name))
+        f = open(name, 'w')
+        header = "commits_count commits_interval_days commits_per_day repo_name\n"
+        f.write(header)
+        f.write(header)
+        for filename in glob.glob(folder + '*'):
+            print filename
+            json_file = open(filename, 'r')
+            name = os.path.basename(filename)
+            commits_interval = json.load(json_file)
+            json_file.close()
+
+            all_commits_count = commits_interval['commits_count']
+            first_commit = commits_interval['first_commit']
+            last_commit = commits_interval['last_commit']
+            commits_interval_days = self.get_commits_interval(last_commit, first_commit)
+            commits_per_day = self.get_commits_per_day(last_commit, first_commit, all_commits_count)
+
+            line = "%.2f" % all_commits_count
+            line = line + " " + "%.2f" % commits_interval_days
+            line = line + " " + "%.2f" % commits_per_day
+
+            line = line + " " + name.split('.')[0]
+
+            f.write(line)
+            f.write('\n')
+        print "Wrote commits interval features to %s" % f.name
+        f.close()
 
     def get_commits_features(self, label, additional):
         if additional:
@@ -110,13 +145,23 @@ class FeatureExtraction:
     def get_commits_per_day(self, first_commit, last_commit, all_commits_count):
         day_in_seconds = 86400
 
-        first_commit_author_date = dateutil.parser.parse(first_commit['author_date'])
-        last_commit_author_date = dateutil.parser.parse(last_commit['author_date'])
+        first_commit_author_date = dateutil.parser.parse(first_commit['commit']['author']['date'])
+        last_commit_author_date = dateutil.parser.parse(last_commit['commit']['author']['date'])
         commits_interval = last_commit_author_date - first_commit_author_date
         days = commits_interval.total_seconds() / day_in_seconds
         if days > 1:
             return all_commits_count / days
         return all_commits_count
+
+    def get_commits_interval(self, first_commit, last_commit):
+        day_in_seconds = 86400
+
+        first_commit_author_date = dateutil.parser.parse(first_commit['commit']['author']['date'])
+        last_commit_author_date = dateutil.parser.parse(last_commit['commit']['author']['date'])
+        commits_interval = last_commit_author_date - first_commit_author_date
+        days = commits_interval.total_seconds() / day_in_seconds
+
+        return days
 
     def get_unique_authors(self, commits_list):
         authors = []
@@ -293,6 +338,9 @@ class FeatureExtraction:
             folder = self.repos_folder % label
             name = self.features_folder + "repo_data_%s.txt" % label
 
+        if not os.path.exists(folder):
+            raise Exception("Folder should exist!")
+
         if not os.path.exists(os.path.dirname(name)):
             os.makedirs(os.path.dirname(name))
         f = open(name, 'w')
@@ -462,12 +510,12 @@ featureExtraction = FeatureExtraction()
 # featureExtraction.get_language_features('hw', additional=False)
 # featureExtraction.get_language_features('web', additional=False)
 
-featureExtraction.get_repo_features('dev', additional=True)
-featureExtraction.get_repo_features('data', additional=True)
-featureExtraction.get_repo_features('docs', additional=True)
-featureExtraction.get_repo_features('edu', additional=True)
-featureExtraction.get_repo_features('hw', additional=True)
-featureExtraction.get_repo_features('web', additional=True)
+# featureExtraction.get_repo_features('dev', additional=True)
+# featureExtraction.get_repo_features('data', additional=True)
+# featureExtraction.get_repo_features('docs', additional=True)
+# featureExtraction.get_repo_features('edu', additional=True)
+# featureExtraction.get_repo_features('hw', additional=True)
+# featureExtraction.get_repo_features('web', additional=True)
 
 # featureExtraction.get_all_languages()
 
@@ -477,3 +525,10 @@ featureExtraction.get_repo_features('web', additional=True)
 # featureExtraction.get_contents_features('edu', additional=False)
 # featureExtraction.get_contents_features('hw', additional=False)
 # featureExtraction.get_contents_features('web', additional=False)
+
+featureExtraction.get_commits_interval_features('dev')
+featureExtraction.get_commits_interval_features('data')
+featureExtraction.get_commits_interval_features('docs')
+featureExtraction.get_commits_interval_features('edu')
+featureExtraction.get_commits_interval_features('hw')
+featureExtraction.get_commits_interval_features('web')
