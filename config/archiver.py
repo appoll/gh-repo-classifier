@@ -87,7 +87,7 @@ archiver = Archiver()
 # # archiver.unarchive('web')
 
 #archiver.unarchive('data', READ_ME)
-archiver.unarchive('data', REPO)
+#archiver.unarchive('data', REPO)
 # archiver.unarchive('data', COMMIT_ACTIVITY)
 
 #archiver.unarchive('edu', READ_ME)
@@ -129,5 +129,4 @@ archiver.unarchive('data', REPO)
 # archiver.unarchive('web', READ_ME)
 # archiver.unarchive('web', REPO)
 
-
-# archiver.archive('dev', UPDATED_REPOS)
+archiver.archive('dev', UPDATED_REPOS)
