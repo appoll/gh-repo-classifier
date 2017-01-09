@@ -8,8 +8,8 @@ from collection.labels import Labels
 
 
 def features(label):
-    features = pd.read_csv("../../exploration/features/repo_data_%s.txt" % label.value, delimiter=" ", header=0)
-    print("./exploration/features/repo_data_%s.txt" % label.value)
+    features = pd.read_csv("../../exploration/labelled/features/repo_data_%s.txt" % label.value, delimiter=" ",
+                           header=0)
 
     features = features.drop(labels='repo_name', axis=1)
 

@@ -18,11 +18,14 @@ class FeatureExtraction:
 
         self.features_folder = "../exploration/features/"
         self.additional_features_folder = "../exploration/additional/features/"
+        self.labelled_features_folder = "../exploration/labelled/features/"
 
         self.commits_folder = "../collection/%s/json_commits/"
         self.commits_interval_folder = "../collection/%s/json_commits_interval/"
         self.repos_folder = "../collection/%s/json_repos_updated/"
         self.contents_folder = "../collection/%s/json_contents/"
+
+        self.labelled_repos_folder = "../collection/%s/json_repos_updated_labelled/"
 
         self.all_languages = {}
 
@@ -330,10 +333,10 @@ class FeatureExtraction:
         print len(used_languages.keys())
         return collections.OrderedDict(used_languages)
 
-    def get_repo_features(self, label, additional):
-        if additional:
-            folder = self.additional_repos_folder % label
-            name = self.additional_features_folder + "repo_data_%s.txt" % label
+    def get_repo_features(self, label, labelled):
+        if labelled:
+            folder = self.labelled_repos_folder % label
+            name = self.labelled_features_folder + "repo_data_%s.txt" % label
         else:
             folder = self.repos_folder % label
             name = self.features_folder + "repo_data_%s.txt" % label
@@ -526,9 +529,17 @@ featureExtraction = FeatureExtraction()
 # featureExtraction.get_contents_features('hw', additional=False)
 # featureExtraction.get_contents_features('web', additional=False)
 
-featureExtraction.get_commits_interval_features('dev')
-featureExtraction.get_commits_interval_features('data')
-featureExtraction.get_commits_interval_features('docs')
-featureExtraction.get_commits_interval_features('edu')
-featureExtraction.get_commits_interval_features('hw')
-featureExtraction.get_commits_interval_features('web')
+# featureExtraction.get_commits_interval_features('dev')
+# featureExtraction.get_commits_interval_features('data')
+# featureExtraction.get_commits_interval_features('docs')
+# featureExtraction.get_commits_interval_features('edu')
+# featureExtraction.get_commits_interval_features('hw')
+# featureExtraction.get_commits_interval_features('web')
+
+featureExtraction.get_repo_features('dev', labelled=True)
+featureExtraction.get_repo_features('data', labelled=True)
+featureExtraction.get_repo_features('docs', labelled=True)
+featureExtraction.get_repo_features('edu', labelled=True)
+featureExtraction.get_repo_features('hw', labelled=True)
+featureExtraction.get_repo_features('web', labelled=True)
+featureExtraction.get_repo_features('other', labelled=True)
