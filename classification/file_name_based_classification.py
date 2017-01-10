@@ -7,6 +7,9 @@ from sklearn.svm import SVC
 from sklearn.model_selection import GridSearchCV
 from sklearn.ensemble import RandomForestClassifier
 
+from collection.labels import Labels
+
+
 def cleanString(s):
     p = re.compile('(?<=[a-z])(?=[A-Z])')
     newS = p.sub(r' ',s)
@@ -17,12 +20,20 @@ def cleanString(s):
 
 
 file_names = list()
-file_names.append('../exploration/features/contents_data_data.txt')
-file_names.append('../exploration/features/contents_data_dev.txt')
-file_names.append('../exploration/features/contents_data_web.txt')
-file_names.append('../exploration/features/contents_data_hw.txt')
-file_names.append('../exploration/features/contents_data_docs.txt')
-file_names.append('../exploration/features/contents_data_edu.txt')
+# file_names.append('../exploration/features/contents_data_data.txt')
+# file_names.append('../exploration/features/contents_data_dev.txt')
+# file_names.append('../exploration/features/contents_data_web.txt')
+# file_names.append('../exploration/features/contents_data_hw.txt')
+# file_names.append('../exploration/features/contents_data_docs.txt')
+# file_names.append('../exploration/features/contents_data_edu.txt')
+
+file_names.append('../exploration/labelled/features/contents_data_%s.txt' % Labels.data.value)
+file_names.append('../exploration/labelled/features/contents_data_%s.txt' % Labels.dev.value)
+file_names.append('../exploration/labelled/features/contents_data_%s.txt' % Labels.web.value)
+file_names.append('../exploration/labelled/features/contents_data_%s.txt' % Labels.hw.value)
+file_names.append('../exploration/labelled/features/contents_data_%s.txt' % Labels.docs.value)
+file_names.append('../exploration/labelled/features/contents_data_%s.txt' % Labels.edu.value)
+file_names.append('../exploration/labelled/features/contents_data_%s.txt' % Labels.uncertain.value)
 
 data = list()
 Y    = list()

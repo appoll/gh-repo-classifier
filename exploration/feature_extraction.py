@@ -26,6 +26,7 @@ class FeatureExtraction:
         self.contents_folder = "../collection/%s/json_contents/"
 
         self.labelled_repos_folder = "../collection/%s/json_repos_updated_labelled/"
+        self.labelled_contents_folder = "../collection/%s/json_contents_labelled/"
 
         self.all_languages = {}
 
@@ -401,10 +402,10 @@ class FeatureExtraction:
         print "Wrote repo features to %s" % f.name
         f.close()
 
-    def get_contents_features(self, label, additional):
-        if additional:
-            folder = self.additional_contents_folder % label
-            name = self.additional_features_folder + "contents_data_%s.txt" % label
+    def get_contents_features(self, label, labelled):
+        if labelled:
+            folder = self.labelled_contents_folder % label
+            name = self.labelled_features_folder + "contents_data_%s.txt" % label
         else:
             folder = self.contents_folder % label
             name = self.features_folder + "contents_data_%s.txt" % label
@@ -447,7 +448,7 @@ class FeatureExtraction:
             line = line.encode('utf-8')
             f.write(line)
             f.write('\n')
-        print "Wrote repo features to %s" % f.name
+        print "Wrote contents features to %s" % f.name
         f.close()
 
     def get_dir_count(self, contents):
@@ -550,10 +551,18 @@ featureExtraction = FeatureExtraction()
 # featureExtraction.get_repo_features('web', labelled=True)
 # featureExtraction.get_repo_features('other', labelled=True)
 
-featureExtraction.get_language_features('dev', labelled=True,  binary=True)
-featureExtraction.get_language_features('data', labelled=True,  binary=True)
-featureExtraction.get_language_features('docs', labelled=True,  binary=True)
-featureExtraction.get_language_features('edu', labelled=True,  binary=True)
-featureExtraction.get_language_features('hw', labelled=True,  binary=True)
-featureExtraction.get_language_features('web', labelled=True,  binary=True)
-featureExtraction.get_language_features('other', labelled=True,  binary=True)
+# featureExtraction.get_language_features('dev', labelled=True,  binary=True)
+# featureExtraction.get_language_features('data', labelled=True,  binary=True)
+# featureExtraction.get_language_features('docs', labelled=True,  binary=True)
+# featureExtraction.get_language_features('edu', labelled=True,  binary=True)
+# featureExtraction.get_language_features('hw', labelled=True,  binary=True)
+# featureExtraction.get_language_features('web', labelled=True,  binary=True)
+# featureExtraction.get_language_features('other', labelled=True,  binary=True)
+
+featureExtraction.get_contents_features('dev', labelled=True)
+featureExtraction.get_contents_features('data', labelled=True)
+featureExtraction.get_contents_features('docs', labelled=True)
+featureExtraction.get_contents_features('edu', labelled=True)
+featureExtraction.get_contents_features('hw', labelled=True)
+featureExtraction.get_contents_features('web', labelled=True)
+featureExtraction.get_contents_features('other', labelled=True)

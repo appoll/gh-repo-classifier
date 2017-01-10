@@ -28,13 +28,13 @@ def update(label, source, dest):
     :param dest: the destination folder of labelled repo info
     """
     source = source % label
-    labelled_web = "../labelled_web"
-    labelled_dev = "../labelled_dev"
-    labelled_data = "../labelled_data"
-    labelled_docs = "../labelled_docs"
-    labelled_edu = "../labelled_edu"
-    labelled_hw = "../labelled_hw"
-    labelled_other = "../labelled_other"
+    labelled_web = ".labelled_web"
+    labelled_dev = "labelled_dev"
+    labelled_data = "labelled_data"
+    labelled_docs = "labelled_docs"
+    labelled_edu = "labelled_edu"
+    labelled_hw = "labelled_hw"
+    labelled_other = "labelled_other"
 
     dev_labelled_repos_names = extract_labelled_repos_names(labelled_dev)
     data_labelled_repos_names = extract_labelled_repos_names(labelled_data)
@@ -97,7 +97,7 @@ repos_folder_labelled = "../%s/json_repos_unarchived_labelled/"
 repos_folder_updated_labelled = "../%s/json_repos_updated_labelled/"
 readmes_repos_folder_labelled = "../%s/json_readmes_unarchived_labelled/"
 commits_interval_folder_labelled = "../%s/json_commits_interval_labelled/"
-contents_folder_labelled = "../%s/json_contents_labelled"
+contents_folder_labelled = "../%s/json_contents_labelled/"
 
 # update(Labels.web.value, repos_folder, repos_folder_labelled)
 # update(Labels.web.value, repos_folder_updated, repos_folder_updated_labelled)
@@ -116,7 +116,6 @@ contents_folder_labelled = "../%s/json_contents_labelled"
 # update(Labels.data.value, readmes_repos_folder, readmes_repos_folder_labelled)
 # update(Labels.data.value, commits_interval_folder, commits_interval_folder_labelled)
 # update(Labels.data.value, contents_folder, contents_folder_labelled)
-# continue from here, perform update on the data label for the contents info
 
 # update(Labels.docs.value, repos_folder, repos_folder_labelled)
 # update(Labels.docs.value, repos_folder_updated, repos_folder_updated_labelled)
