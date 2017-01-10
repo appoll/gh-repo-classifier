@@ -7,7 +7,7 @@ class Labels(Enum):
     docs = 'docs'
     web = 'web'
     data = 'data'
-    uncertain = 'uncertain'
+    uncertain = 'other'
 
     @staticmethod
     def toArray():

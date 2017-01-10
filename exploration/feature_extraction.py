@@ -246,10 +246,10 @@ class FeatureExtraction:
         #     return active_days / math.ceil(days)
         # return 1
 
-    def get_language_features(self, label, additional):
-        if additional:
-            folder = self.repos_folder % label
-            name = self.additional_features_folder + "languages_data_%s.txt" % label
+    def get_language_features(self, label, labelled):
+        if labelled:
+            folder = self.labelled_repos_folder % label
+            name = self.labelled_features_folder + "languages_data_%s.txt" % label
         else:
             folder = self.repos_folder % label
             name = self.features_folder + "languages_data_%s.txt" % label
@@ -314,7 +314,7 @@ class FeatureExtraction:
         used_languages = {}
         for label in Labels.toArray():
             print label
-            folder = self.repos_folder % label.value
+            folder = self.labelled_repos_folder % label.value
             for filename in glob.glob(folder + '*'):
                 print filename
                 json_file = open(filename, 'r')
@@ -536,10 +536,18 @@ featureExtraction = FeatureExtraction()
 # featureExtraction.get_commits_interval_features('hw')
 # featureExtraction.get_commits_interval_features('web')
 
-featureExtraction.get_repo_features('dev', labelled=True)
-featureExtraction.get_repo_features('data', labelled=True)
-featureExtraction.get_repo_features('docs', labelled=True)
-featureExtraction.get_repo_features('edu', labelled=True)
-featureExtraction.get_repo_features('hw', labelled=True)
-featureExtraction.get_repo_features('web', labelled=True)
-featureExtraction.get_repo_features('other', labelled=True)
+# featureExtraction.get_repo_features('dev', labelled=True)
+# featureExtraction.get_repo_features('data', labelled=True)
+# featureExtraction.get_repo_features('docs', labelled=True)
+# featureExtraction.get_repo_features('edu', labelled=True)
+# featureExtraction.get_repo_features('hw', labelled=True)
+# featureExtraction.get_repo_features('web', labelled=True)
+# featureExtraction.get_repo_features('other', labelled=True)
+
+featureExtraction.get_language_features('dev', labelled=True)
+featureExtraction.get_language_features('data', labelled=True)
+featureExtraction.get_language_features('docs', labelled=True)
+featureExtraction.get_language_features('edu', labelled=True)
+featureExtraction.get_language_features('hw', labelled=True)
+featureExtraction.get_language_features('web', labelled=True)
+featureExtraction.get_language_features('other', labelled=True)
