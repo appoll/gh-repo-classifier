@@ -261,7 +261,7 @@ class FeatureExtraction:
         if not os.path.exists(os.path.dirname(name)):
             os.makedirs(os.path.dirname(name))
         f = open(name, 'w')
-        header = "languages_count total_bytes "
+        header = "languages_count languages_total_lines "
         for language in self.all_languages:
             language = language.replace(" ", "_")
             header += language + " "
@@ -279,29 +279,32 @@ class FeatureExtraction:
 
             try:
                 languages = repo["languages"]
+                repo_size = repo['size']
             except KeyError:
                 print "Key Error in %s" % filename
                 continue
 
             all_languages_count = len(languages)
-            total_bytes = sum(languages.itervalues())
+            total_lines = sum(languages.itervalues())
 
-            for language, bytes in languages.iteritems():
+            if repo_size == 0:
+                continue
+
+            for language, code_lines in languages.iteritems():
                 print language
                 if language not in current_languages:
                     raise ValueError("Should not be!")
                 try:
-                    current_languages[language] = "%.2f" % (float(bytes) / total_bytes)
+                    current_languages[language] = "%.2f" % (float(code_lines) / total_lines)
                 except ZeroDivisionError:
-                    current_languages[language] = "%.2f" % total_bytes
+                    raise ZeroDivisionError("Somewhere you missed a check on total_bytes!")
 
-            print 'heee'
             print len(current_languages)
 
             line = "%.2f" % all_languages_count
-            line = line + " " + "%.2f" % total_bytes
-            for bytes in current_languages.values():
-                line = line + " " + str(bytes)
+            line = line + " " + "%.2f" % total_lines
+            for code_lines in current_languages.values():
+                line = line + " " + str(code_lines)
 
             line = line + " " + name.split('.')[0]
 
