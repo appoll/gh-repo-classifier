@@ -13,7 +13,7 @@ from collection.labels import Labels
 def features(label):
     features = pd.read_csv("../../exploration/labelled/features/languages_data_%s.txt" % label.value, delimiter=" ",
                            header=0)
-
+    print '/labelled/features/languages_data_%s' % label
     print features.shape
 
     features = features.drop(labels='repo_name', axis=1)
@@ -64,10 +64,13 @@ def compare_performance_scores(linear_svc, rbf_svc, data):
         linear_svc_accuracy_sum += linear_svc_accuracy * 100
         rbf_svc_accuracy = accuracy_score(y_test, y_pred_rbf)
         rbf_svc_accuracy_sum += rbf_svc_accuracy * 100
+
     linear_svc_accuracy_average = linear_svc_accuracy_sum / sample_runs
     linear_svc_precision_average = linear_svc_precision_sum / sample_runs
+
     rbf_svc_accuracy_average = rbf_svc_accuracy_sum / sample_runs
     rbf_svc_precision_average = rbf_svc_precision_sum / sample_runs
+
     print "Linear SVC: average accuracy and precision"
     print linear_svc_accuracy_average
     print linear_svc_precision_average
@@ -146,7 +149,8 @@ data = pd.concat(features)
 linear_svc = LinearSVC()
 rbf_svc = SVC(kernel='rbf')
 
-# compare_performance_scores(linear_svc=linear_svc, rbf_svc=rbf_svc, data=data)
-
-
+compare_performance_scores(linear_svc=linear_svc, rbf_svc=rbf_svc, data=data)
 tune_rbf_svc_hyperparameters(rbf_svc, data)
+
+rbf_svc = SVC(kernel='rbf', C=1, gamma=0.01)
+compare_performance_scores(linear_svc=linear_svc, rbf_svc=rbf_svc, data=data)
