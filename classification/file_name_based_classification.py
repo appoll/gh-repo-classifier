@@ -5,11 +5,10 @@ from sklearn.feature_extraction.text import CountVectorizer
 from sklearn.model_selection import train_test_split
 from sklearn.svm import SVC
 from sklearn.model_selection import GridSearchCV
-
+from sklearn.ensemble import RandomForestClassifier
 
 def cleanString(s):
     p = re.compile('(?<=[a-z])(?=[A-Z])')
-    
     newS = p.sub(r' ',s)
     newS = re.sub('[0-9]+',' NN ',newS)
     newS = re.sub('[^a-zA-Z]',' ',newS)
@@ -50,7 +49,8 @@ X_train, X_test, Y_train, Y_test = train_test_split(X,Y,test_size=0.4,random_sta
 C_range = np.logspace(-2, 10, 13)
 gamma_range = np.logspace(-9, 3, 13)
 gS = GridSearchCV(SVC(),{'kernel':['rbf'],'C':C_range,'gamma':gamma_range},n_jobs=-1)
+clf = RandomForestClassifier(n_estimators=300,n_jobs=-1,random_state=0)
 
-
-gS.fit(X_train,Y_train)
-print gS.score(X_test,Y_test)
+# gS.fit(X_train,Y_train)
+clf.fit(X_train,Y_train)
+print clf.score(X_test,Y_test)
