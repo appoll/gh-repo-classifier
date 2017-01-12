@@ -320,6 +320,54 @@ class FeatureExtraction:
         print "Wrote languages features to %s" % f.name
         f.close()
 
+    def get_language_features_str(self, label, labelled):
+        if labelled:
+            folder = self.labelled_repos_folder % label
+            name = self.labelled_features_folder + "languages_str_data_%s.txt" % label
+        else:
+            folder = self.repos_folder % label
+            name = self.features_folder + "languages_str_data_%s.txt" % label
+
+        if not os.path.exists(os.path.dirname(name)):
+            os.makedirs(os.path.dirname(name))
+        f = open(name, 'w')
+        header = "languages_count languages_str "
+        # for language in self.all_languages:
+        #     language = language.replace(" ", "_")
+        #     header += language + " "
+        #
+        header += "repo_name\n"
+        f.write(header)
+
+        for filename in glob.glob(folder + '*'):
+            print filename
+            json_file = open(filename, 'r')
+            name = os.path.basename(filename)
+            repo = json.load(json_file)
+
+            try:
+                languages = repo["languages"]
+                repo_size = repo['size']
+            except KeyError:
+                print "Key Error in %s" % filename
+                continue
+
+            all_languages_count = len(languages)
+
+            all_languages_str = self.get_languages_names_as_str(languages)
+
+            if repo_size == 0 or all_languages_count == 0:
+                continue
+
+            line = "%.2f" % all_languages_count
+            line = line + " " + "%s" % all_languages_str
+            line = line + " " + name.split('.')[0]
+
+            f.write(line)
+            f.write('\n')
+        print "Wrote languages str features to %s" % f.name
+        f.close()
+
     def get_all_languages(self):
         used_languages = {}
         for label in Labels.toArray():
@@ -542,6 +590,15 @@ class FeatureExtraction:
         result += "\""
         return result
 
+    def get_languages_names_as_str(self, languages):
+        result = "\""
+        for language in languages:
+            print language
+            result += language + " "
+        result = result[:-1]
+        result += "\""
+        return result
+
     def get_file_paths_as_str(self, contents):
         result = "\""
         for entry in contents:
@@ -619,7 +676,7 @@ featureExtraction = FeatureExtraction()
 # featureExtraction.get_repo_features('hw', labelled=True)
 # featureExtraction.get_repo_features('web', labelled=True)
 # featureExtraction.get_repo_features('other', labelled=True)
-
+#
 # featureExtraction.get_language_features('dev', labelled=True, binary=True)
 # featureExtraction.get_language_features('data', labelled=True, binary=True)
 # featureExtraction.get_language_features('docs', labelled=True, binary=True)
@@ -628,6 +685,14 @@ featureExtraction = FeatureExtraction()
 # featureExtraction.get_language_features('web', labelled=True, binary=True)
 # featureExtraction.get_language_features('other', labelled=True, binary=True)
 
+featureExtraction.get_language_features('dev', labelled=True, binary=False)
+featureExtraction.get_language_features('data', labelled=True, binary=False)
+featureExtraction.get_language_features('docs', labelled=True, binary=False)
+featureExtraction.get_language_features('edu', labelled=True, binary=False)
+featureExtraction.get_language_features('hw', labelled=True, binary=False)
+featureExtraction.get_language_features('web', labelled=True, binary=False)
+featureExtraction.get_language_features('other', labelled=True, binary=False)
+
 # featureExtraction.get_contents_features('dev', labelled=True)
 # featureExtraction.get_contents_features('data', labelled=True)
 # featureExtraction.get_contents_features('docs', labelled=True)
@@ -635,11 +700,19 @@ featureExtraction = FeatureExtraction()
 # featureExtraction.get_contents_features('hw', labelled=True)
 # featureExtraction.get_contents_features('web', labelled=True)
 # featureExtraction.get_contents_features('other', labelled=True)
+#
+# featureExtraction.get_trees_features('dev', labelled=True)
+# featureExtraction.get_trees_features('data', labelled=True)
+# featureExtraction.get_trees_features('docs', labelled=True)
+# featureExtraction.get_trees_features('edu', labelled=True)
+# featureExtraction.get_trees_features('hw', labelled=True)
+# featureExtraction.get_trees_features('web', labelled=True)
+# featureExtraction.get_trees_features('other', labelled=True)
 
-featureExtraction.get_trees_features('dev', labelled=True)
-featureExtraction.get_trees_features('data', labelled=True)
-featureExtraction.get_trees_features('docs', labelled=True)
-featureExtraction.get_trees_features('edu', labelled=True)
-featureExtraction.get_trees_features('hw', labelled=True)
-featureExtraction.get_trees_features('web', labelled=True)
-featureExtraction.get_trees_features('other', labelled=True)
+featureExtraction.get_language_features_str('dev', labelled=True)
+featureExtraction.get_language_features_str('data', labelled=True)
+featureExtraction.get_language_features_str('docs', labelled=True)
+featureExtraction.get_language_features_str('edu', labelled=True)
+featureExtraction.get_language_features_str('hw', labelled=True)
+featureExtraction.get_language_features_str('web', labelled=True)
+featureExtraction.get_language_features_str('other', labelled=True)

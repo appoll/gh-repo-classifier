@@ -2,7 +2,7 @@ import glob
 
 from collection.labels import Labels
 
-readmes_folder_path = '../collection/%s/json_readmes_unarchived/'
+readmes_folder_path = '../collection/%s/json_readmes_unarchived_labelled/'
 
 repos_folders = []
 dict_label_path = {}
