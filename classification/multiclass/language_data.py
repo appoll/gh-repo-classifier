@@ -1,6 +1,9 @@
 import pandas as pd
+from sklearn.ensemble import RandomForestClassifier
 from sklearn.metrics import accuracy_score
 from sklearn.metrics import classification_report
+from sklearn.metrics import confusion_matrix
+from sklearn.metrics import mean_squared_error
 from sklearn.metrics import precision_score
 from sklearn.model_selection import GridSearchCV
 from sklearn.model_selection import train_test_split
@@ -8,6 +11,7 @@ from sklearn.svm import LinearSVC
 from sklearn.svm import SVC
 
 from collection.labels import Labels
+import numpy as np
 
 
 def features(label):
@@ -96,11 +100,13 @@ def tune_rbf_svc_hyperparameters(rbf_svc, data):
 
     # http: // scikit - learn.org / stable / auto_examples / model_selection / grid_search_digits.html  # sphx-glr-auto-examples-model-selection-grid-search-digits-py
     # Set the parameters by cross-validation ?
-    tuned_parameters = [{'kernel': ['rbf'], 'gamma': [1e-3, 1e-4],
-                         'C': [1, 10, 100, 1000]}]
+    C_range = np.logspace(-2, 10, 13)
+    gamma_range = np.logspace(-9, 3, 13)
 
-    clf = GridSearchCV(rbf_svc, tuned_parameters, cv=5,
-                       scoring='precision_macro')
+    tuned_parameters = [{'kernel': ['rbf'], 'gamma': gamma_range,
+                         'C': C_range}]
+
+    clf = GridSearchCV(rbf_svc, tuned_parameters, scoring='precision_macro', n_jobs=-1)
     clf.fit(x_train, y_train)
     print("Best parameters set found on development set:")
     print()
@@ -146,11 +152,30 @@ features = [features(Labels.edu), features(Labels.data), features(Labels.hw), fe
 
 data = pd.concat(features)
 
-linear_svc = LinearSVC()
-rbf_svc = SVC(kernel='rbf')
+train_data, test_data = train_test_split(data, test_size=0.2)
 
-compare_performance_scores(linear_svc=linear_svc, rbf_svc=rbf_svc, data=data)
-tune_rbf_svc_hyperparameters(rbf_svc, data)
+train_labels = train_data['label']
+test_labels = test_data['label']
 
-rbf_svc = SVC(kernel='rbf', C=1, gamma=0.01)
-compare_performance_scores(linear_svc=linear_svc, rbf_svc=rbf_svc, data=data)
+train_data = train_data.drop(labels='label', axis=1)
+test_data = test_data.drop(labels='label', axis=1)
+
+forest_classifier = RandomForestClassifier(n_estimators=500, max_depth=5)
+forest = forest_classifier.fit(train_data, train_labels)
+
+output = forest.predict(test_data)
+
+print mean_squared_error(output, test_labels)
+print accuracy_score(test_labels, output)
+print precision_score(test_labels, output, average=None)
+
+
+
+# linear_svc = LinearSVC()
+# rbf_svc = SVC(kernel='rbf')
+
+# compare_performance_scores(linear_svc=linear_svc, rbf_svc=rbf_svc, data=data)
+# tune_rbf_svc_hyperparameters(rbf_svc, data)
+
+# rbf_svc = SVC(kernel='rbf', C=1, gamma=0.01)
+# compare_performance_scores(linear_svc=linear_svc, rbf_svc=rbf_svc, data=data)
