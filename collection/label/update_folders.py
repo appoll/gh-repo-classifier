@@ -28,7 +28,7 @@ def update(label, source, dest):
     :param dest: the destination folder of labelled repo info
     """
     source = source % label
-    labelled_web = ".labelled_web"
+    labelled_web = "labelled_web"
     labelled_dev = "labelled_dev"
     labelled_data = "labelled_data"
     labelled_docs = "labelled_docs"
@@ -92,33 +92,47 @@ repos_folder_updated = "../%s/json_repos_updated/"
 readmes_repos_folder = "../%s/json_readmes_unarchived/"
 commits_interval_folder = "../%s/json_commits_interval/"
 contents_folder = "../%s/json_contents/"
+trees_folder = "../%s/json_trees/"
 
 repos_folder_labelled = "../%s/json_repos_unarchived_labelled/"
 repos_folder_updated_labelled = "../%s/json_repos_updated_labelled/"
 readmes_repos_folder_labelled = "../%s/json_readmes_unarchived_labelled/"
 commits_interval_folder_labelled = "../%s/json_commits_interval_labelled/"
 contents_folder_labelled = "../%s/json_contents_labelled/"
+trees_folder_labelled="../%s/json_trees_labelled/"
 
 # update(Labels.web.value, repos_folder, repos_folder_labelled)
 # update(Labels.web.value, repos_folder_updated, repos_folder_updated_labelled)
 # update(Labels.web.value, readmes_repos_folder, readmes_repos_folder_labelled)
 # update(Labels.web.value, commits_interval_folder, commits_interval_folder_labelled)
 # update(Labels.web.value, contents_folder, contents_folder_labelled)
+# update(Labels.web.value, trees_folder, trees_folder_labelled)
 
 # update(Labels.hw.value, repos_folder, repos_folder_labelled)
 # update(Labels.hw.value, repos_folder_updated, repos_folder_updated_labelled)
 # update(Labels.hw.value, readmes_repos_folder, readmes_repos_folder_labelled)
 # update(Labels.hw.value, commits_interval_folder, commits_interval_folder_labelled)
 # update(Labels.hw.value, contents_folder, contents_folder_labelled)
+# update(Labels.hw.value, trees_folder, trees_folder_labelled)
 
 # update(Labels.data.value, repos_folder, repos_folder_labelled)
 # update(Labels.data.value, repos_folder_updated, repos_folder_updated_labelled)
 # update(Labels.data.value, readmes_repos_folder, readmes_repos_folder_labelled)
 # update(Labels.data.value, commits_interval_folder, commits_interval_folder_labelled)
 # update(Labels.data.value, contents_folder, contents_folder_labelled)
-
+# update(Labels.data.value, trees_folder, trees_folder_labelled)
+#
 # update(Labels.docs.value, repos_folder, repos_folder_labelled)
 # update(Labels.docs.value, repos_folder_updated, repos_folder_updated_labelled)
 # update(Labels.docs.value, readmes_repos_folder, readmes_repos_folder_labelled)
 # update(Labels.docs.value, commits_interval_folder, commits_interval_folder_labelled)
 # update(Labels.docs.value, contents_folder, contents_folder_labelled)
+# update(Labels.docs.value, trees_folder, trees_folder_labelled)
+
+#
+# update(Labels.edu.value, repos_folder, repos_folder_labelled)
+# update(Labels.edu.value, repos_folder_updated, repos_folder_updated_labelled)
+# update(Labels.edu.value, readmes_repos_folder, readmes_repos_folder_labelled)
+# update(Labels.edu.value, commits_interval_folder, commits_interval_folder_labelled)
+# update(Labels.edu.value, contents_folder, contents_folder_labelled)
+# update(Labels.edu.value, trees_folder, trees_folder_labelled)

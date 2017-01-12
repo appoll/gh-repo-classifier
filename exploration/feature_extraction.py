@@ -24,9 +24,11 @@ class FeatureExtraction:
         self.commits_interval_folder = "../collection/%s/json_commits_interval/"
         self.repos_folder = "../collection/%s/json_repos_updated/"
         self.contents_folder = "../collection/%s/json_contents/"
+        self.trees_folder = "../collection/%s/json_trees/"
 
         self.labelled_repos_folder = "../collection/%s/json_repos_updated_labelled/"
         self.labelled_contents_folder = "../collection/%s/json_contents_labelled/"
+        self.labelled_trees_folder = "../collection/%s/json_trees_labelled/"
 
         self.all_languages = {}
 
@@ -301,7 +303,8 @@ class FeatureExtraction:
                     else:
                         current_languages[language] = "%.2f" % (float(code_lines) / total_lines)
                 except ZeroDivisionError:
-                    raise ZeroDivisionError("Somewhere you missed a check on total_bytes!")
+                    current_languages[language] = 0
+                    # raise ZeroDivisionError("Somewhere you missed a check on total_bytes!")
 
             print len(current_languages)
 
@@ -451,6 +454,63 @@ class FeatureExtraction:
         print "Wrote contents features to %s" % f.name
         f.close()
 
+    def get_trees_features(self, label, labelled):
+        if labelled:
+            folder = self.labelled_trees_folder % label
+            name = self.labelled_features_folder + "trees_data_%s.txt" % label
+        else:
+            folder = self.trees_folder % label
+            name = self.features_folder + "trees_data_%s.txt" % label
+
+        if not os.path.exists(os.path.dirname(name)):
+            os.makedirs(os.path.dirname(name))
+        f = open(name, 'w')
+        header = "blob_paths repo_name\n"
+        f.write(header)
+
+        for filename in glob.glob(folder + '*'):
+            print filename
+            json_file = open(filename, 'r')
+            name = os.path.basename(filename)
+
+            contents_filename = filename.replace("json_trees", "json_contents")
+            contents_json_file = open(contents_filename, 'r')
+
+            root_folder_trees = json.load(json_file)
+            contents = json.load(contents_json_file)
+
+            contents_json_file.close()
+            json_file.close()
+
+            total_root_folders = len(root_folder_trees)
+            print '%d root folders here' % total_root_folders
+
+            if len(contents) > 0:
+                blob_paths = self.get_file_paths_as_str(contents=contents)
+                blob_paths += " "
+            else:
+                blob_paths = "\""
+
+            for root_folder_entry in root_folder_trees:
+                folder_name = root_folder_entry['root_folder_name']
+                folder_tree = root_folder_entry['tree']
+                for tree_entry in folder_tree:
+                    # print tree_entry
+                    if tree_entry['type'] == 'blob':
+                        blob_paths += tree_entry['path']
+                        blob_paths += " "
+            blob_paths = blob_paths[:-1]
+            blob_paths += "\""
+
+            line = "%s" % blob_paths
+            line = line + " " + name.split('.')[0]
+            line = line.encode('utf-8')
+            f.write(line)
+            f.write('\n')
+
+        print "Wrote trees features to %s" % f.name
+        f.close()
+
     def get_dir_count(self, contents):
         count = 0
         for entry in contents:
@@ -478,7 +538,16 @@ class FeatureExtraction:
         for entry in contents:
             if entry['type'] == 'file':
                 result += entry['name'] + " "
+        result = result[:-1]
         result += "\""
+        return result
+
+    def get_file_paths_as_str(self, contents):
+        result = "\""
+        for entry in contents:
+            if entry['type'] == 'file':
+                result += entry['name'] + " "
+        result = result[:-1]
         return result
 
     def get_folder_and_file_names_as_str(self, contents):
@@ -551,18 +620,26 @@ featureExtraction = FeatureExtraction()
 # featureExtraction.get_repo_features('web', labelled=True)
 # featureExtraction.get_repo_features('other', labelled=True)
 
-# featureExtraction.get_language_features('dev', labelled=True,  binary=True)
-# featureExtraction.get_language_features('data', labelled=True,  binary=True)
-# featureExtraction.get_language_features('docs', labelled=True,  binary=True)
-# featureExtraction.get_language_features('edu', labelled=True,  binary=True)
-# featureExtraction.get_language_features('hw', labelled=True,  binary=True)
-# featureExtraction.get_language_features('web', labelled=True,  binary=True)
-# featureExtraction.get_language_features('other', labelled=True,  binary=True)
+# featureExtraction.get_language_features('dev', labelled=True, binary=True)
+# featureExtraction.get_language_features('data', labelled=True, binary=True)
+# featureExtraction.get_language_features('docs', labelled=True, binary=True)
+# featureExtraction.get_language_features('edu', labelled=True, binary=True)
+# featureExtraction.get_language_features('hw', labelled=True, binary=True)
+# featureExtraction.get_language_features('web', labelled=True, binary=True)
+# featureExtraction.get_language_features('other', labelled=True, binary=True)
 
-featureExtraction.get_contents_features('dev', labelled=True)
-featureExtraction.get_contents_features('data', labelled=True)
-featureExtraction.get_contents_features('docs', labelled=True)
-featureExtraction.get_contents_features('edu', labelled=True)
-featureExtraction.get_contents_features('hw', labelled=True)
-featureExtraction.get_contents_features('web', labelled=True)
-featureExtraction.get_contents_features('other', labelled=True)
+# featureExtraction.get_contents_features('dev', labelled=True)
+# featureExtraction.get_contents_features('data', labelled=True)
+# featureExtraction.get_contents_features('docs', labelled=True)
+# featureExtraction.get_contents_features('edu', labelled=True)
+# featureExtraction.get_contents_features('hw', labelled=True)
+# featureExtraction.get_contents_features('web', labelled=True)
+# featureExtraction.get_contents_features('other', labelled=True)
+
+featureExtraction.get_trees_features('dev', labelled=True)
+featureExtraction.get_trees_features('data', labelled=True)
+featureExtraction.get_trees_features('docs', labelled=True)
+featureExtraction.get_trees_features('edu', labelled=True)
+featureExtraction.get_trees_features('hw', labelled=True)
+featureExtraction.get_trees_features('web', labelled=True)
+featureExtraction.get_trees_features('other', labelled=True)
