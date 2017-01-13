@@ -33,7 +33,8 @@ def features(label):
         features['label'] = 4
     elif label == Labels.web:
         features['label'] = 5
-
+    elif label == Labels.uncertain:
+        features['label'] = 6
     return features
 
 
@@ -148,7 +149,7 @@ features = [features(Labels.edu), features(Labels.data), features(Labels.hw), fe
             features(Labels.docs)]
 
 data = pd.concat(features)
-
+print data.shape
 train_data, test_data = train_test_split(data, test_size=0.2)
 
 train_labels = train_data['label']

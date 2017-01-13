@@ -31,6 +31,8 @@ def features(label):
         features['label'] = 4
     elif label == Labels.web:
         features['label'] = 5
+    elif label == Labels.uncertain:
+        features['label'] = 6
 
     return features
 
