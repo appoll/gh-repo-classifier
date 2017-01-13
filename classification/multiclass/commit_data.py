@@ -9,11 +9,11 @@ from sklearn.metrics import precision_score
 import numpy as np
 
 def features(label):
-    features = pd.read_csv("../../exploration/labelled/features/commit_data_%s.txt" % label.value, delimiter=" ", header=0)
-    print("./exploration/features/commit_data_%s.txt" % label.value)
+    # features = pd.read_csv("../../exploration/labelled/features/commit_data_%s.txt" % label.value, delimiter=" ", header=0)
+    # print("./exploration/features/commit_data_%s.txt" % label.value)
 
-    # features = pd.read_csv("../../exploration/labelled/features/commits_interval_data_%s.txt" % label.value, delimiter=" ", header=0)
-    # print "../../exploration/labelled/features/commits_interval_data_%s.txt"
+    features = pd.read_csv("../../exploration/labelled/features/commits_interval_data_%s.txt" % label.value, delimiter=" ", header=0)
+    print "../../exploration/labelled/features/commits_interval_data_%s.txt"
 
     print features.shape
 
@@ -31,6 +31,8 @@ def features(label):
         features['label'] = 4
     elif label == Labels.web:
         features['label'] = 5
+    elif label == Labels.uncertain:
+        features['label'] = 6
 
     return features
 
