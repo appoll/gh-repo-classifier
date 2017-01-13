@@ -2,6 +2,9 @@ import numpy as np
 import pandas as pd
 from sklearn.ensemble import RandomForestClassifier
 from sklearn.feature_extraction.text import CountVectorizer
+from sklearn.metrics import accuracy_score
+from sklearn.metrics import mean_squared_error
+from sklearn.metrics import precision_score
 from sklearn.model_selection import GridSearchCV
 from sklearn.model_selection import train_test_split
 from sklearn.svm import SVC
@@ -39,7 +42,7 @@ def features(label):
 
 features = [features(Labels.edu), features(Labels.data), features(Labels.hw), features(Labels.web),
             features(Labels.dev),
-            features(Labels.docs)]
+            features(Labels.docs), features(Labels.uncertain)]
 
 data = pd.concat(features)
 
@@ -71,3 +74,11 @@ clf = RandomForestClassifier(n_estimators=1000, n_jobs=-1, random_state=0, max_d
 # gS.fit(X_train,Y_train)
 clf.fit(X_train, Y_train)
 print clf.score(X_test, Y_test)
+
+output = clf.predict(X_test)
+
+print mean_squared_error(output, Y_test)
+print accuracy_score(Y_test, output)
+score = precision_score(Y_test, output, average=None)
+print score
+print np.mean(score)

@@ -146,7 +146,7 @@ def tune_rbf_svc_hyperparameters(rbf_svc, data):
 
 features = [features(Labels.edu), features(Labels.data), features(Labels.hw), features(Labels.web),
             features(Labels.dev),
-            features(Labels.docs)]
+            features(Labels.docs), features(Labels.uncertain)]
 
 data = pd.concat(features)
 print data.shape
@@ -158,15 +158,30 @@ test_labels = test_data['label']
 train_data = train_data.drop(labels='label', axis=1)
 test_data = test_data.drop(labels='label', axis=1)
 
-forest_classifier = RandomForestClassifier(n_estimators=500, max_depth=5)
+# below finds docs with high precision ALMOST all runs
+# forest_classifier = RandomForestClassifier(n_estimators=500, max_depth=5)
+
+# below finds docs with high precision ALMOST all runs
+# precision average over all: oscilation 41% - 48 %
+# precision scores much closer to one another and highly oscilating
+# forest_classifier = RandomForestClassifier(n_estimators=1000, max_depth=10)
+
+# below finds docs with high precision
+# precision average is lower: 31-42 %, sometimes even oscillates 21 - 56
+#forest_classifier = RandomForestClassifier(n_estimators=1000, max_depth=5)
+
+forest_classifier = RandomForestClassifier(n_estimators=2000, max_depth=5)
+
+
 forest = forest_classifier.fit(train_data, train_labels)
 
 output = forest.predict(test_data)
 
 print mean_squared_error(output, test_labels)
 print accuracy_score(test_labels, output)
-print precision_score(test_labels, output, average=None)
-
+score = precision_score(test_labels, output, average=None)
+print score
+print np.mean(score)
 
 
 # linear_svc = LinearSVC()
