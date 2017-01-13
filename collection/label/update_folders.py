@@ -91,15 +91,19 @@ repos_folder = "../%s/json_repos_unarchived/"
 repos_folder_updated = "../%s/json_repos_updated/"
 readmes_repos_folder = "../%s/json_readmes_unarchived/"
 commits_interval_folder = "../%s/json_commits_interval/"
+commits_folder = "../%s/json_commits/"
 contents_folder = "../%s/json_contents/"
 trees_folder = "../%s/json_trees/"
+punch_card_folder = "../%s/json_punch_card/"
 
 repos_folder_labelled = "../%s/json_repos_unarchived_labelled/"
 repos_folder_updated_labelled = "../%s/json_repos_updated_labelled/"
 readmes_repos_folder_labelled = "../%s/json_readmes_unarchived_labelled/"
 commits_interval_folder_labelled = "../%s/json_commits_interval_labelled/"
+commits_folder_labelled = "../%s/json_commits_labelled/"
 contents_folder_labelled = "../%s/json_contents_labelled/"
 trees_folder_labelled="../%s/json_trees_labelled/"
+punch_card_folder_labelled = "../%s/json_punch_card_labelled/"
 
 # update(Labels.web.value, repos_folder, repos_folder_labelled)
 # update(Labels.web.value, repos_folder_updated, repos_folder_updated_labelled)
@@ -107,6 +111,9 @@ trees_folder_labelled="../%s/json_trees_labelled/"
 # update(Labels.web.value, commits_interval_folder, commits_interval_folder_labelled)
 # update(Labels.web.value, contents_folder, contents_folder_labelled)
 # update(Labels.web.value, trees_folder, trees_folder_labelled)
+# update(Labels.web.value, punch_card_folder, punch_card_folder_labelled)
+update(Labels.web.value, commits_folder, commits_folder_labelled)
+
 
 # update(Labels.hw.value, repos_folder, repos_folder_labelled)
 # update(Labels.hw.value, repos_folder_updated, repos_folder_updated_labelled)
@@ -114,6 +121,9 @@ trees_folder_labelled="../%s/json_trees_labelled/"
 # update(Labels.hw.value, commits_interval_folder, commits_interval_folder_labelled)
 # update(Labels.hw.value, contents_folder, contents_folder_labelled)
 # update(Labels.hw.value, trees_folder, trees_folder_labelled)
+# update(Labels.hw.value, punch_card_folder, punch_card_folder_labelled)
+# update(Labels.hw.value, commits_folder, commits_folder_labelled)
+
 
 # update(Labels.data.value, repos_folder, repos_folder_labelled)
 # update(Labels.data.value, repos_folder_updated, repos_folder_updated_labelled)
@@ -121,13 +131,18 @@ trees_folder_labelled="../%s/json_trees_labelled/"
 # update(Labels.data.value, commits_interval_folder, commits_interval_folder_labelled)
 # update(Labels.data.value, contents_folder, contents_folder_labelled)
 # update(Labels.data.value, trees_folder, trees_folder_labelled)
-#
+# update(Labels.data.value, punch_card_folder, punch_card_folder_labelled)
+# update(Labels.data.value, commits_folder, commits_folder_labelled)
+
+
 # update(Labels.docs.value, repos_folder, repos_folder_labelled)
 # update(Labels.docs.value, repos_folder_updated, repos_folder_updated_labelled)
 # update(Labels.docs.value, readmes_repos_folder, readmes_repos_folder_labelled)
 # update(Labels.docs.value, commits_interval_folder, commits_interval_folder_labelled)
 # update(Labels.docs.value, contents_folder, contents_folder_labelled)
 # update(Labels.docs.value, trees_folder, trees_folder_labelled)
+# update(Labels.docs.value, punch_card_folder, punch_card_folder_labelled)
+# update(Labels.docs.value, commits_folder, commits_folder_labelled)
 
 #
 # update(Labels.edu.value, repos_folder, repos_folder_labelled)
@@ -136,3 +151,5 @@ trees_folder_labelled="../%s/json_trees_labelled/"
 # update(Labels.edu.value, commits_interval_folder, commits_interval_folder_labelled)
 # update(Labels.edu.value, contents_folder, contents_folder_labelled)
 # update(Labels.edu.value, trees_folder, trees_folder_labelled)
+# update(Labels.edu.value, punch_card_folder, punch_card_folder_labelled)
+# update(Labels.edu.value, commits_folder, commits_folder_labelled)

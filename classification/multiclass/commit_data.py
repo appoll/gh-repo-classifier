@@ -5,7 +5,8 @@ from sklearn.metrics import mean_squared_error
 from sklearn.model_selection import train_test_split
 
 from collection.labels import Labels
-
+from sklearn.metrics import precision_score
+import numpy as np
 
 def features(label):
     # features = pd.read_csv("../../exploration/features/commit_data_%s.txt" % label.value, delimiter=" ", header=0)
@@ -50,10 +51,15 @@ print data.shape
 print train_data.shape
 print test_data.shape
 
-forest_classifier = RandomForestClassifier(n_estimators=500, max_depth=5, max_features=3)
+forest_classifier = RandomForestClassifier(n_estimators=2000, max_depth=3)
 forest = forest_classifier.fit(train_data, train_labels)
 
 output = forest.predict(test_data)
 
 print mean_squared_error(output, test_labels)
 print accuracy_score(test_labels, output)
+score = precision_score(output, test_labels, average=None)
+
+# precision values high for hw and web, meaning that commit info is able to identify these classes?
+print score
+print np.mean(score)

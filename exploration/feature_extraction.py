@@ -30,6 +30,7 @@ class FeatureExtraction:
         self.labelled_repos_folder = "../collection/%s/json_repos_updated_labelled/"
         self.labelled_contents_folder = "../collection/%s/json_contents_labelled/"
         self.labelled_trees_folder = "../collection/%s/json_trees_labelled/"
+        self.labelled_commits_folder = "../collection/%s/json_commits_labelled/"
         self.labelled_commits_interval_folder = "../collection/%s/json_commits_interval_labelled/"
         self.labelled_punch_card_folder = "../collection/%s/json_punch_card_labelled/"
 
@@ -76,7 +77,7 @@ class FeatureExtraction:
         if labelled:
             folder = self.labelled_punch_card_folder % label
             name = self.labelled_features_folder + "punch_card_data_%s.txt" % label
-        else :
+        else:
             folder = self.punch_card_folder % label
             name = self.features_folder + "punch_card_data_%s.txt" % label
         if not os.path.exists(os.path.dirname(name)):
@@ -107,10 +108,10 @@ class FeatureExtraction:
         print "Wrote punch card features to %s" % f.name
         f.close()
 
-    def get_commits_features(self, label, additional):
-        if additional:
-            folder = self.additional_commits_folder % label
-            name = self.additional_features_folder + "commit_data_%s.txt" % label
+    def get_commits_features(self, label, labelled):
+        if labelled:
+            folder = self.labelled_commits_folder % label
+            name = self.labelled_features_folder + "commit_data_%s.txt" % label
         else:
             folder = self.commits_folder % label
             name = self.features_folder + "commit_data_%s.txt" % label
@@ -192,8 +193,13 @@ class FeatureExtraction:
     def get_commits_per_day(self, first_commit, last_commit, all_commits_count):
         day_in_seconds = 86400
 
-        first_commit_author_date = dateutil.parser.parse(first_commit['commit']['author']['date'])
-        last_commit_author_date = dateutil.parser.parse(last_commit['commit']['author']['date'])
+        try:
+            first_commit_author_date = dateutil.parser.parse(first_commit['commit']['author']['date'])
+            last_commit_author_date = dateutil.parser.parse(last_commit['commit']['author']['date'])
+        except KeyError:
+            first_commit_author_date = dateutil.parser.parse(first_commit['author_date'])
+            last_commit_author_date = dateutil.parser.parse(last_commit['author_date'])
+
         commits_interval = last_commit_author_date - first_commit_author_date
         days = commits_interval.total_seconds() / day_in_seconds
         if days > 1:
@@ -758,18 +764,26 @@ featureExtraction = FeatureExtraction()
 # featureExtraction.get_language_features_str('web', labelled=True)
 # featureExtraction.get_language_features_str('other', labelled=True)
 
-featureExtraction.get_commits_interval_features('dev', labelled=True)
-featureExtraction.get_commits_interval_features('data', labelled=True)
-featureExtraction.get_commits_interval_features('docs', labelled=True)
-featureExtraction.get_commits_interval_features('edu', labelled=True)
-featureExtraction.get_commits_interval_features('hw', labelled=True)
-featureExtraction.get_commits_interval_features('web', labelled=True)
-featureExtraction.get_commits_interval_features('other', labelled=True)
+# featureExtraction.get_commits_interval_features('dev', labelled=True)
+# featureExtraction.get_commits_interval_features('data', labelled=True)
+# featureExtraction.get_commits_interval_features('docs', labelled=True)
+# featureExtraction.get_commits_interval_features('edu', labelled=True)
+# featureExtraction.get_commits_interval_features('hw', labelled=True)
+# featureExtraction.get_commits_interval_features('web', labelled=True)
+# featureExtraction.get_commits_interval_features('other', labelled=True)
 
-featureExtraction.get_punchcard_features('dev', labelled=True)
-featureExtraction.get_punchcard_features('data', labelled=True)
-featureExtraction.get_punchcard_features('docs', labelled=True)
-featureExtraction.get_punchcard_features('edu', labelled=True)
-featureExtraction.get_punchcard_features('hw', labelled=True)
-featureExtraction.get_punchcard_features('web', labelled=True)
-featureExtraction.get_punchcard_features('other', labelled=True)
+# featureExtraction.get_punchcard_features('dev', labelled=True)
+# featureExtraction.get_punchcard_features('data', labelled=True)
+# featureExtraction.get_punchcard_features('docs', labelled=True)
+# featureExtraction.get_punchcard_features('edu', labelled=True)
+# featureExtraction.get_punchcard_features('hw', labelled=True)
+# featureExtraction.get_punchcard_features('web', labelled=True)
+# featureExtraction.get_punchcard_features('other', labelled=True)
+
+featureExtraction.get_commits_features('dev', labelled=True)
+featureExtraction.get_commits_features('data', labelled=True)
+featureExtraction.get_commits_features('docs', labelled=True)
+featureExtraction.get_commits_features('edu', labelled=True)
+featureExtraction.get_commits_features('hw', labelled=True)
+featureExtraction.get_commits_features('web', labelled=True)
+featureExtraction.get_commits_features('other', labelled=True)
