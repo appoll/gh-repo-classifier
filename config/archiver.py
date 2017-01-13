@@ -14,7 +14,7 @@ LABELLED_READMES = 'labelled_readmes'
 LABELLED_COMMITS = 'labelled_commits'
 LABELLED_CONTENTS = 'labelled_contents'
 LABELLED_TREES = 'labelled_trees'
-
+LABELLED_PUNCH_CARD = 'labelled_punch_card'
 
 class Archiver:
     def __init__(self):
@@ -33,6 +33,7 @@ class Archiver:
         self.commits_interval_folder_labelled = "../collection/%s/json_commits_interval_labelled/"
         self.contents_folder_labelled = "../collection/%s/json_contents_labelled/"
         self.trees_folder_labelled = "../collection/%s/json_trees_labelled/"
+        self.punch_card_folder_labelled = "../collection/%s/json_punch_card_labelled/"
 
         self.class_folder = "../collection/%s/"
 
@@ -72,6 +73,8 @@ class Archiver:
             folder = self.contents_folder_labelled % label
         elif which == LABELLED_TREES:
             folder = self.trees_folder_labelled % label
+        elif which == LABELLED_PUNCH_CARD:
+            folder = self.punch_card_folder_labelled % label
         else:
             raise ValueError('Which folder do you want to archive?')
 
@@ -119,6 +122,8 @@ class Archiver:
             folder = self.contents_folder_labelled % label
         elif which == LABELLED_TREES:
             folder = self.trees_folder_labelled % label
+        elif which == LABELLED_PUNCH_CARD:
+            folder = self.punch_card_folder_labelled % label
         else:
             raise ValueError('Destination for unarchiving?')
 
@@ -188,43 +193,49 @@ archiver = Archiver()
 # archiver.archive_labelled('edu', LABELLED_COMMITS)
 # archiver.archive_labelled('edu', LABELLED_READMES)
 # archiver.archive_labelled('edu', LABELLED_REPOS)
-# 
+# archiver.archive_labelled('edu', LABELLED_PUNCH_CARD)
+#
 # archiver.archive_labelled('dev', LABELLED_TREES)
 # archiver.archive_labelled('dev', LABELLED_CONTENTS)
 # archiver.archive_labelled('dev', LABELLED_COMMITS)
 # archiver.archive_labelled('dev', LABELLED_READMES)
 # archiver.archive_labelled('dev', LABELLED_REPOS)
-#
+# archiver.archive_labelled('dev', LABELLED_PUNCH_CARD)
+
 # archiver.archive_labelled('docs', LABELLED_TREES)
 # archiver.archive_labelled('docs', LABELLED_CONTENTS)
 # archiver.archive_labelled('docs', LABELLED_COMMITS)
 # archiver.archive_labelled('docs', LABELLED_READMES)
 # archiver.archive_labelled('docs', LABELLED_REPOS)
-#
+# archiver.archive_labelled('docs', LABELLED_PUNCH_CARD)
+
 # archiver.archive_labelled('data', LABELLED_TREES)
 # archiver.archive_labelled('data', LABELLED_CONTENTS)
 # archiver.archive_labelled('data', LABELLED_COMMITS)
 # archiver.archive_labelled('data', LABELLED_READMES)
 # archiver.archive_labelled('data', LABELLED_REPOS)
-#
+# archiver.archive_labelled('data', LABELLED_PUNCH_CARD)
+
 # archiver.archive_labelled('web', LABELLED_TREES)
 # archiver.archive_labelled('web', LABELLED_CONTENTS)
 # archiver.archive_labelled('web', LABELLED_COMMITS)
 # archiver.archive_labelled('web', LABELLED_READMES)
 # archiver.archive_labelled('web', LABELLED_REPOS)
-#
+# archiver.archive_labelled('web', LABELLED_PUNCH_CARD)
+
 # archiver.archive_labelled('other', LABELLED_TREES)
 # archiver.archive_labelled('other', LABELLED_CONTENTS)
 # archiver.archive_labelled('other', LABELLED_COMMITS)
 # archiver.archive_labelled('other', LABELLED_READMES)
 # archiver.archive_labelled('other', LABELLED_REPOS)
-#
+# archiver.archive_labelled('other', LABELLED_PUNCH_CARD)
+
 # archiver.archive_labelled('hw', LABELLED_TREES)
 # archiver.archive_labelled('hw', LABELLED_CONTENTS)
 # archiver.archive_labelled('hw', LABELLED_COMMITS)
 # archiver.archive_labelled('hw', LABELLED_READMES)
 # archiver.archive_labelled('hw', LABELLED_REPOS)
-
+# archiver.archive_labelled('hw', LABELLED_PUNCH_CARD)
 
 # uncomment below
 
@@ -233,39 +244,47 @@ archiver.unarchive_labelled('edu', LABELLED_CONTENTS)
 archiver.unarchive_labelled('edu', LABELLED_COMMITS)
 archiver.unarchive_labelled('edu', LABELLED_READMES)
 archiver.unarchive_labelled('edu', LABELLED_REPOS)
+archiver.unarchive_labelled('edu', LABELLED_PUNCH_CARD)
 
 archiver.unarchive_labelled('dev', LABELLED_TREES)
 archiver.unarchive_labelled('dev', LABELLED_CONTENTS)
 archiver.unarchive_labelled('dev', LABELLED_COMMITS)
 archiver.unarchive_labelled('dev', LABELLED_READMES)
 archiver.unarchive_labelled('dev', LABELLED_REPOS)
+archiver.unarchive_labelled('dev', LABELLED_PUNCH_CARD)
 
 archiver.unarchive_labelled('docs', LABELLED_TREES)
 archiver.unarchive_labelled('docs', LABELLED_CONTENTS)
 archiver.unarchive_labelled('docs', LABELLED_COMMITS)
 archiver.unarchive_labelled('docs', LABELLED_READMES)
 archiver.unarchive_labelled('docs', LABELLED_REPOS)
+archiver.unarchive_labelled('docs', LABELLED_PUNCH_CARD)
 
 archiver.unarchive_labelled('data', LABELLED_TREES)
 archiver.unarchive_labelled('data', LABELLED_CONTENTS)
 archiver.unarchive_labelled('data', LABELLED_COMMITS)
 archiver.unarchive_labelled('data', LABELLED_READMES)
 archiver.unarchive_labelled('data', LABELLED_REPOS)
+archiver.unarchive_labelled('data', LABELLED_PUNCH_CARD)
 
 archiver.unarchive_labelled('web', LABELLED_TREES)
 archiver.unarchive_labelled('web', LABELLED_CONTENTS)
 archiver.unarchive_labelled('web', LABELLED_COMMITS)
 archiver.unarchive_labelled('web', LABELLED_READMES)
 archiver.unarchive_labelled('web', LABELLED_REPOS)
+archiver.unarchive_labelled('web', LABELLED_PUNCH_CARD)
 
 archiver.unarchive_labelled('other', LABELLED_TREES)
 archiver.unarchive_labelled('other', LABELLED_CONTENTS)
 archiver.unarchive_labelled('other', LABELLED_COMMITS)
 archiver.unarchive_labelled('other', LABELLED_READMES)
 archiver.unarchive_labelled('other', LABELLED_REPOS)
+archiver.unarchive_labelled('other', LABELLED_PUNCH_CARD)
 
 archiver.unarchive_labelled('hw', LABELLED_TREES)
 archiver.unarchive_labelled('hw', LABELLED_CONTENTS)
 archiver.unarchive_labelled('hw', LABELLED_COMMITS)
 archiver.unarchive_labelled('hw', LABELLED_READMES)
 archiver.unarchive_labelled('hw', LABELLED_REPOS)
+archiver.unarchive_labelled('hw', LABELLED_PUNCH_CARD)
+

@@ -25,22 +25,28 @@ class FeatureExtraction:
         self.repos_folder = "../collection/%s/json_repos_updated/"
         self.contents_folder = "../collection/%s/json_contents/"
         self.trees_folder = "../collection/%s/json_trees/"
+        self.punch_card_folder = "../collection/%s/json_punch_card/"
 
         self.labelled_repos_folder = "../collection/%s/json_repos_updated_labelled/"
         self.labelled_contents_folder = "../collection/%s/json_contents_labelled/"
         self.labelled_trees_folder = "../collection/%s/json_trees_labelled/"
+        self.labelled_commits_interval_folder = "../collection/%s/json_commits_interval_labelled/"
+        self.labelled_punch_card_folder = "../collection/%s/json_punch_card_labelled/"
 
         self.all_languages = {}
 
-    def get_commits_interval_features(self, label):
-        folder = self.commits_interval_folder % label
-        name = self.features_folder + "commits_interval_data_%s.txt" % label
+    def get_commits_interval_features(self, label, labelled):
+        if labelled:
+            folder = self.labelled_commits_interval_folder % label
+            name = self.labelled_features_folder + "commits_interval_data_%s.txt" % label
+        else:
+            folder = self.commits_interval_folder % label
+            name = self.features_folder + "commits_interval_data_%s.txt" % label
 
         if not os.path.exists(os.path.dirname(name)):
             os.makedirs(os.path.dirname(name))
         f = open(name, 'w')
         header = "commits_count commits_interval_days commits_per_day repo_name\n"
-        f.write(header)
         f.write(header)
         for filename in glob.glob(folder + '*'):
             print filename
@@ -64,6 +70,41 @@ class FeatureExtraction:
             f.write(line)
             f.write('\n')
         print "Wrote commits interval features to %s" % f.name
+        f.close()
+
+    def get_punchcard_features(self, label, labelled):
+        if labelled:
+            folder = self.labelled_punch_card_folder % label
+            name = self.labelled_features_folder + "punch_card_data_%s.txt" % label
+        else :
+            folder = self.punch_card_folder % label
+            name = self.features_folder + "punch_card_data_%s.txt" % label
+        if not os.path.exists(os.path.dirname(name)):
+            os.makedirs(os.path.dirname(name))
+        f = open(name, 'w')
+        header = "punch_card_feature1 punch_card_feature2 punch_card_feature3 repo_name\n"
+        f.write(header)
+        f.write(header)
+        for filename in glob.glob(folder + '*'):
+            print filename
+            json_file = open(filename, 'r')
+            name = os.path.basename(filename)
+            punch_card_info = json.load(json_file)
+            json_file.close()
+
+            punch_card_feature1 = len(punch_card_info)
+            punch_card_feature2 = len(punch_card_info)
+            punch_card_feature3 = len(punch_card_info)
+
+            line = "%.2f" % punch_card_feature1
+            line = line + " " + "%.2f" % punch_card_feature2
+            line = line + " " + "%.2f" % punch_card_feature3
+
+            line = line + " " + name.split('.')[0]
+
+            f.write(line)
+            f.write('\n')
+        print "Wrote punch card features to %s" % f.name
         f.close()
 
     def get_commits_features(self, label, additional):
@@ -685,13 +726,13 @@ featureExtraction = FeatureExtraction()
 # featureExtraction.get_language_features('web', labelled=True, binary=True)
 # featureExtraction.get_language_features('other', labelled=True, binary=True)
 
-featureExtraction.get_language_features('dev', labelled=True, binary=False)
-featureExtraction.get_language_features('data', labelled=True, binary=False)
-featureExtraction.get_language_features('docs', labelled=True, binary=False)
-featureExtraction.get_language_features('edu', labelled=True, binary=False)
-featureExtraction.get_language_features('hw', labelled=True, binary=False)
-featureExtraction.get_language_features('web', labelled=True, binary=False)
-featureExtraction.get_language_features('other', labelled=True, binary=False)
+# featureExtraction.get_language_features('dev', labelled=True, binary=False)
+# featureExtraction.get_language_features('data', labelled=True, binary=False)
+# featureExtraction.get_language_features('docs', labelled=True, binary=False)
+# featureExtraction.get_language_features('edu', labelled=True, binary=False)
+# featureExtraction.get_language_features('hw', labelled=True, binary=False)
+# featureExtraction.get_language_features('web', labelled=True, binary=False)
+# featureExtraction.get_language_features('other', labelled=True, binary=False)
 
 # featureExtraction.get_contents_features('dev', labelled=True)
 # featureExtraction.get_contents_features('data', labelled=True)
@@ -716,3 +757,19 @@ featureExtraction.get_language_features('other', labelled=True, binary=False)
 # featureExtraction.get_language_features_str('hw', labelled=True)
 # featureExtraction.get_language_features_str('web', labelled=True)
 # featureExtraction.get_language_features_str('other', labelled=True)
+
+featureExtraction.get_commits_interval_features('dev', labelled=True)
+featureExtraction.get_commits_interval_features('data', labelled=True)
+featureExtraction.get_commits_interval_features('docs', labelled=True)
+featureExtraction.get_commits_interval_features('edu', labelled=True)
+featureExtraction.get_commits_interval_features('hw', labelled=True)
+featureExtraction.get_commits_interval_features('web', labelled=True)
+featureExtraction.get_commits_interval_features('other', labelled=True)
+
+featureExtraction.get_punchcard_features('dev', labelled=True)
+featureExtraction.get_punchcard_features('data', labelled=True)
+featureExtraction.get_punchcard_features('docs', labelled=True)
+featureExtraction.get_punchcard_features('edu', labelled=True)
+featureExtraction.get_punchcard_features('hw', labelled=True)
+featureExtraction.get_punchcard_features('web', labelled=True)
+featureExtraction.get_punchcard_features('other', labelled=True)
