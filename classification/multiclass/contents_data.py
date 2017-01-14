@@ -34,6 +34,9 @@ features = [features(Labels.data), features(Labels.dev), features(Labels.docs), 
             features(Labels.hw), features(Labels.web), features(Labels.uncertain)]
 
 data = pd.concat(features)
+repo_names = data['repo_name']
+data = data.drop(labels='repo_name', axis=1)
+
 print data.shape
 #
 # train_data = data

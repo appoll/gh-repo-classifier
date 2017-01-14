@@ -7,14 +7,16 @@ from sklearn.metrics import precision_score
 from sklearn.model_selection import train_test_split
 
 from collection.labels import Labels
+from config.helper import Helper
 
 
-def features(label):
+def get_features(label):
     features = pd.read_csv("../../exploration/labelled/features/repo_data_%s.txt" % label, delimiter=" ",
                            header=0)
+    print("./exploration/labelled/features/repo_data_%s.txt" % label)
+    print features.shape
 
-    #features.to_csv('repo_repo_names_%s' % label, columns=["repo_name"])
-    features = features.drop(labels='repo_name', axis=1)
+    # features.to_csv('repo_repo_names_%s' % label, columns=["repo_name"])
 
     if label == Labels.data:
         features['label'] = 0
@@ -33,10 +35,12 @@ def features(label):
     return features
 
 
-features = [features(Labels.data), features(Labels.dev), features(Labels.docs), features(Labels.edu),
-            features(Labels.hw), features(Labels.web), features(Labels.uncertain)]
+features = [get_features(Labels.data), get_features(Labels.dev), get_features(Labels.docs), get_features(Labels.edu),
+            get_features(Labels.hw), get_features(Labels.web), get_features(Labels.uncertain)]
 
 data = pd.concat(features)
+repo_names = data['repo_name']
+data = data.drop(labels='repo_name', axis=1)
 
 train_data, test_data = train_test_split(data, test_size=0.2)
 
@@ -54,9 +58,10 @@ forest_classifier = RandomForestClassifier(n_estimators=500, max_depth=5, max_fe
 forest = forest_classifier.fit(train_data, train_labels)
 
 output = forest.predict(test_data)
-
 print mean_squared_error(output, test_labels)
 print accuracy_score(test_labels, output)
 score = precision_score(test_labels, output, average=None)
 print score
 print np.mean(score)
+
+Helper().write_probabilities(forest, data, repo_names, 'prob/prob_repo_data')
