@@ -5,7 +5,7 @@ from collection.labels import Labels
 
 
 def features(label):
-    features = pd.read_csv("../../exploration/features/commit_data_%s.txt" % label.value, delimiter=" ", header=0)
+    features = pd.read_csv("../../exploration/features/commit_data_%s.txt" % label, delimiter=" ", header=0)
 
     features = features.drop(labels='repo_name', axis=1)
 

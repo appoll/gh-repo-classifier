@@ -24,20 +24,30 @@ class FeatureExtraction:
         self.commits_interval_folder = "../collection/%s/json_commits_interval/"
         self.repos_folder = "../collection/%s/json_repos_updated/"
         self.contents_folder = "../collection/%s/json_contents/"
+        self.trees_folder = "../collection/%s/json_trees/"
+        self.punch_card_folder = "../collection/%s/json_punch_card/"
 
         self.labelled_repos_folder = "../collection/%s/json_repos_updated_labelled/"
+        self.labelled_contents_folder = "../collection/%s/json_contents_labelled/"
+        self.labelled_trees_folder = "../collection/%s/json_trees_labelled/"
+        self.labelled_commits_folder = "../collection/%s/json_commits_labelled/"
+        self.labelled_commits_interval_folder = "../collection/%s/json_commits_interval_labelled/"
+        self.labelled_punch_card_folder = "../collection/%s/json_punch_card_labelled/"
 
         self.all_languages = {}
 
-    def get_commits_interval_features(self, label):
-        folder = self.commits_interval_folder % label
-        name = self.features_folder + "commits_interval_data_%s.txt" % label
+    def get_commits_interval_features(self, label, labelled):
+        if labelled:
+            folder = self.labelled_commits_interval_folder % label
+            name = self.labelled_features_folder + "commits_interval_data_%s.txt" % label
+        else:
+            folder = self.commits_interval_folder % label
+            name = self.features_folder + "commits_interval_data_%s.txt" % label
 
         if not os.path.exists(os.path.dirname(name)):
             os.makedirs(os.path.dirname(name))
         f = open(name, 'w')
         header = "commits_count commits_interval_days commits_per_day repo_name\n"
-        f.write(header)
         f.write(header)
         for filename in glob.glob(folder + '*'):
             print filename
@@ -63,10 +73,44 @@ class FeatureExtraction:
         print "Wrote commits interval features to %s" % f.name
         f.close()
 
-    def get_commits_features(self, label, additional):
-        if additional:
-            folder = self.additional_commits_folder % label
-            name = self.additional_features_folder + "commit_data_%s.txt" % label
+    def get_punchcard_features(self, label, labelled):
+        if labelled:
+            folder = self.labelled_punch_card_folder % label
+            name = self.labelled_features_folder + "punch_card_data_%s.txt" % label
+        else:
+            folder = self.punch_card_folder % label
+            name = self.features_folder + "punch_card_data_%s.txt" % label
+        if not os.path.exists(os.path.dirname(name)):
+            os.makedirs(os.path.dirname(name))
+        f = open(name, 'w')
+        header = "punch_card_feature1 punch_card_feature2 punch_card_feature3 repo_name\n"
+        f.write(header)
+        for filename in glob.glob(folder + '*'):
+            print filename
+            json_file = open(filename, 'r')
+            name = os.path.basename(filename)
+            punch_card_info = json.load(json_file)
+            json_file.close()
+
+            punch_card_feature1 = len(punch_card_info)
+            punch_card_feature2 = len(punch_card_info)
+            punch_card_feature3 = len(punch_card_info)
+
+            line = "%.2f" % punch_card_feature1
+            line = line + " " + "%.2f" % punch_card_feature2
+            line = line + " " + "%.2f" % punch_card_feature3
+
+            line = line + " " + name.split('.')[0]
+
+            f.write(line)
+            f.write('\n')
+        print "Wrote punch card features to %s" % f.name
+        f.close()
+
+    def get_commits_features(self, label, labelled):
+        if labelled:
+            folder = self.labelled_commits_folder % label
+            name = self.labelled_features_folder + "commit_data_%s.txt" % label
         else:
             folder = self.commits_folder % label
             name = self.features_folder + "commit_data_%s.txt" % label
@@ -148,8 +192,13 @@ class FeatureExtraction:
     def get_commits_per_day(self, first_commit, last_commit, all_commits_count):
         day_in_seconds = 86400
 
-        first_commit_author_date = dateutil.parser.parse(first_commit['commit']['author']['date'])
-        last_commit_author_date = dateutil.parser.parse(last_commit['commit']['author']['date'])
+        try:
+            first_commit_author_date = dateutil.parser.parse(first_commit['commit']['author']['date'])
+            last_commit_author_date = dateutil.parser.parse(last_commit['commit']['author']['date'])
+        except KeyError:
+            first_commit_author_date = dateutil.parser.parse(first_commit['author_date'])
+            last_commit_author_date = dateutil.parser.parse(last_commit['author_date'])
+
         commits_interval = last_commit_author_date - first_commit_author_date
         days = commits_interval.total_seconds() / day_in_seconds
         if days > 1:
@@ -246,7 +295,7 @@ class FeatureExtraction:
         #     return active_days / math.ceil(days)
         # return 1
 
-    def get_language_features(self, label, labelled):
+    def get_language_features(self, label, labelled, binary):
         if labelled:
             folder = self.labelled_repos_folder % label
             name = self.labelled_features_folder + "languages_data_%s.txt" % label
@@ -261,7 +310,7 @@ class FeatureExtraction:
         if not os.path.exists(os.path.dirname(name)):
             os.makedirs(os.path.dirname(name))
         f = open(name, 'w')
-        header = "languages_count total_bytes "
+        header = "languages_count languages_total_lines "
         for language in self.all_languages:
             language = language.replace(" ", "_")
             header += language + " "
@@ -271,7 +320,7 @@ class FeatureExtraction:
 
         for filename in glob.glob(folder + '*'):
             print filename
-            print len(self.all_languages)
+            #print len(self.all_languages)
             current_languages = self.all_languages.fromkeys(self.all_languages, 0)
             json_file = open(filename, 'r')
             name = os.path.basename(filename)
@@ -279,35 +328,90 @@ class FeatureExtraction:
 
             try:
                 languages = repo["languages"]
+                repo_size = repo['size']
             except KeyError:
                 print "Key Error in %s" % filename
                 continue
 
             all_languages_count = len(languages)
-            total_bytes = sum(languages.itervalues())
+            total_lines = sum(languages.itervalues())
 
-            for language, bytes in languages.iteritems():
-                print language
+#            if repo_size == 0:
+#                continue
+
+            for language, code_lines in languages.iteritems():
+                #print language
                 if language not in current_languages:
                     raise ValueError("Should not be!")
                 try:
-                    current_languages[language] = "%.2f" % (float(bytes) / total_bytes)
+                    if binary == True:
+                        current_languages[language] = 1
+                    else:
+                        current_languages[language] = "%.2f" % (float(code_lines) / total_lines)
                 except ZeroDivisionError:
-                    current_languages[language] = "%.2f" % total_bytes
+                    current_languages[language] = 0
+                    # raise ZeroDivisionError("Somewhere you missed a check on total_bytes!")
 
-            print 'heee'
-            print len(current_languages)
+            #print len(current_languages)
 
             line = "%.2f" % all_languages_count
-            line = line + " " + "%.2f" % total_bytes
-            for bytes in current_languages.values():
-                line = line + " " + str(bytes)
+            line = line + " " + "%.2f" % total_lines
+            for code_lines in current_languages.values():
+                line = line + " " + str(code_lines)
 
             line = line + " " + name.split('.')[0]
 
             f.write(line)
             f.write('\n')
         print "Wrote languages features to %s" % f.name
+        f.close()
+
+    def get_language_features_str(self, label, labelled):
+        if labelled:
+            folder = self.labelled_repos_folder % label
+            name = self.labelled_features_folder + "languages_str_data_%s.txt" % label
+        else:
+            folder = self.repos_folder % label
+            name = self.features_folder + "languages_str_data_%s.txt" % label
+
+        if not os.path.exists(os.path.dirname(name)):
+            os.makedirs(os.path.dirname(name))
+        f = open(name, 'w')
+        header = "languages_count languages_str "
+        # for language in self.all_languages:
+        #     language = language.replace(" ", "_")
+        #     header += language + " "
+        #
+        header += "repo_name\n"
+        f.write(header)
+
+        for filename in glob.glob(folder + '*'):
+            print filename
+            json_file = open(filename, 'r')
+            name = os.path.basename(filename)
+            repo = json.load(json_file)
+
+            try:
+                languages = repo["languages"]
+                repo_size = repo['size']
+            except KeyError:
+                print "Key Error in %s" % filename
+                continue
+
+            all_languages_count = len(languages)
+
+            all_languages_str = self.get_languages_names_as_str(languages)
+
+            if repo_size == 0 or all_languages_count == 0:
+                continue
+
+            line = "%.2f" % all_languages_count
+            line = line + " " + "%s" % all_languages_str
+            line = line + " " + name.split('.')[0]
+
+            f.write(line)
+            f.write('\n')
+        print "Wrote languages str features to %s" % f.name
         f.close()
 
     def get_all_languages(self):
@@ -395,10 +499,10 @@ class FeatureExtraction:
         print "Wrote repo features to %s" % f.name
         f.close()
 
-    def get_contents_features(self, label, additional):
-        if additional:
-            folder = self.additional_contents_folder % label
-            name = self.additional_features_folder + "contents_data_%s.txt" % label
+    def get_contents_features(self, label, labelled):
+        if labelled:
+            folder = self.labelled_contents_folder % label
+            name = self.labelled_features_folder + "contents_data_%s.txt" % label
         else:
             folder = self.contents_folder % label
             name = self.features_folder + "contents_data_%s.txt" % label
@@ -441,7 +545,63 @@ class FeatureExtraction:
             line = line.encode('utf-8')
             f.write(line)
             f.write('\n')
-        print "Wrote repo features to %s" % f.name
+        print "Wrote contents features to %s" % f.name
+        f.close()
+
+    def get_trees_features(self, label, labelled):
+        if labelled:
+            folder = self.labelled_trees_folder % label
+            name = self.labelled_features_folder + "trees_data_%s.txt" % label
+        else:
+            folder = self.trees_folder % label
+            name = self.features_folder + "trees_data_%s.txt" % label
+
+        if not os.path.exists(os.path.dirname(name)):
+            os.makedirs(os.path.dirname(name))
+        f = open(name, 'w')
+        header = "blob_paths repo_name\n"
+        f.write(header)
+
+        for filename in glob.glob(folder + '*'):
+            print filename
+            json_file = open(filename, 'r')
+            name = os.path.basename(filename)
+
+            contents_filename = filename.replace("json_trees", "json_contents")
+            contents_json_file = open(contents_filename, 'r')
+
+            root_folder_trees = json.load(json_file)
+            contents = json.load(contents_json_file)
+
+            contents_json_file.close()
+            json_file.close()
+
+            total_root_folders = len(root_folder_trees)
+            print '%d root folders here' % total_root_folders
+
+            if len(contents) > 0:
+                blob_paths = self.get_file_paths_as_str(contents=contents)
+                blob_paths += " "
+            else:
+                blob_paths = "\""
+
+            for root_folder_entry in root_folder_trees:
+                folder_name = root_folder_entry['root_folder_name']
+                folder_tree = root_folder_entry['tree']
+                for tree_entry in folder_tree:
+                    # print tree_entry
+                    if tree_entry['type'] == 'blob':
+                        blob_paths += tree_entry['path']
+                        blob_paths += " "
+            blob_paths += "\""
+
+            line = "%s" % blob_paths
+            line = line + " " + name.split('.')[0]
+            line = line.encode('utf-8')
+            f.write(line)
+            f.write('\n')
+
+        print "Wrote trees features to %s" % f.name
         f.close()
 
     def get_dir_count(self, contents):
@@ -472,6 +632,22 @@ class FeatureExtraction:
             if entry['type'] == 'file':
                 result += entry['name'] + " "
         result += "\""
+        return result
+
+    def get_languages_names_as_str(self, languages):
+        result = "\""
+        for language in languages:
+            print language
+            result += language + " "
+        result = result[:-1]
+        result += "\""
+        return result
+
+    def get_file_paths_as_str(self, contents):
+        result = "\""
+        for entry in contents:
+            if entry['type'] == 'file':
+                result += entry['name'] + " "
         return result
 
     def get_folder_and_file_names_as_str(self, contents):
@@ -543,11 +719,67 @@ featureExtraction = FeatureExtraction()
 # featureExtraction.get_repo_features('hw', labelled=True)
 # featureExtraction.get_repo_features('web', labelled=True)
 # featureExtraction.get_repo_features('other', labelled=True)
+# #
+# featureExtraction.get_language_features('dev', labelled=True, binary=True)
+# featureExtraction.get_language_features('data', labelled=True, binary=True)
+# featureExtraction.get_language_features('docs', labelled=True, binary=True)
+# featureExtraction.get_language_features('edu', labelled=True, binary=True)
+# featureExtraction.get_language_features('hw', labelled=True, binary=True)
+# featureExtraction.get_language_features('web', labelled=True, binary=True)
+# featureExtraction.get_language_features('other', labelled=True, binary=True)
 
-featureExtraction.get_language_features('dev', labelled=True)
-featureExtraction.get_language_features('data', labelled=True)
-featureExtraction.get_language_features('docs', labelled=True)
-featureExtraction.get_language_features('edu', labelled=True)
-featureExtraction.get_language_features('hw', labelled=True)
-featureExtraction.get_language_features('web', labelled=True)
-featureExtraction.get_language_features('other', labelled=True)
+# featureExtraction.get_language_features('dev', labelled=True, binary=False)
+# featureExtraction.get_language_features('data', labelled=True, binary=False)
+# featureExtraction.get_language_features('docs', labelled=True, binary=False)
+# featureExtraction.get_language_features('edu', labelled=True, binary=False)
+# featureExtraction.get_language_features('hw', labelled=True, binary=False)
+# featureExtraction.get_language_features('web', labelled=True, binary=False)
+# featureExtraction.get_language_features('other', labelled=True, binary=False)
+
+# featureExtraction.get_contents_features('dev', labelled=True)
+# featureExtraction.get_contents_features('data', labelled=True)
+# featureExtraction.get_contents_features('docs', labelled=True)
+# featureExtraction.get_contents_features('edu', labelled=True)
+# featureExtraction.get_contents_features('hw', labelled=True)
+# featureExtraction.get_contents_features('web', labelled=True)
+# featureExtraction.get_contents_features('other', labelled=True)
+#
+# featureExtraction.get_trees_features('dev', labelled=True)
+# featureExtraction.get_trees_features('data', labelled=True)
+# featureExtraction.get_trees_features('docs', labelled=True)
+featureExtraction.get_trees_features('edu', labelled=True)
+# featureExtraction.get_trees_features('hw', labelled=True)
+# featureExtraction.get_trees_features('web', labelled=True)
+# featureExtraction.get_trees_features('other', labelled=True)
+
+# featureExtraction.get_language_features_str('dev', labelled=True)
+# featureExtraction.get_language_features_str('data', labelled=True)
+# featureExtraction.get_language_features_str('docs', labelled=True)
+# featureExtraction.get_language_features_str('edu', labelled=True)
+# featureExtraction.get_language_features_str('hw', labelled=True)
+# featureExtraction.get_language_features_str('web', labelled=True)
+# featureExtraction.get_language_features_str('other', labelled=True)
+
+# featureExtraction.get_commits_interval_features('dev', labelled=True)
+# featureExtraction.get_commits_interval_features('data', labelled=True)
+# featureExtraction.get_commits_interval_features('docs', labelled=True)
+# featureExtraction.get_commits_interval_features('edu', labelled=True)
+# featureExtraction.get_commits_interval_features('hw', labelled=True)
+# featureExtraction.get_commits_interval_features('web', labelled=True)
+# featureExtraction.get_commits_interval_features('other', labelled=True)
+
+# featureExtraction.get_punchcard_features('dev', labelled=True)
+# featureExtraction.get_punchcard_features('data', labelled=True)
+# featureExtraction.get_punchcard_features('docs', labelled=True)
+# featureExtraction.get_punchcard_features('edu', labelled=True)
+# featureExtraction.get_punchcard_features('hw', labelled=True)
+# featureExtraction.get_punchcard_features('web', labelled=True)
+# featureExtraction.get_punchcard_features('other', labelled=True)
+
+# featureExtraction.get_commits_features('dev', labelled=True)
+# featureExtraction.get_commits_features('data', labelled=True)
+# featureExtraction.get_commits_features('docs', labelled=True)
+# featureExtraction.get_commits_features('edu', labelled=True)
+# featureExtraction.get_commits_features('hw', labelled=True)
+# featureExtraction.get_commits_features('web', labelled=True)
+# featureExtraction.get_commits_features('other', labelled=True)

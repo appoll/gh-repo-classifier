@@ -135,7 +135,7 @@ class ExampleData:
             repos = file.readlines()
             print repos.__len__()
         for repo in repos:
-            filename = Helper().build_path_from_folder_and_repo_name(repo, folder, JSON_COMMIT_ACTIVITY_FILE_NAME)
+            filename = Helper().build_path_from_folder_and_repo_name(repo, folder, JSON_PUNCH_CARD_ACTIVITY_FILE_NAME)
 
             if os.path.exists(filename):
                 print filename, " exists"
@@ -153,7 +153,7 @@ class ExampleData:
 
             if r.status_code == 200:
                 print "status code: ", r.status_code
-                filename = Helper().build_path_from_folder_and_repo_name(repo, folder, JSON_COMMIT_ACTIVITY_FILE_NAME)
+                filename = Helper().build_path_from_folder_and_repo_name(repo, folder, JSON_PUNCH_CARD_ACTIVITY_FILE_NAME)
 
                 if not os.path.exists(os.path.dirname(filename)):
                     os.makedirs(os.path.dirname(filename))
@@ -441,34 +441,34 @@ class ExampleData:
 
 data = ExampleData()
 
-# data.getReadmes(label=Labels.edu.value)
-# data.getReadmes(label=Labels.hw.value)
-# data.getReadmes(label=Labels.docs.value)
-# data.getReadmes(label=Labels.data.value)
-# data.getReadmes(label=Labels.dev.value)
-# data.getReadmes(label=Labels.web.value)
+# data.getReadmes(label=Labels.edu)
+# data.getReadmes(label=Labels.hw)
+# data.getReadmes(label=Labels.docs)
+# data.getReadmes(label=Labels.data)
+# data.getReadmes(label=Labels.dev)
+# data.getReadmes(label=Labels.web)
 
-# data.getCommitActivity(label=Labels.edu.value)
-# data.getCommitActivity(label=Labels.hw.value)
-# data.getCommitActivity(label=Labels.docs.value)
-# data.getCommitActivity(label=Labels.data.value)
-# data.getCommitActivity(label=Labels.dev.value)
-# data.getCommitActivity(label=Labels.web.value)
+# data.getCommitActivity(label=Labels.edu)
+# data.getCommitActivity(label=Labels.hw)
+# data.getCommitActivity(label=Labels.docs)
+# data.getCommitActivity(label=Labels.data)
+# data.getCommitActivity(label=Labels.dev)
+# data.getCommitActivity(label=Labels.web)
 
 # calls below will append to existing files so uncomment carefully
 
-# data.get_repo_names_by_keyword(label=Labels.hw.value,keyword="homework")
+# data.get_repo_names_by_keyword(label=Labels.hw,keyword="homework")
 
-# data.get_repo_names_by_keyword(label=Labels.docs.value, keyword="docs")
-# data.get_repo_names_by_keyword(label=Labels.docs.value, keyword="documentation")
+# data.get_repo_names_by_keyword(label=Labels.docs, keyword="docs")
+# data.get_repo_names_by_keyword(label=Labels.docs, keyword="documentation")
 
-# data.get_repo_names_by_keyword(label=Labels.data.value, keyword="data")
+# data.get_repo_names_by_keyword(label=Labels.data, keyword="data")
 
 # data.get_repo_names_by_keyword('edu', keyword="course")
 
-# data.get_repo_names_by_keyword(label=Labels.dev.value, keyword="framework")
+# data.get_repo_names_by_keyword(label=Labels.dev, keyword="framework")
 
-# data.get_repo_names_by_keyword(label=Labels.web.value, keyword="github.io")
+# data.get_repo_names_by_keyword(label=Labels.web, keyword="github.io")
 
 # keywords must be the same as the previously called get_repo_names_by_keyword methods
 
@@ -476,9 +476,9 @@ data = ExampleData()
 # data.getReadmes(label='hw', keyword="homework")
 # data.getCommitActivity(label='hw', keyword="homework")
 
-# data.get_repos_by_keyword(label='data',keyword='data')
-# data.getReadmes(label='data', keyword='data')
-# data.getCommitActivity(label='data', keyword="data")
+# data.get_repos_by_keyword(label='data',keyword='dataset')
+# data.getReadmes(label='data', keyword='dataset')
+# data.getCommitActivity(label='data', keyword="dataset")
 
 # data.get_repos_by_keyword(label='dev',keyword='framework')
 # data.getReadmes(label='dev',keyword='framework')
@@ -487,7 +487,7 @@ data = ExampleData()
 # data.get_commits_interval(label='web', keyword='github.io')
 # data.get_commits_interval(label='hw', keyword='homework')
 # data.get_commits_interval(label='edu', keyword='course')
-# data.get_commits_interval(label='data', keyword='data')
+data.get_commits_interval(label='data', keyword='dataset')
 # data.get_commits_interval(label='dev', keyword='framework')
 # data.get_commits_interval(label='docs', keyword='docs')
 
@@ -503,7 +503,7 @@ data = ExampleData()
 # completed 1000
 # data.get_all_commits(label='hw', keyword='homework')
 # data.get_all_commits(label='edu', keyword='course')
-# data.get_all_commits(label='data', keyword='data')
+data.get_all_commits(label='data', keyword='dataset')
 # data.get_all_commits(label='web', keyword='github.io')
 # data.get_all_commits(label='dev', keyword='framework')
 
@@ -529,15 +529,15 @@ data = ExampleData()
 #
 # # data.get_contents(label='hw', keyword='homework')
 # data.get_contents(label='edu', keyword='course')
-# data.get_contents(label='data', keyword='data')
+data.get_contents(label='data', keyword='dataset')
 # data.get_contents(label='web', keyword='github.io')
 # data.get_contents(label='dev', keyword='framework')
 # data.get_contents(label='docs', keyword="docs")
 
 
-data.getPunchCard(label='web', keyword='github.io')
-data.getPunchCard(label='hw', keyword='homework')
-data.getPunchCard(label='edu', keyword='course')
-data.getPunchCard(label='data', keyword='data')
-data.getPunchCard(label='dev', keyword='framework')
-data.getPunchCard(label='docs', keyword='docs')
+# data.getPunchCard(label='web', keyword='github.io')
+# data.getPunchCard(label='hw', keyword='homework')
+# data.getPunchCard(label='edu', keyword='course')
+# data.getPunchCard(label='data', keyword='data')
+# data.getPunchCard(label='dev', keyword='framework')
+# data.getPunchCard(label='docs', keyword='docs')

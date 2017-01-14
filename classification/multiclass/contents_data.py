@@ -2,17 +2,12 @@ import pandas as pd
 
 from collection.labels import Labels
 
-
-def content(label):
-    features = pd.read_csv("../../exploration/features/contents_data_%s.txt" % label.value, delimiter=" ", header=0)
-    return features
-
-
 def features(label):
-    features = pd.read_csv("../../exploration/features/contents_data_%s.txt" % label.value, delimiter=" ", header=0)
+    features = pd.read_csv("../../exploration/labelled/features/contents_data_%s.txt" % label, delimiter=" ", header=0)
 
     print features.shape
 
+    #features.to_csv('contents_repo_names_%s' % label, columns=["repo_name"])
     features = features.drop(labels='repo_name', axis=1)
 
     print features.shape
@@ -29,21 +24,24 @@ def features(label):
         features['label'] = 4
     elif label == Labels.web:
         features['label'] = 5
+    elif label == Labels.uncertain:
+        features['label'] = 6
 
     return features
 
 
-data = [features(Labels.edu), features(Labels.data), features(Labels.hw), features(Labels.web), features(Labels.dev),
-        features(Labels.docs)]
+features = [features(Labels.data), features(Labels.dev), features(Labels.docs), features(Labels.edu),
+            features(Labels.hw), features(Labels.web), features(Labels.uncertain)]
 
-data = pd.concat(data)
-
-train_data = data
-train_data = train_data[(train_data.T != 0).any()]
-labels = train_data['label']
-train_data = train_data.drop(labels='label', axis=1)
+data = pd.concat(features)
+print data.shape
+#
+# train_data = data
+# train_data = train_data[(train_data.T != 0).any()]
+# labels = train_data['label']
+# train_data = train_data.drop(labels='label', axis=1)
 
 print data.shape
-print train_data.shape
-print labels.shape
+# print train_data.shape
+# print labels.shape
 

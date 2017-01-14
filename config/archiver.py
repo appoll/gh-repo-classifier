@@ -1,9 +1,9 @@
 import glob
+import os
+import sys
 import tarfile
 
-#from collection.labels import Labels
-
-import sys
+import shutil
 
 sys.path.append('..')
 
@@ -12,6 +12,12 @@ READ_ME = 'read_mes'
 COMMIT_ACTIVITY = 'commit_activities'
 UPDATED_REPOS = 'updated_repos'
 
+LABELLED_REPOS = 'labelled_repos'
+LABELLED_READMES = 'labelled_readmes'
+LABELLED_COMMITS = 'labelled_commits'
+LABELLED_CONTENTS = 'labelled_contents'
+LABELLED_TREES = 'labelled_trees'
+LABELLED_PUNCH_CARD = 'labelled_punch_card'
 
 class Archiver:
     def __init__(self):
@@ -25,9 +31,16 @@ class Archiver:
         self.unarchived_commit_activity_folder = "../collection/%s/json_commit_activity_unarchived/"
         self.updated_unarchived_repos_folder = "../collection/%s/json_repos_updated_unarchived"
 
+        self.repos_folder_updated_labelled = "../collection/%s/json_repos_updated_labelled/"
+        self.readmes_repos_folder_labelled = "../collection/%s/json_readmes_unarchived_labelled/"
+        self.commits_interval_folder_labelled = "../collection/%s/json_commits_interval_labelled/"
+        self.contents_folder_labelled = "../collection/%s/json_contents_labelled/"
+        self.trees_folder_labelled = "../collection/%s/json_trees_labelled/"
+        self.punch_card_folder_labelled = "../collection/%s/json_punch_card_labelled/"
+
         self.class_folder = "../collection/%s/"
 
-        self.tar_file_name = "all_%s_%s.tar"
+        self.tar_file_name = "all_%s_%s_en.tar"
 
     def archive(self, label, which):
         if which == REPO:
@@ -38,6 +51,33 @@ class Archiver:
             folder = self.commit_activity_folder % label
         elif which == UPDATED_REPOS:
             folder = self.updated_repos_folder % label
+        else:
+            raise ValueError('Which folder do you want to archive?')
+
+        tar_location = self.class_folder % label
+        tar_file_name = self.tar_file_name % (label, which)
+
+        file_name = tar_location + tar_file_name
+        tar = tarfile.open(file_name, 'w')
+        for filename in glob.glob(folder + '*'):
+            name = filename.rsplit('/', 1)[1]
+            print name
+            tar.add(filename, arcname=name)
+        tar.close()
+
+    def archive_labelled(self, label, which):
+        if which == LABELLED_REPOS:
+            folder = self.repos_folder_updated_labelled % label
+        elif which == LABELLED_READMES:
+            folder = self.readmes_repos_folder_labelled % label
+        elif which == LABELLED_COMMITS:
+            folder = self.commits_interval_folder_labelled % label
+        elif which == LABELLED_CONTENTS:
+            folder = self.contents_folder_labelled % label
+        elif which == LABELLED_TREES:
+            folder = self.trees_folder_labelled % label
+        elif which == LABELLED_PUNCH_CARD:
+            folder = self.punch_card_folder_labelled % label
         else:
             raise ValueError('Which folder do you want to archive?')
 
@@ -63,6 +103,32 @@ class Archiver:
             folder = self.updated_unarchived_repos_folder % label
         else:
             raise ValueError('Which folder do you want to archive?')
+        tar_location = self.class_folder % label
+        tar_file_name = self.tar_file_name % (label, which)
+
+        file_name = tar_location + tar_file_name
+        tar = tarfile.open(file_name, "r")
+        print "Unarchiving ", file_name
+        print folder
+        tar.extractall(path=folder)
+        tar.close()
+
+    def unarchive_labelled(self, label, which):
+
+        if which == LABELLED_REPOS:
+            folder = self.repos_folder_updated_labelled % label
+        elif which == LABELLED_READMES:
+            folder = self.readmes_repos_folder_labelled % label
+        elif which == LABELLED_COMMITS:
+            folder = self.commits_interval_folder_labelled % label
+        elif which == LABELLED_CONTENTS:
+            folder = self.contents_folder_labelled % label
+        elif which == LABELLED_TREES:
+            folder = self.trees_folder_labelled % label
+        elif which == LABELLED_PUNCH_CARD:
+            folder = self.punch_card_folder_labelled % label
+        else:
+            raise ValueError('Destination for unarchiving?')
 
         tar_location = self.class_folder % label
         tar_file_name = self.tar_file_name % (label, which)
@@ -71,6 +137,8 @@ class Archiver:
         tar = tarfile.open(file_name, "r")
         print "Unarchiving ", file_name
         print folder
+        if os.path.exists(os.path.dirname(folder)):
+            shutil.rmtree(folder)
         tar.extractall(path=folder)
         tar.close()
 
@@ -121,7 +189,107 @@ archiver = Archiver()
 # archiver.archive('dev', UPDATED_REPOS)
 # archiver.unarchive('dev', UPDATED_REPOS)
 
-#archiver.archive('docs', UPDATED_REPOS)
+# archiver.archive('docs', UPDATED_REPOS)
 
-archiver.unarchive('data', REPO)
+# archiver.unarchive('data', REPO)
+
+# archiver.archive_labelled('edu', LABELLED_TREES)
+# archiver.archive_labelled('edu', LABELLED_CONTENTS)
+# archiver.archive_labelled('edu', LABELLED_COMMITS)
+# archiver.archive_labelled('edu', LABELLED_READMES)
+# archiver.archive_labelled('edu', LABELLED_REPOS)
+# archiver.archive_labelled('edu', LABELLED_PUNCH_CARD)
+#
+# archiver.archive_labelled('dev', LABELLED_TREES)
+# archiver.archive_labelled('dev', LABELLED_CONTENTS)
+# archiver.archive_labelled('dev', LABELLED_COMMITS)
+# archiver.archive_labelled('dev', LABELLED_READMES)
+# archiver.archive_labelled('dev', LABELLED_REPOS)
+# archiver.archive_labelled('dev', LABELLED_PUNCH_CARD)
+#
+# archiver.archive_labelled('docs', LABELLED_TREES)
+# archiver.archive_labelled('docs', LABELLED_CONTENTS)
+# archiver.archive_labelled('docs', LABELLED_COMMITS)
+# archiver.archive_labelled('docs', LABELLED_READMES)
+# archiver.archive_labelled('docs', LABELLED_REPOS)
+# archiver.archive_labelled('docs', LABELLED_PUNCH_CARD)
+#
+# archiver.archive_labelled('data', LABELLED_TREES)
+# archiver.archive_labelled('data', LABELLED_CONTENTS)
+# archiver.archive_labelled('data', LABELLED_COMMITS)
+# archiver.archive_labelled('data', LABELLED_READMES)
+# archiver.archive_labelled('data', LABELLED_REPOS)
+# archiver.archive_labelled('data', LABELLED_PUNCH_CARD)
+#
+# archiver.archive_labelled('web', LABELLED_TREES)
+# archiver.archive_labelled('web', LABELLED_CONTENTS)
+# archiver.archive_labelled('web', LABELLED_COMMITS)
+# archiver.archive_labelled('web', LABELLED_READMES)
+# archiver.archive_labelled('web', LABELLED_REPOS)
+# archiver.archive_labelled('web', LABELLED_PUNCH_CARD)
+#
+# archiver.archive_labelled('other', LABELLED_TREES)
+# archiver.archive_labelled('other', LABELLED_CONTENTS)
+# archiver.archive_labelled('other', LABELLED_COMMITS)
+# archiver.archive_labelled('other', LABELLED_READMES)
+# archiver.archive_labelled('other', LABELLED_REPOS)
+# archiver.archive_labelled('other', LABELLED_PUNCH_CARD)
+#
+# archiver.archive_labelled('hw', LABELLED_TREES)
+# archiver.archive_labelled('hw', LABELLED_CONTENTS)
+# archiver.archive_labelled('hw', LABELLED_COMMITS)
+# archiver.archive_labelled('hw', LABELLED_READMES)
+# archiver.archive_labelled('hw', LABELLED_REPOS)
+# archiver.archive_labelled('hw', LABELLED_PUNCH_CARD)
+
+# uncomment below
+
+archiver.unarchive_labelled('edu', LABELLED_TREES)
+archiver.unarchive_labelled('edu', LABELLED_CONTENTS)
+archiver.unarchive_labelled('edu', LABELLED_COMMITS)
+archiver.unarchive_labelled('edu', LABELLED_READMES)
+archiver.unarchive_labelled('edu', LABELLED_REPOS)
+archiver.unarchive_labelled('edu', LABELLED_PUNCH_CARD)
+
+archiver.unarchive_labelled('dev', LABELLED_TREES)
+archiver.unarchive_labelled('dev', LABELLED_CONTENTS)
+archiver.unarchive_labelled('dev', LABELLED_COMMITS)
+archiver.unarchive_labelled('dev', LABELLED_READMES)
+archiver.unarchive_labelled('dev', LABELLED_REPOS)
+archiver.unarchive_labelled('dev', LABELLED_PUNCH_CARD)
+
+archiver.unarchive_labelled('docs', LABELLED_TREES)
+archiver.unarchive_labelled('docs', LABELLED_CONTENTS)
+archiver.unarchive_labelled('docs', LABELLED_COMMITS)
+archiver.unarchive_labelled('docs', LABELLED_READMES)
+archiver.unarchive_labelled('docs', LABELLED_REPOS)
+archiver.unarchive_labelled('docs', LABELLED_PUNCH_CARD)
+
+archiver.unarchive_labelled('data', LABELLED_TREES)
+archiver.unarchive_labelled('data', LABELLED_CONTENTS)
+archiver.unarchive_labelled('data', LABELLED_COMMITS)
+archiver.unarchive_labelled('data', LABELLED_READMES)
+archiver.unarchive_labelled('data', LABELLED_REPOS)
+archiver.unarchive_labelled('data', LABELLED_PUNCH_CARD)
+
+archiver.unarchive_labelled('web', LABELLED_TREES)
+archiver.unarchive_labelled('web', LABELLED_CONTENTS)
+archiver.unarchive_labelled('web', LABELLED_COMMITS)
+archiver.unarchive_labelled('web', LABELLED_READMES)
+archiver.unarchive_labelled('web', LABELLED_REPOS)
+archiver.unarchive_labelled('web', LABELLED_PUNCH_CARD)
+
+archiver.unarchive_labelled('other', LABELLED_TREES)
+archiver.unarchive_labelled('other', LABELLED_CONTENTS)
+archiver.unarchive_labelled('other', LABELLED_COMMITS)
+archiver.unarchive_labelled('other', LABELLED_READMES)
+archiver.unarchive_labelled('other', LABELLED_REPOS)
+archiver.unarchive_labelled('other', LABELLED_PUNCH_CARD)
+
+archiver.unarchive_labelled('hw', LABELLED_TREES)
+archiver.unarchive_labelled('hw', LABELLED_CONTENTS)
+archiver.unarchive_labelled('hw', LABELLED_COMMITS)
+archiver.unarchive_labelled('hw', LABELLED_READMES)
+archiver.unarchive_labelled('hw', LABELLED_REPOS)
+archiver.unarchive_labelled('hw', LABELLED_PUNCH_CARD)
 

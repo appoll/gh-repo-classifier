@@ -1,16 +1,19 @@
+import numpy as np
 import pandas as pd
 from sklearn.ensemble import RandomForestClassifier
 from sklearn.metrics import accuracy_score
 from sklearn.metrics import mean_squared_error
+from sklearn.metrics import precision_score
 from sklearn.model_selection import train_test_split
 
 from collection.labels import Labels
 
 
 def features(label):
-    features = pd.read_csv("../../exploration/labelled/features/repo_data_%s.txt" % label.value, delimiter=" ",
+    features = pd.read_csv("../../exploration/labelled/features/repo_data_%s.txt" % label, delimiter=" ",
                            header=0)
 
+    #features.to_csv('repo_repo_names_%s' % label, columns=["repo_name"])
     features = features.drop(labels='repo_name', axis=1)
 
     if label == Labels.data:
@@ -25,13 +28,15 @@ def features(label):
         features['label'] = 4
     elif label == Labels.web:
         features['label'] = 5
-
+    elif label == Labels.uncertain:
+        features['label'] = 6
     return features
 
-data = [features(Labels.edu), features(Labels.data), features(Labels.hw), features(Labels.web), features(Labels.dev),
-        features(Labels.docs)]
 
-data = pd.concat(data)
+features = [features(Labels.data), features(Labels.dev), features(Labels.docs), features(Labels.edu),
+            features(Labels.hw), features(Labels.web), features(Labels.uncertain)]
+
+data = pd.concat(features)
 
 train_data, test_data = train_test_split(data, test_size=0.2)
 
@@ -52,3 +57,6 @@ output = forest.predict(test_data)
 
 print mean_squared_error(output, test_labels)
 print accuracy_score(test_labels, output)
+score = precision_score(test_labels, output, average=None)
+print score
+print np.mean(score)

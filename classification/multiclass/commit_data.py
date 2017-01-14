@@ -5,12 +5,19 @@ from sklearn.metrics import mean_squared_error
 from sklearn.model_selection import train_test_split
 
 from collection.labels import Labels
-
+from sklearn.metrics import precision_score
+import numpy as np
 
 def features(label):
-    features = pd.read_csv("../../exploration/features/commit_data_%s.txt" % label.value, delimiter=" ", header=0)
-    print("./exploration/features/commit_data_%s.txt" % label.value)
+    features = pd.read_csv("../../exploration/labelled/features/commit_data_%s.txt" % label, delimiter=" ", header=0)
+    print("./exploration/features/commit_data_%s.txt" % label)
 
+    # features = pd.read_csv("../../exploration/labelled/features/commits_interval_data_%s.txt" % label, delimiter=" ", header=0)
+    # print "../../exploration/labelled/features/commits_interval_data_%s.txt"
+
+    print features.shape
+
+    # features.to_csv('commit_repo_names_%s' % label, columns=["repo_name"])
     features = features.drop(labels='repo_name', axis=1)
 
     if label == Labels.data:
@@ -25,12 +32,12 @@ def features(label):
         features['label'] = 4
     elif label == Labels.web:
         features['label'] = 5
+    elif label == Labels.uncertain:
+        features['label'] = 6
 
     return features
 
-data = [features(Labels.edu), features(Labels.data), features(Labels.hw), features(Labels.web), features(Labels.dev),
-        features(Labels.docs)]
-
+data = [features(Labels.data), features(Labels.dev), features(Labels.docs),features(Labels.edu),features(Labels.hw),features(Labels.web), features(Labels.uncertain)]
 data = pd.concat(data)
 
 train_data, test_data = train_test_split(data, test_size=0.2)
@@ -45,10 +52,15 @@ print data.shape
 print train_data.shape
 print test_data.shape
 
-forest_classifier = RandomForestClassifier(n_estimators=500, max_depth=5, max_features=3)
+forest_classifier = RandomForestClassifier(n_estimators=2000, max_depth=3)
 forest = forest_classifier.fit(train_data, train_labels)
 
 output = forest.predict(test_data)
 
 print mean_squared_error(output, test_labels)
 print accuracy_score(test_labels, output)
+score = precision_score(output, test_labels, average=None)
+
+# precision values high for hw and web, meaning that commit info is able to identify these classes?
+print score
+print np.mean(score)

@@ -1,15 +1,18 @@
+import os
 import re
 
 import numpy as np
 import pandas as pd
 from bs4 import BeautifulSoup
 from nltk.corpus import stopwords
-from sklearn.feature_extraction.text import CountVectorizer
+from sklearn.ensemble import RandomForestClassifier
 from sklearn.feature_extraction.text import TfidfVectorizer
+from sklearn.metrics import precision_score
+from sklearn.model_selection import GridSearchCV
+from sklearn.model_selection import train_test_split
+from sklearn.svm import SVC
 
-from classification import svc
-
-train = pd.read_csv("../exploration/text_data.txt", delimiter=" ", header=0)
+train = pd.read_csv("../../exploration/text_data.txt", delimiter=" ", header=0)
 
 
 # nltk.download()
@@ -71,7 +74,14 @@ clean_readmes = []
 for i in xrange(0, rows):
     # Call our function for each one, and add the result to the list of
     # clean reviews
-    content = readmeContent(train['readme_filename'][i])
+    path_to_readme = train['readme_filename'][i]
+    # dirty fix readme path name
+    path = "../" + path_to_readme
+
+    if not os.path.exists(path):
+        raise IOError("Readme path does not exist!")
+
+    content = readmeContent(path)
     clean_readmes.append(raw_to_words(content))
 #
 # vectorizer = CountVectorizer(analyzer="word",
@@ -85,21 +95,30 @@ vectorizer = TfidfVectorizer(analyzer="word",
                              preprocessor=None,
                              stop_words=['docs', 'framework', 'homework', 'course', 'data']
                              ,ngram_range=(1, 3)
-                             ,max_features = 2000
+                             , max_features=2000
                              )
 
-
-train_data_features = vectorizer.fit_transform(clean_readmes)
-train_data_features = train_data_features.toarray()
-
-print_words_and_count(vectorizer=vectorizer)
-
-print_feature_matrix(train_data_features)
-# print_feature_matrix(train_data_features, withCorrespondingExample=True)
+X = vectorizer.fit_transform(clean_readmes)
+print X.shape
 
 labels = train['label']
+Y = np.asarray(labels, dtype=int)
+print Y.shape
 
-training_score, testing_score = svc.runLinear(train_data_features, labels)
+X_train, X_test, Y_train, Y_test = train_test_split(X, Y, test_size=0.2, random_state=0)
 
-print training_score
-print testing_score
+C_range = np.logspace(-2, 10, 13)
+gamma_range = np.logspace(-9, 3, 13)
+gS = GridSearchCV(SVC(), {'kernel': ['rbf'], 'C': C_range, 'gamma': gamma_range}, n_jobs=-1)
+clf = RandomForestClassifier(n_estimators=1000, n_jobs=-1, random_state=0, max_depth=30)
+clf.fit(X_train, Y_train)
+
+output = clf.predict(X_test)
+
+score = precision_score(Y_test, output, average=None)
+print score
+
+print np.mean(score)
+
+
+print clf.score(X_test, Y_test)
