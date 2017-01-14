@@ -1,9 +1,10 @@
+import codecs
 import glob
 import os
 import shutil
 
-from collection.labels import Labels
-
+from langdetect import detect
+from langdetect.lang_detect_exception import LangDetectException
 
 def extract_labelled_repos_names(labelled):
     try:
@@ -87,6 +88,73 @@ def update(label, source, dest):
         print 'copied to %s folder' % dest_folder
 
 
+def extract_non_english_repo_names_from_readmes(readmes_repos_folder_labelled):
+    repo_names = []
+    for filename in glob.glob(readmes_repos_folder_labelled + '*'):
+        split = filename.split('/')
+        repo_name_md = split[len(split) - 1]
+        repo_name = repo_name_md[:-len('.md')]
+
+        f = codecs.open(filename, 'r', 'utf-8')
+        readme_content = f.read()
+        try:
+            language = detect(readme_content)
+        except LangDetectException:
+            continue
+        if language != 'en':
+            #print "%s not english" % repo_name
+            repo_names.append(repo_name)
+    return repo_names
+
+
+def move_non_english_repos(source_folder, repo_names):
+    count = 0
+    for filename in glob.glob(source_folder + '*'):
+        dest_folder = source_folder.replace("json_", "json_nen_")
+        if not os.path.exists(os.path.dirname(dest_folder)):
+            os.makedirs(os.path.dirname(dest_folder))
+
+        new_filename = filename.replace("json_", "json_nen_")
+        split = filename.split('/')
+        repo_name_extension = split[len(split) - 1]
+        if '.json' in repo_name_extension:
+            repo_name = repo_name_extension[:-len('.json')]
+        elif '.md' in repo_name_extension:
+            repo_name = repo_name_extension[:-len('.md')]
+        if repo_name in repo_names:
+            print 'moving %s from %s to %s' % (repo_name, filename, new_filename)
+            shutil.move(filename, new_filename)
+            count += 1
+    if count == len(repo_names):
+        print "moved %d from %s to %s" % (count, filename, new_filename)
+    else:
+        print "Moving of repos to %s failed. %d out of %d" %(dest_folder, count, len(repo_names))
+
+
+def update_non_english(label):
+    repos_folder_labelled = "../%s/json_repos_unarchived_labelled/" % label
+    repos_folder_updated_labelled = "../%s/json_repos_updated_labelled/" % label
+    readmes_repos_folder_labelled = "../%s/json_readmes_unarchived_labelled/" % label
+    commits_interval_folder_labelled = "../%s/json_commits_interval_labelled/" % label
+    commits_folder_labelled = "../%s/json_commits_labelled/" % label
+    contents_folder_labelled = "../%s/json_contents_labelled/" % label
+    trees_folder_labelled = "../%s/json_trees_labelled/" % label
+    punch_card_folder_labelled = "../%s/json_punch_card_labelled/" % label
+
+    repo_names = extract_non_english_repo_names_from_readmes(readmes_repos_folder_labelled)
+
+    move_non_english_repos(repos_folder_updated_labelled, repo_names)
+    move_non_english_repos(repos_folder_labelled, repo_names)
+    move_non_english_repos(commits_interval_folder_labelled, repo_names)
+    move_non_english_repos(commits_folder_labelled, repo_names)
+    move_non_english_repos(contents_folder_labelled, repo_names)
+    move_non_english_repos(trees_folder_labelled, repo_names)
+    move_non_english_repos(punch_card_folder_labelled, repo_names)
+
+    # move readmes last !
+    move_non_english_repos(readmes_repos_folder_labelled, repo_names)
+    print '%d repos of the %s class are not in english according to readme files' % (len(repo_names), label)
+
 repos_folder = "../%s/json_repos_unarchived/"
 repos_folder_updated = "../%s/json_repos_updated/"
 readmes_repos_folder = "../%s/json_readmes_unarchived/"
@@ -102,54 +170,62 @@ readmes_repos_folder_labelled = "../%s/json_readmes_unarchived_labelled/"
 commits_interval_folder_labelled = "../%s/json_commits_interval_labelled/"
 commits_folder_labelled = "../%s/json_commits_labelled/"
 contents_folder_labelled = "../%s/json_contents_labelled/"
-trees_folder_labelled="../%s/json_trees_labelled/"
+trees_folder_labelled = "../%s/json_trees_labelled/"
 punch_card_folder_labelled = "../%s/json_punch_card_labelled/"
 
-# update(Labels.web.value, repos_folder, repos_folder_labelled)
-# update(Labels.web.value, repos_folder_updated, repos_folder_updated_labelled)
-# update(Labels.web.value, readmes_repos_folder, readmes_repos_folder_labelled)
-# update(Labels.web.value, commits_interval_folder, commits_interval_folder_labelled)
-# update(Labels.web.value, contents_folder, contents_folder_labelled)
-# update(Labels.web.value, trees_folder, trees_folder_labelled)
-# update(Labels.web.value, punch_card_folder, punch_card_folder_labelled)
-update(Labels.web.value, commits_folder, commits_folder_labelled)
+#update_non_english(Labels.uncertain)
+# update_non_english(Labels.dev)
+# update_non_english(Labels.data)
+# update_non_english(Labels.docs)
+# update_non_english(Labels.edu)
+# update_non_english(Labels.hw)
+# update_non_english(Labels.web)
+
+# update(Labels.web, repos_folder, repos_folder_labelled)
+# update(Labels.web, repos_folder_updated, repos_folder_updated_labelled)
+# update(Labels.web, readmes_repos_folder, readmes_repos_folder_labelled)
+# update(Labels.web, commits_interval_folder, commits_interval_folder_labelled)
+# update(Labels.web, contents_folder, contents_folder_labelled)
+# update(Labels.web, trees_folder, trees_folder_labelled)
+# update(Labels.web, punch_card_folder, punch_card_folder_labelled)
+# update(Labels.web, commits_folder, commits_folder_labelled)
 
 
-# update(Labels.hw.value, repos_folder, repos_folder_labelled)
-# update(Labels.hw.value, repos_folder_updated, repos_folder_updated_labelled)
-# update(Labels.hw.value, readmes_repos_folder, readmes_repos_folder_labelled)
-# update(Labels.hw.value, commits_interval_folder, commits_interval_folder_labelled)
-# update(Labels.hw.value, contents_folder, contents_folder_labelled)
-# update(Labels.hw.value, trees_folder, trees_folder_labelled)
-# update(Labels.hw.value, punch_card_folder, punch_card_folder_labelled)
-# update(Labels.hw.value, commits_folder, commits_folder_labelled)
+# update(Labels.hw, repos_folder, repos_folder_labelled)
+# update(Labels.hw, repos_folder_updated, repos_folder_updated_labelled)
+# update(Labels.hw, readmes_repos_folder, readmes_repos_folder_labelled)
+# update(Labels.hw, commits_interval_folder, commits_interval_folder_labelled)
+# update(Labels.hw, contents_folder, contents_folder_labelled)
+# update(Labels.hw, trees_folder, trees_folder_labelled)
+# update(Labels.hw, punch_card_folder, punch_card_folder_labelled)
+# update(Labels.hw, commits_folder, commits_folder_labelled)
 
 
-# update(Labels.data.value, repos_folder, repos_folder_labelled)
-# update(Labels.data.value, repos_folder_updated, repos_folder_updated_labelled)
-# update(Labels.data.value, readmes_repos_folder, readmes_repos_folder_labelled)
-# update(Labels.data.value, commits_interval_folder, commits_interval_folder_labelled)
-# update(Labels.data.value, contents_folder, contents_folder_labelled)
-# update(Labels.data.value, trees_folder, trees_folder_labelled)
-# update(Labels.data.value, punch_card_folder, punch_card_folder_labelled)
-# update(Labels.data.value, commits_folder, commits_folder_labelled)
+# update(Labels.data, repos_folder, repos_folder_labelled)
+# update(Labels.data, repos_folder_updated, repos_folder_updated_labelled)
+# update(Labels.data, readmes_repos_folder, readmes_repos_folder_labelled)
+# update(Labels.data, commits_interval_folder, commits_interval_folder_labelled)
+# update(Labels.data, contents_folder, contents_folder_labelled)
+# update(Labels.data, trees_folder, trees_folder_labelled)
+# update(Labels.data, punch_card_folder, punch_card_folder_labelled)
+# update(Labels.data, commits_folder, commits_folder_labelled)
 
 
-# update(Labels.docs.value, repos_folder, repos_folder_labelled)
-# update(Labels.docs.value, repos_folder_updated, repos_folder_updated_labelled)
-# update(Labels.docs.value, readmes_repos_folder, readmes_repos_folder_labelled)
-# update(Labels.docs.value, commits_interval_folder, commits_interval_folder_labelled)
-# update(Labels.docs.value, contents_folder, contents_folder_labelled)
-# update(Labels.docs.value, trees_folder, trees_folder_labelled)
-# update(Labels.docs.value, punch_card_folder, punch_card_folder_labelled)
-# update(Labels.docs.value, commits_folder, commits_folder_labelled)
+# update(Labels.docs, repos_folder, repos_folder_labelled)
+# update(Labels.docs, repos_folder_updated, repos_folder_updated_labelled)
+# update(Labels.docs, readmes_repos_folder, readmes_repos_folder_labelled)
+# update(Labels.docs, commits_interval_folder, commits_interval_folder_labelled)
+# update(Labels.docs, contents_folder, contents_folder_labelled)
+# update(Labels.docs, trees_folder, trees_folder_labelled)
+# update(Labels.docs, punch_card_folder, punch_card_folder_labelled)
+# update(Labels.docs, commits_folder, commits_folder_labelled)
 
 #
-# update(Labels.edu.value, repos_folder, repos_folder_labelled)
-# update(Labels.edu.value, repos_folder_updated, repos_folder_updated_labelled)
-# update(Labels.edu.value, readmes_repos_folder, readmes_repos_folder_labelled)
-# update(Labels.edu.value, commits_interval_folder, commits_interval_folder_labelled)
-# update(Labels.edu.value, contents_folder, contents_folder_labelled)
-# update(Labels.edu.value, trees_folder, trees_folder_labelled)
-# update(Labels.edu.value, punch_card_folder, punch_card_folder_labelled)
-# update(Labels.edu.value, commits_folder, commits_folder_labelled)
+# update(Labels.edu, repos_folder, repos_folder_labelled)
+# update(Labels.edu, repos_folder_updated, repos_folder_updated_labelled)
+# update(Labels.edu, readmes_repos_folder, readmes_repos_folder_labelled)
+# update(Labels.edu, commits_interval_folder, commits_interval_folder_labelled)
+# update(Labels.edu, contents_folder, contents_folder_labelled)
+# update(Labels.edu, trees_folder, trees_folder_labelled)
+# update(Labels.edu, punch_card_folder, punch_card_folder_labelled)
+# update(Labels.edu, commits_folder, commits_folder_labelled)

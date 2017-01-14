@@ -1,6 +1,9 @@
 import glob
+import os
 import sys
 import tarfile
+
+import shutil
 
 sys.path.append('..')
 
@@ -37,7 +40,7 @@ class Archiver:
 
         self.class_folder = "../collection/%s/"
 
-        self.tar_file_name = "all_%s_%s.tar"
+        self.tar_file_name = "all_%s_%s_en.tar"
 
     def archive(self, label, which):
         if which == REPO:
@@ -134,6 +137,8 @@ class Archiver:
         tar = tarfile.open(file_name, "r")
         print "Unarchiving ", file_name
         print folder
+        if os.path.exists(os.path.dirname(folder)):
+            shutil.rmtree(folder)
         tar.extractall(path=folder)
         tar.close()
 
@@ -201,35 +206,35 @@ archiver = Archiver()
 # archiver.archive_labelled('dev', LABELLED_READMES)
 # archiver.archive_labelled('dev', LABELLED_REPOS)
 # archiver.archive_labelled('dev', LABELLED_PUNCH_CARD)
-
+#
 # archiver.archive_labelled('docs', LABELLED_TREES)
 # archiver.archive_labelled('docs', LABELLED_CONTENTS)
 # archiver.archive_labelled('docs', LABELLED_COMMITS)
 # archiver.archive_labelled('docs', LABELLED_READMES)
 # archiver.archive_labelled('docs', LABELLED_REPOS)
 # archiver.archive_labelled('docs', LABELLED_PUNCH_CARD)
-
+#
 # archiver.archive_labelled('data', LABELLED_TREES)
 # archiver.archive_labelled('data', LABELLED_CONTENTS)
 # archiver.archive_labelled('data', LABELLED_COMMITS)
 # archiver.archive_labelled('data', LABELLED_READMES)
 # archiver.archive_labelled('data', LABELLED_REPOS)
 # archiver.archive_labelled('data', LABELLED_PUNCH_CARD)
-
+#
 # archiver.archive_labelled('web', LABELLED_TREES)
 # archiver.archive_labelled('web', LABELLED_CONTENTS)
 # archiver.archive_labelled('web', LABELLED_COMMITS)
 # archiver.archive_labelled('web', LABELLED_READMES)
 # archiver.archive_labelled('web', LABELLED_REPOS)
 # archiver.archive_labelled('web', LABELLED_PUNCH_CARD)
-
+#
 # archiver.archive_labelled('other', LABELLED_TREES)
 # archiver.archive_labelled('other', LABELLED_CONTENTS)
 # archiver.archive_labelled('other', LABELLED_COMMITS)
 # archiver.archive_labelled('other', LABELLED_READMES)
 # archiver.archive_labelled('other', LABELLED_REPOS)
 # archiver.archive_labelled('other', LABELLED_PUNCH_CARD)
-
+#
 # archiver.archive_labelled('hw', LABELLED_TREES)
 # archiver.archive_labelled('hw', LABELLED_CONTENTS)
 # archiver.archive_labelled('hw', LABELLED_COMMITS)

@@ -441,34 +441,34 @@ class ExampleData:
 
 data = ExampleData()
 
-# data.getReadmes(label=Labels.edu.value)
-# data.getReadmes(label=Labels.hw.value)
-# data.getReadmes(label=Labels.docs.value)
-# data.getReadmes(label=Labels.data.value)
-# data.getReadmes(label=Labels.dev.value)
-# data.getReadmes(label=Labels.web.value)
+# data.getReadmes(label=Labels.edu)
+# data.getReadmes(label=Labels.hw)
+# data.getReadmes(label=Labels.docs)
+# data.getReadmes(label=Labels.data)
+# data.getReadmes(label=Labels.dev)
+# data.getReadmes(label=Labels.web)
 
-# data.getCommitActivity(label=Labels.edu.value)
-# data.getCommitActivity(label=Labels.hw.value)
-# data.getCommitActivity(label=Labels.docs.value)
-# data.getCommitActivity(label=Labels.data.value)
-# data.getCommitActivity(label=Labels.dev.value)
-# data.getCommitActivity(label=Labels.web.value)
+# data.getCommitActivity(label=Labels.edu)
+# data.getCommitActivity(label=Labels.hw)
+# data.getCommitActivity(label=Labels.docs)
+# data.getCommitActivity(label=Labels.data)
+# data.getCommitActivity(label=Labels.dev)
+# data.getCommitActivity(label=Labels.web)
 
 # calls below will append to existing files so uncomment carefully
 
-# data.get_repo_names_by_keyword(label=Labels.hw.value,keyword="homework")
+# data.get_repo_names_by_keyword(label=Labels.hw,keyword="homework")
 
-# data.get_repo_names_by_keyword(label=Labels.docs.value, keyword="docs")
-# data.get_repo_names_by_keyword(label=Labels.docs.value, keyword="documentation")
+# data.get_repo_names_by_keyword(label=Labels.docs, keyword="docs")
+# data.get_repo_names_by_keyword(label=Labels.docs, keyword="documentation")
 
-# data.get_repo_names_by_keyword(label=Labels.data.value, keyword="data")
+# data.get_repo_names_by_keyword(label=Labels.data, keyword="data")
 
 # data.get_repo_names_by_keyword('edu', keyword="course")
 
-# data.get_repo_names_by_keyword(label=Labels.dev.value, keyword="framework")
+# data.get_repo_names_by_keyword(label=Labels.dev, keyword="framework")
 
-# data.get_repo_names_by_keyword(label=Labels.web.value, keyword="github.io")
+# data.get_repo_names_by_keyword(label=Labels.web, keyword="github.io")
 
 # keywords must be the same as the previously called get_repo_names_by_keyword methods
 
