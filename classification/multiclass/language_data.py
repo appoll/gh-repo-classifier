@@ -12,11 +12,12 @@ from collection.labels import Labels
 
 
 def features(label):
-    features = pd.read_csv("../../exploration/labelled/features/languages_data_%s.txt" % label.value, delimiter=" ",
+    features = pd.read_csv("../../exploration/labelled/features/languages_data_%s.txt" % label, delimiter=" ",
                            header=0)
     print '/labelled/features/languages_data_%s' % label
     print features.shape
 
+    #features.to_csv('lang_repo_names_%s' % label, columns=["repo_name"])
     features = features.drop(labels='repo_name', axis=1)
 
     print features.shape
@@ -144,9 +145,8 @@ def tune_rbf_svc_hyperparameters(rbf_svc, data):
     # print scores
 
 
-features = [features(Labels.edu), features(Labels.data), features(Labels.hw), features(Labels.web),
-            features(Labels.dev),
-            features(Labels.docs), features(Labels.uncertain)]
+features = [features(Labels.data), features(Labels.dev), features(Labels.docs), features(Labels.edu),
+            features(Labels.hw), features(Labels.web), features(Labels.uncertain)]
 
 data = pd.concat(features)
 print data.shape
@@ -168,10 +168,9 @@ test_data = test_data.drop(labels='label', axis=1)
 
 # below finds docs with high precision
 # precision average is lower: 31-42 %, sometimes even oscillates 21 - 56
-#forest_classifier = RandomForestClassifier(n_estimators=1000, max_depth=5)
+# forest_classifier = RandomForestClassifier(n_estimators=1000, max_depth=5)
 
 forest_classifier = RandomForestClassifier(n_estimators=2000, max_depth=5)
-
 
 forest = forest_classifier.fit(train_data, train_labels)
 

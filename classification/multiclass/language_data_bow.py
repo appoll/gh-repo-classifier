@@ -13,7 +13,7 @@ from collection.labels import Labels
 
 
 def features(label):
-    features = pd.read_csv("../../exploration/labelled/features/languages_str_data_%s.txt" % label.value, delimiter=" ",
+    features = pd.read_csv("../../exploration/labelled/features/languages_str_data_%s.txt" % label, delimiter=" ",
                            header=0)
     print '/labelled/features/languages_data_%s' % label
     print features.shape

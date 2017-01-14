@@ -3,11 +3,11 @@ import pandas as pd
 from collection.labels import Labels
 
 def features(label):
-    features = pd.read_csv("../../exploration/labelled/features/contents_data_%s.txt" % label.value, delimiter=" ", header=0)
+    features = pd.read_csv("../../exploration/labelled/features/contents_data_%s.txt" % label, delimiter=" ", header=0)
 
     print features.shape
 
-    #features.to_csv('contents_repo_names_%s' % label.value, columns=["repo_name"])
+    #features.to_csv('contents_repo_names_%s' % label, columns=["repo_name"])
     features = features.drop(labels='repo_name', axis=1)
 
     print features.shape

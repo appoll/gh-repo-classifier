@@ -4,11 +4,11 @@ from collection.labels import Labels
 
 
 def features(label):
-    features = pd.read_csv("../../exploration/labelled/features/punch_card_data_%s.txt" % label.value, delimiter=" ", header=0)
+    features = pd.read_csv("../../exploration/labelled/features/punch_card_data_%s.txt" % label, delimiter=" ", header=0)
 
     print features.shape
 
-    features.to_csv('punch_repo_names_%s' % label.value, columns=["repo_name"])
+    features.to_csv('punch_repo_names_%s' % label, columns=["repo_name"])
     features = features.drop(labels='repo_name', axis=1)
 
     print features.shape

@@ -9,15 +9,15 @@ from sklearn.metrics import precision_score
 import numpy as np
 
 def features(label):
-    features = pd.read_csv("../../exploration/labelled/features/commit_data_%s.txt" % label.value, delimiter=" ", header=0)
-    print("./exploration/features/commit_data_%s.txt" % label.value)
+    features = pd.read_csv("../../exploration/labelled/features/commit_data_%s.txt" % label, delimiter=" ", header=0)
+    print("./exploration/features/commit_data_%s.txt" % label)
 
-    # features = pd.read_csv("../../exploration/labelled/features/commits_interval_data_%s.txt" % label.value, delimiter=" ", header=0)
+    # features = pd.read_csv("../../exploration/labelled/features/commits_interval_data_%s.txt" % label, delimiter=" ", header=0)
     # print "../../exploration/labelled/features/commits_interval_data_%s.txt"
 
     print features.shape
 
-    # features.to_csv('commit_repo_names_%s' % label.value, columns=["repo_name"])
+    # features.to_csv('commit_repo_names_%s' % label, columns=["repo_name"])
     features = features.drop(labels='repo_name', axis=1)
 
     if label == Labels.data:
