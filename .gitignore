@@ -10,7 +10,7 @@
 /collection/docs/json_*/*
 /collection/edu/json_*/*
 /collection/hw/json_*/*
-
+/collection/other/json_*/*
 /exploration/additional/json_*/*
 
 # Byte-Compiled 
