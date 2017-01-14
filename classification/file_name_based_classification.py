@@ -49,7 +49,7 @@ X_train, X_test, Y_train, Y_test = train_test_split(X,Y,test_size=0.4,random_sta
 C_range = np.logspace(-2, 10, 13)
 gamma_range = np.logspace(-9, 3, 13)
 gS = GridSearchCV(SVC(),{'kernel':['rbf'],'C':C_range,'gamma':gamma_range},n_jobs=-1)
-clf = RandomForestClassifier(n_estimators=300,n_jobs=-1,random_state=0)
+clf = RandomForestClassifier(n_estimators=500,n_jobs=-1,random_state=0)
 
 # gS.fit(X_train,Y_train)
 clf.fit(X_train,Y_train)
