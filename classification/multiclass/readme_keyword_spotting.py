@@ -13,7 +13,7 @@ from sklearn.model_selection import GridSearchCV
 from sklearn.model_selection import train_test_split
 from sklearn.svm import SVC
 from collection.labels import Labels
-
+from sklearn.model_selection import ShuffleSplit
 from sklearn.feature_extraction.text import CountVectorizer
 
 train = pd.read_csv("../../exploration/text_data.txt", delimiter=" ", header=0)
@@ -27,34 +27,44 @@ nltk.download('stopwords')
 
 
 
-keywords_edu = ["course", "coursera", "slide", "lecture", "assignment", "university", "student", "week", "schedule",
+keywords_readme_edu = ["course", "coursera", "slide", "lecture", "assignment", "university", "student", "week", "schedule",
                 "work", "term", "condition", "education", "class"]
-keywords_dev = ["library", "package", "framework", "module", "app", "application", "server", "license", "develop",
+keywords_readme_dev = ["library", "package", "framework", "module", "app", "application", "server", "license", "develop",
                 "dependencies", "installation", "api", "client"]
-keywords_data = ["data", "dataset", "sample", "set", "database", "table"]
-keywords_hw = ["homework", "solution"]
-keywords_web = ["web", "website", "homepage", "javascript"]
-keywords_doc = ["documentation", "collection", "manuals", "docs"]
+keywords_readme_data = ["data", "dataset", "sample", "set", "database", "table"]
+keywords_readme_hw = ["homework", "solution"]
+keywords_readme_web = ["web", "website", "homepage", "javascript"]
+keywords_readme_doc = ["documentation", "collection", "manuals", "docs"]
+
+keyword_readme_list = []
+keyword_readme_list.extend(keywords_readme_edu)
+keyword_readme_list.extend(keywords_readme_dev)
+keyword_readme_list.extend(keywords_readme_data)
+keyword_readme_list.extend(keywords_readme_hw)
+keyword_readme_list.extend(keywords_readme_web)
+keyword_readme_list.extend(keywords_readme_doc)
 
 
+keywords_content_edu = ["course", "slide", "lecture", "assignment", "eduation"]
+keywords_content_dev = ["scripts", "pom.xml", "framework", "install"]
+keywords_content_data = ["dataset"]
+keywords_content_hw = ["homework", "hw0", "hw1", "task", "lesson", "week_"]
+keywords_content_web = ["website"]
+keywords_content_doc = ["doc"]
 
-# keywords_edu = ["course", "slide", "lecture", "assignment", "eduation"]
-# keywords_dev = ["scripts", "pom.xml", "framework", "install"]
-# keywords_data = ["dataset"]
-# keywords_hw = ["homework", "hw0", "hw1", "task", "lesson", "week_"]
-# keywords_web = ["website"]
-# keywords_doc = ["doc"]
-
-
-
+keyword_content_list = []
+keyword_content_list.extend(keywords_content_edu)
+keyword_content_list.extend(keywords_content_dev)
+keyword_content_list.extend(keywords_content_data)
+keyword_content_list.extend(keywords_content_hw)
+keyword_content_list.extend(keywords_content_web)
+keyword_content_list.extend(keywords_content_doc)
 
 keyword_list = []
-keyword_list.extend(keywords_edu)
-keyword_list.extend(keywords_dev)
-keyword_list.extend(keywords_data)
-keyword_list.extend(keywords_hw)
-keyword_list.extend(keywords_web)
-keyword_list.extend(keywords_doc)
+keyword_list.extend(keyword_readme_list)
+keyword_list.extend(keyword_content_list)
+
+
 
 print keyword_list
 def readmeContent(filename):
@@ -96,11 +106,13 @@ def print_feature_matrix(features, withCorrespondingExample=False):
 def keyword_spotting(content, keyword_list):
     # init binary vector with zeros
     binary_vector = np.zeros(len(keyword_list))
-    for index, key in enumerate(keyword_list):
-        word_set = content.split(" ")
-        for word in word_set:
-            if key in word:
-                binary_vector[index] = 1
+    if content is not None:
+        for index, key in enumerate(keyword_list):
+            word_set = content.split(" ")
+            for word in word_set:
+                if key in word:
+                    binary_vector[index] = 1
+    print binary_vector
     return binary_vector
 
 
@@ -148,66 +160,91 @@ def extract_all_contents():
     data = pd.concat(data)
     return data
 
-# data = extract_all_contents()
-#
-# print np.shape(data)
-# print np.shape(train)
-#
-# test = train.merge(data, on="repo_name", how="outer")
-#
-# test.to_csv("trash_data.txt", sep=" ")
+data = extract_all_contents()
 
-X = []
+print np.shape(data)
+print np.shape(train)
+
+data = train.merge(data, on="repo_name", how="outer")
+rows = data['repo_name'].size
+for i in xrange(0, rows):
+    if (np.isnan(data["label_x"][i])):
+        data.loc[i, "label_x"]= data["label_y"][i]
+
+data.to_csv("trash_data.txt", sep=",")
 
 
-rows = train['readme_filename'].size
+
+rows = data['repo_name'].size
 clean_readmes = []
 for i in xrange(0, rows):
     # Call our function for each one, and add the result to the list of
     # clean reviews
-    path_to_readme = train['readme_filename'][i]
-    # dirty fix readme path name
-    path = "../" + path_to_readme
+    path_to_readme = data['readme_filename'][i]
+    if path_to_readme is not np.nan:
+        # dirty fix readme path name
+        path = "../" + path_to_readme
+        if not os.path.exists(path):
+            raise IOError("Readme path does not exist!")
+        content = readmeContent(path)
+        clean_readmes.append(raw_to_words(content))
+    else:
+        clean_readmes.append(None)
 
-    if not os.path.exists(path):
-        raise IOError("Readme path does not exist!")
 
-    content = readmeContent(path)
 
-    clean_readmes.append(raw_to_words(content))
 
+readme_features = []
 
 
 for repository_readme in clean_readmes:
-    keys = keyword_spotting(repository_readme, keyword_list=keyword_list)
-    X.append(keys)
-
-labels = train['label']
+    keys = keyword_spotting(repository_readme, keyword_list=keyword_readme_list)
+    readme_features.append(keys)
 
 
 
 # contents, labels = extract_contents()
-#
-# # labels = np.concatenate((labels,labels_content))
-#
-# for repository_content in contents:
-#     keys = keyword_spotting(repository_content, keyword_list=keyword_list)
-#     X.append(keys)
+
+# labels = np.concatenate((labels,labels_content))
+content_features = []
+
+
+for repository_content in data["fo_and_fi_names"]:
+    if repository_content is np.nan:
+        repository_content = None
+        print "It is naaaaaaaan"
+    keys = keyword_spotting(repository_content, keyword_list=keyword_content_list)
+    content_features.append(keys)
+
+
+
+print "Shape readme features: ", np.shape(readme_features)
+print "Shape content features: ", np.shape(content_features)
+
+labels = data['label_x']
 
 
 
 
+
+
+
+
+X = np.hstack((readme_features, content_features))
+print "Shape of stacked features:" , np.shape(X)
 
 
 Y = np.asarray(labels, dtype=int)
-X = np.array(X)
-print X.shape
-print Y.shape
+print "Shape labels: ", np.shape(Y)
+
 X_train, X_test, Y_train, Y_test = train_test_split(X, Y, test_size=0.2, random_state=0)
 
+param_grid = [{'n_estimators': [100, 200, 300, 400, 500], 'max_depth': [None, 10, 20, 30, 40]}]
+svr = RandomForestClassifier(random_state=1)
 
+clf = GridSearchCV(svr, param_grid, verbose=10000)
 
-clf = RandomForestClassifier(n_estimators=1000, n_jobs=-1, random_state=1, max_depth=30)
+# clf = RandomForestClassifier(n_estimators=500, n_jobs=-1, random_state=1, max_depth=30)
 clf.fit(X_train, Y_train)
 
 output = clf.predict(X_test)
