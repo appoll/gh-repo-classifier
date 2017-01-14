@@ -9,14 +9,15 @@ from sklearn.metrics import precision_score
 import numpy as np
 
 def features(label):
-    # features = pd.read_csv("../../exploration/labelled/features/commit_data_%s.txt" % label.value, delimiter=" ", header=0)
-    # print("./exploration/features/commit_data_%s.txt" % label.value)
+    features = pd.read_csv("../../exploration/labelled/features/commit_data_%s.txt" % label.value, delimiter=" ", header=0)
+    print("./exploration/features/commit_data_%s.txt" % label.value)
 
-    features = pd.read_csv("../../exploration/labelled/features/commits_interval_data_%s.txt" % label.value, delimiter=" ", header=0)
-    print "../../exploration/labelled/features/commits_interval_data_%s.txt"
+    # features = pd.read_csv("../../exploration/labelled/features/commits_interval_data_%s.txt" % label.value, delimiter=" ", header=0)
+    # print "../../exploration/labelled/features/commits_interval_data_%s.txt"
 
     print features.shape
 
+    # features.to_csv('commit_repo_names_%s' % label.value, columns=["repo_name"])
     features = features.drop(labels='repo_name', axis=1)
 
     if label == Labels.data:
@@ -36,9 +37,7 @@ def features(label):
 
     return features
 
-data = [features(Labels.edu), features(Labels.data), features(Labels.hw), features(Labels.web), features(Labels.dev),
-        features(Labels.docs)]
-
+data = [features(Labels.data), features(Labels.dev), features(Labels.docs),features(Labels.edu),features(Labels.hw),features(Labels.web), features(Labels.uncertain)]
 data = pd.concat(data)
 
 train_data, test_data = train_test_split(data, test_size=0.2)

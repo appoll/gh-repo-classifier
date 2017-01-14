@@ -85,7 +85,6 @@ class FeatureExtraction:
         f = open(name, 'w')
         header = "punch_card_feature1 punch_card_feature2 punch_card_feature3 repo_name\n"
         f.write(header)
-        f.write(header)
         for filename in glob.glob(folder + '*'):
             print filename
             json_file = open(filename, 'r')
@@ -321,7 +320,7 @@ class FeatureExtraction:
 
         for filename in glob.glob(folder + '*'):
             print filename
-            print len(self.all_languages)
+            #print len(self.all_languages)
             current_languages = self.all_languages.fromkeys(self.all_languages, 0)
             json_file = open(filename, 'r')
             name = os.path.basename(filename)
@@ -337,11 +336,11 @@ class FeatureExtraction:
             all_languages_count = len(languages)
             total_lines = sum(languages.itervalues())
 
-            if repo_size == 0:
-                continue
+#            if repo_size == 0:
+#                continue
 
             for language, code_lines in languages.iteritems():
-                print language
+                #print language
                 if language not in current_languages:
                     raise ValueError("Should not be!")
                 try:
@@ -353,7 +352,7 @@ class FeatureExtraction:
                     current_languages[language] = 0
                     # raise ZeroDivisionError("Somewhere you missed a check on total_bytes!")
 
-            print len(current_languages)
+            #print len(current_languages)
 
             line = "%.2f" % all_languages_count
             line = line + " " + "%.2f" % total_lines
@@ -594,7 +593,6 @@ class FeatureExtraction:
                     if tree_entry['type'] == 'blob':
                         blob_paths += tree_entry['path']
                         blob_paths += " "
-            blob_paths = blob_paths[:-1]
             blob_paths += "\""
 
             line = "%s" % blob_paths
@@ -633,7 +631,6 @@ class FeatureExtraction:
         for entry in contents:
             if entry['type'] == 'file':
                 result += entry['name'] + " "
-        result = result[:-1]
         result += "\""
         return result
 
@@ -651,7 +648,6 @@ class FeatureExtraction:
         for entry in contents:
             if entry['type'] == 'file':
                 result += entry['name'] + " "
-        result = result[:-1]
         return result
 
     def get_folder_and_file_names_as_str(self, contents):
@@ -751,7 +747,7 @@ featureExtraction = FeatureExtraction()
 # featureExtraction.get_trees_features('dev', labelled=True)
 # featureExtraction.get_trees_features('data', labelled=True)
 # featureExtraction.get_trees_features('docs', labelled=True)
-# featureExtraction.get_trees_features('edu', labelled=True)
+featureExtraction.get_trees_features('edu', labelled=True)
 # featureExtraction.get_trees_features('hw', labelled=True)
 # featureExtraction.get_trees_features('web', labelled=True)
 # featureExtraction.get_trees_features('other', labelled=True)
@@ -780,10 +776,10 @@ featureExtraction = FeatureExtraction()
 # featureExtraction.get_punchcard_features('web', labelled=True)
 # featureExtraction.get_punchcard_features('other', labelled=True)
 
-featureExtraction.get_commits_features('dev', labelled=True)
-featureExtraction.get_commits_features('data', labelled=True)
-featureExtraction.get_commits_features('docs', labelled=True)
-featureExtraction.get_commits_features('edu', labelled=True)
-featureExtraction.get_commits_features('hw', labelled=True)
-featureExtraction.get_commits_features('web', labelled=True)
-featureExtraction.get_commits_features('other', labelled=True)
+# featureExtraction.get_commits_features('dev', labelled=True)
+# featureExtraction.get_commits_features('data', labelled=True)
+# featureExtraction.get_commits_features('docs', labelled=True)
+# featureExtraction.get_commits_features('edu', labelled=True)
+# featureExtraction.get_commits_features('hw', labelled=True)
+# featureExtraction.get_commits_features('web', labelled=True)
+# featureExtraction.get_commits_features('other', labelled=True)

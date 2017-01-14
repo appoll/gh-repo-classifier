@@ -2,12 +2,13 @@ import pandas as pd
 
 from collection.labels import Labels
 
+
 def features(label):
-    features = pd.read_csv("../../exploration/labelled/features/contents_data_%s.txt" % label.value, delimiter=" ", header=0)
+    features = pd.read_csv("../../exploration/labelled/features/punch_card_data_%s.txt" % label.value, delimiter=" ", header=0)
 
     print features.shape
 
-    #features.to_csv('contents_repo_names_%s' % label.value, columns=["repo_name"])
+    features.to_csv('punch_repo_names_%s' % label.value, columns=["repo_name"])
     features = features.drop(labels='repo_name', axis=1)
 
     print features.shape
@@ -35,13 +36,5 @@ features = [features(Labels.data), features(Labels.dev), features(Labels.docs), 
 
 data = pd.concat(features)
 print data.shape
-#
-# train_data = data
-# train_data = train_data[(train_data.T != 0).any()]
-# labels = train_data['label']
-# train_data = train_data.drop(labels='label', axis=1)
 
 print data.shape
-# print train_data.shape
-# print labels.shape
-

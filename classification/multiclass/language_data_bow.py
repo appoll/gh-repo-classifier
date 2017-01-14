@@ -18,6 +18,7 @@ def features(label):
     print '/labelled/features/languages_data_%s' % label
     print features.shape
 
+#    features.to_csv('lang_bow_repo_names_%s' % label, columns=["repo_name"])
     features = features.drop(labels='repo_name', axis=1)
 
     print features.shape
@@ -40,9 +41,8 @@ def features(label):
     return features
 
 
-features = [features(Labels.edu), features(Labels.data), features(Labels.hw), features(Labels.web),
-            features(Labels.dev),
-            features(Labels.docs), features(Labels.uncertain)]
+features = [features(Labels.data), features(Labels.dev), features(Labels.docs), features(Labels.edu),
+            features(Labels.hw), features(Labels.web), features(Labels.uncertain)]
 
 data = pd.concat(features)
 
