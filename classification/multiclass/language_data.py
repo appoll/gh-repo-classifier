@@ -9,6 +9,7 @@ from sklearn.model_selection import GridSearchCV
 from sklearn.model_selection import train_test_split
 
 from collection.labels import Labels
+from config.helper import Helper
 
 
 def features(label):
@@ -18,7 +19,6 @@ def features(label):
     print features.shape
 
     #features.to_csv('lang_repo_names_%s' % label, columns=["repo_name"])
-    features = features.drop(labels='repo_name', axis=1)
 
     print features.shape
 
@@ -149,6 +149,8 @@ features = [features(Labels.data), features(Labels.dev), features(Labels.docs), 
             features(Labels.hw), features(Labels.web), features(Labels.uncertain)]
 
 data = pd.concat(features)
+repo_names = data['repo_name']
+data = data.drop(labels='repo_name', axis=1)
 print data.shape
 train_data, test_data = train_test_split(data, test_size=0.2)
 
@@ -182,6 +184,7 @@ score = precision_score(test_labels, output, average=None)
 print score
 print np.mean(score)
 
+Helper().write_probabilities(forest, data, repo_names, 'prob/prob_language_data')
 
 # linear_svc = LinearSVC()
 # rbf_svc = SVC(kernel='rbf')

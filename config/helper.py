@@ -36,3 +36,21 @@ class Helper():
     def build_repo_name_from_repo_link(self, repo_link):
         user, name = Helper.get_user_and_repo_name_from_link(repo_link)
         return user + '/' + name.rstrip('\r\n')
+
+    @staticmethod
+    def write_probabilities(forest, data, repo_names, file_location):
+        input = data.drop(labels='label', axis=1)
+        probabilities = forest.predict_log_proba(input)
+        f = open(file_location, 'w')
+        header = "label_prob repo_name\n"
+        f.write(header)
+
+        for repo_name_idx, row in enumerate(probabilities):
+            line = "\""
+            for element in row:
+                line += str(element) + " "
+            line += "\" "
+            line += repo_names.values[repo_name_idx]
+            line += "\n"
+            f.write(line)
+        f.close()
