@@ -1,0 +1,66 @@
+[
+  {
+    "name": "README.txt",
+    "url": "https://api.github.com/repos/afeldtest/homework/contents/README.txt?ref=master",
+    "html_url": "https://github.com/afeldtest/homework/blob/master/README.txt",
+    "download_url": "https://raw.githubusercontent.com/afeldtest/homework/master/README.txt",
+    "sha": "6d2a8d90e7fffa3808e08f5ae827ec604037a521",
+    "_links": {
+      "self": "https://api.github.com/repos/afeldtest/homework/contents/README.txt?ref=master",
+      "git": "https://api.github.com/repos/afeldtest/homework/git/blobs/6d2a8d90e7fffa3808e08f5ae827ec604037a521",
+      "html": "https://github.com/afeldtest/homework/blob/master/README.txt"
+    },
+    "git_url": "https://api.github.com/repos/afeldtest/homework/git/blobs/6d2a8d90e7fffa3808e08f5ae827ec604037a521",
+    "path": "README.txt",
+    "type": "file",
+    "size": 50
+  },
+  {
+    "name": "afeld.md",
+    "url": "https://api.github.com/repos/afeldtest/homework/contents/afeld.md?ref=master",
+    "html_url": "https://github.com/afeldtest/homework/blob/master/afeld.md",
+    "download_url": "https://raw.githubusercontent.com/afeldtest/homework/master/afeld.md",
+    "sha": "ca01a0d675f733fdffeed598739ffb521c488b71",
+    "_links": {
+      "self": "https://api.github.com/repos/afeldtest/homework/contents/afeld.md?ref=master",
+      "git": "https://api.github.com/repos/afeldtest/homework/git/blobs/ca01a0d675f733fdffeed598739ffb521c488b71",
+      "html": "https://github.com/afeldtest/homework/blob/master/afeld.md"
+    },
+    "git_url": "https://api.github.com/repos/afeldtest/homework/git/blobs/ca01a0d675f733fdffeed598739ffb521c488b71",
+    "path": "afeld.md",
+    "type": "file",
+    "size": 80
+  },
+  {
+    "name": "dyngovmite.md",
+    "url": "https://api.github.com/repos/afeldtest/homework/contents/dyngovmite.md?ref=master",
+    "html_url": "https://github.com/afeldtest/homework/blob/master/dyngovmite.md",
+    "download_url": "https://raw.githubusercontent.com/afeldtest/homework/master/dyngovmite.md",
+    "sha": "01b1e7ca8bd2effee2056163ad834bc1249e6cf2",
+    "_links": {
+      "self": "https://api.github.com/repos/afeldtest/homework/contents/dyngovmite.md?ref=master",
+      "git": "https://api.github.com/repos/afeldtest/homework/git/blobs/01b1e7ca8bd2effee2056163ad834bc1249e6cf2",
+      "html": "https://github.com/afeldtest/homework/blob/master/dyngovmite.md"
+    },
+    "git_url": "https://api.github.com/repos/afeldtest/homework/git/blobs/01b1e7ca8bd2effee2056163ad834bc1249e6cf2",
+    "path": "dyngovmite.md",
+    "type": "file",
+    "size": 43
+  },
+  {
+    "name": "madcalf.md",
+    "url": "https://api.github.com/repos/afeldtest/homework/contents/madcalf.md?ref=master",
+    "html_url": "https://github.com/afeldtest/homework/blob/master/madcalf.md",
+    "download_url": "https://raw.githubusercontent.com/afeldtest/homework/master/madcalf.md",
+    "sha": "df30c5270ca38ae4af6a7d4a0ab8c07dc593f100",
+    "_links": {
+      "self": "https://api.github.com/repos/afeldtest/homework/contents/madcalf.md?ref=master",
+      "git": "https://api.github.com/repos/afeldtest/homework/git/blobs/df30c5270ca38ae4af6a7d4a0ab8c07dc593f100",
+      "html": "https://github.com/afeldtest/homework/blob/master/madcalf.md"
+    },
+    "git_url": "https://api.github.com/repos/afeldtest/homework/git/blobs/df30c5270ca38ae4af6a7d4a0ab8c07dc593f100",
+    "path": "madcalf.md",
+    "type": "file",
+    "size": 33
+  }
+]

@@ -1,0 +1,242 @@
+[
+  {
+    "name": ".gitignore",
+    "url": "https://api.github.com/repos/spring-projects/spring-data-book/contents/.gitignore?ref=master",
+    "html_url": "https://github.com/spring-projects/spring-data-book/blob/master/.gitignore",
+    "download_url": "https://raw.githubusercontent.com/spring-projects/spring-data-book/master/.gitignore",
+    "sha": "794f0e59b5de4731b8b5739f51c73812d6596431",
+    "_links": {
+      "self": "https://api.github.com/repos/spring-projects/spring-data-book/contents/.gitignore?ref=master",
+      "git": "https://api.github.com/repos/spring-projects/spring-data-book/git/blobs/794f0e59b5de4731b8b5739f51c73812d6596431",
+      "html": "https://github.com/spring-projects/spring-data-book/blob/master/.gitignore"
+    },
+    "git_url": "https://api.github.com/repos/spring-projects/spring-data-book/git/blobs/794f0e59b5de4731b8b5739f51c73812d6596431",
+    "path": ".gitignore",
+    "type": "file",
+    "size": 90
+  },
+  {
+    "name": "README",
+    "url": "https://api.github.com/repos/spring-projects/spring-data-book/contents/README?ref=master",
+    "html_url": "https://github.com/spring-projects/spring-data-book/blob/master/README",
+    "download_url": "https://raw.githubusercontent.com/spring-projects/spring-data-book/master/README",
+    "sha": "e69de29bb2d1d6434b8b29ae775ad8c2e48c5391",
+    "_links": {
+      "self": "https://api.github.com/repos/spring-projects/spring-data-book/contents/README?ref=master",
+      "git": "https://api.github.com/repos/spring-projects/spring-data-book/git/blobs/e69de29bb2d1d6434b8b29ae775ad8c2e48c5391",
+      "html": "https://github.com/spring-projects/spring-data-book/blob/master/README"
+    },
+    "git_url": "https://api.github.com/repos/spring-projects/spring-data-book/git/blobs/e69de29bb2d1d6434b8b29ae775ad8c2e48c5391",
+    "path": "README",
+    "type": "file",
+    "size": 0
+  },
+  {
+    "name": "doc",
+    "url": "https://api.github.com/repos/spring-projects/spring-data-book/contents/doc?ref=master",
+    "html_url": "https://github.com/spring-projects/spring-data-book/tree/master/doc",
+    "download_url": null,
+    "sha": "d1b3b55cf4e679047d863f6a612eab66fe56d595",
+    "_links": {
+      "self": "https://api.github.com/repos/spring-projects/spring-data-book/contents/doc?ref=master",
+      "git": "https://api.github.com/repos/spring-projects/spring-data-book/git/trees/d1b3b55cf4e679047d863f6a612eab66fe56d595",
+      "html": "https://github.com/spring-projects/spring-data-book/tree/master/doc"
+    },
+    "git_url": "https://api.github.com/repos/spring-projects/spring-data-book/git/trees/d1b3b55cf4e679047d863f6a612eab66fe56d595",
+    "path": "doc",
+    "type": "dir",
+    "size": 0
+  },
+  {
+    "name": "formatting.xml",
+    "url": "https://api.github.com/repos/spring-projects/spring-data-book/contents/formatting.xml?ref=master",
+    "html_url": "https://github.com/spring-projects/spring-data-book/blob/master/formatting.xml",
+    "download_url": "https://raw.githubusercontent.com/spring-projects/spring-data-book/master/formatting.xml",
+    "sha": "c74468778e9374ee2cb6ee26e23ce70123cdbfcb",
+    "_links": {
+      "self": "https://api.github.com/repos/spring-projects/spring-data-book/contents/formatting.xml?ref=master",
+      "git": "https://api.github.com/repos/spring-projects/spring-data-book/git/blobs/c74468778e9374ee2cb6ee26e23ce70123cdbfcb",
+      "html": "https://github.com/spring-projects/spring-data-book/blob/master/formatting.xml"
+    },
+    "git_url": "https://api.github.com/repos/spring-projects/spring-data-book/git/blobs/c74468778e9374ee2cb6ee26e23ce70123cdbfcb",
+    "path": "formatting.xml",
+    "type": "file",
+    "size": 30879
+  },
+  {
+    "name": "gemfire",
+    "url": "https://api.github.com/repos/spring-projects/spring-data-book/contents/gemfire?ref=master",
+    "html_url": "https://github.com/spring-projects/spring-data-book/tree/master/gemfire",
+    "download_url": null,
+    "sha": "c68f4fec51697ef1f49b82b32e0508c1d0ecfae1",
+    "_links": {
+      "self": "https://api.github.com/repos/spring-projects/spring-data-book/contents/gemfire?ref=master",
+      "git": "https://api.github.com/repos/spring-projects/spring-data-book/git/trees/c68f4fec51697ef1f49b82b32e0508c1d0ecfae1",
+      "html": "https://github.com/spring-projects/spring-data-book/tree/master/gemfire"
+    },
+    "git_url": "https://api.github.com/repos/spring-projects/spring-data-book/git/trees/c68f4fec51697ef1f49b82b32e0508c1d0ecfae1",
+    "path": "gemfire",
+    "type": "dir",
+    "size": 0
+  },
+  {
+    "name": "hadoop",
+    "url": "https://api.github.com/repos/spring-projects/spring-data-book/contents/hadoop?ref=master",
+    "html_url": "https://github.com/spring-projects/spring-data-book/tree/master/hadoop",
+    "download_url": null,
+    "sha": "569901133d0b46950a3e030b5a8588863cc114b2",
+    "_links": {
+      "self": "https://api.github.com/repos/spring-projects/spring-data-book/contents/hadoop?ref=master",
+      "git": "https://api.github.com/repos/spring-projects/spring-data-book/git/trees/569901133d0b46950a3e030b5a8588863cc114b2",
+      "html": "https://github.com/spring-projects/spring-data-book/tree/master/hadoop"
+    },
+    "git_url": "https://api.github.com/repos/spring-projects/spring-data-book/git/trees/569901133d0b46950a3e030b5a8588863cc114b2",
+    "path": "hadoop",
+    "type": "dir",
+    "size": 0
+  },
+  {
+    "name": "jdbc",
+    "url": "https://api.github.com/repos/spring-projects/spring-data-book/contents/jdbc?ref=master",
+    "html_url": "https://github.com/spring-projects/spring-data-book/tree/master/jdbc",
+    "download_url": null,
+    "sha": "37bfd9835368b7faf73c7f91d41f94bb0c08a907",
+    "_links": {
+      "self": "https://api.github.com/repos/spring-projects/spring-data-book/contents/jdbc?ref=master",
+      "git": "https://api.github.com/repos/spring-projects/spring-data-book/git/trees/37bfd9835368b7faf73c7f91d41f94bb0c08a907",
+      "html": "https://github.com/spring-projects/spring-data-book/tree/master/jdbc"
+    },
+    "git_url": "https://api.github.com/repos/spring-projects/spring-data-book/git/trees/37bfd9835368b7faf73c7f91d41f94bb0c08a907",
+    "path": "jdbc",
+    "type": "dir",
+    "size": 0
+  },
+  {
+    "name": "jpa",
+    "url": "https://api.github.com/repos/spring-projects/spring-data-book/contents/jpa?ref=master",
+    "html_url": "https://github.com/spring-projects/spring-data-book/tree/master/jpa",
+    "download_url": null,
+    "sha": "5ab8e82cb8bcd5e45f5df7e3977343b3b0c98cd9",
+    "_links": {
+      "self": "https://api.github.com/repos/spring-projects/spring-data-book/contents/jpa?ref=master",
+      "git": "https://api.github.com/repos/spring-projects/spring-data-book/git/trees/5ab8e82cb8bcd5e45f5df7e3977343b3b0c98cd9",
+      "html": "https://github.com/spring-projects/spring-data-book/tree/master/jpa"
+    },
+    "git_url": "https://api.github.com/repos/spring-projects/spring-data-book/git/trees/5ab8e82cb8bcd5e45f5df7e3977343b3b0c98cd9",
+    "path": "jpa",
+    "type": "dir",
+    "size": 0
+  },
+  {
+    "name": "mongodb",
+    "url": "https://api.github.com/repos/spring-projects/spring-data-book/contents/mongodb?ref=master",
+    "html_url": "https://github.com/spring-projects/spring-data-book/tree/master/mongodb",
+    "download_url": null,
+    "sha": "d33e0f82bd2a35c58b5fa15bf8c3f17ca05c1f1f",
+    "_links": {
+      "self": "https://api.github.com/repos/spring-projects/spring-data-book/contents/mongodb?ref=master",
+      "git": "https://api.github.com/repos/spring-projects/spring-data-book/git/trees/d33e0f82bd2a35c58b5fa15bf8c3f17ca05c1f1f",
+      "html": "https://github.com/spring-projects/spring-data-book/tree/master/mongodb"
+    },
+    "git_url": "https://api.github.com/repos/spring-projects/spring-data-book/git/trees/d33e0f82bd2a35c58b5fa15bf8c3f17ca05c1f1f",
+    "path": "mongodb",
+    "type": "dir",
+    "size": 0
+  },
+  {
+    "name": "neo4j",
+    "url": "https://api.github.com/repos/spring-projects/spring-data-book/contents/neo4j?ref=master",
+    "html_url": "https://github.com/spring-projects/spring-data-book/tree/master/neo4j",
+    "download_url": null,
+    "sha": "3e8f6bb0070ea8013266f3bc0a9f4bb51415cd95",
+    "_links": {
+      "self": "https://api.github.com/repos/spring-projects/spring-data-book/contents/neo4j?ref=master",
+      "git": "https://api.github.com/repos/spring-projects/spring-data-book/git/trees/3e8f6bb0070ea8013266f3bc0a9f4bb51415cd95",
+      "html": "https://github.com/spring-projects/spring-data-book/tree/master/neo4j"
+    },
+    "git_url": "https://api.github.com/repos/spring-projects/spring-data-book/git/trees/3e8f6bb0070ea8013266f3bc0a9f4bb51415cd95",
+    "path": "neo4j",
+    "type": "dir",
+    "size": 0
+  },
+  {
+    "name": "pom.xml",
+    "url": "https://api.github.com/repos/spring-projects/spring-data-book/contents/pom.xml?ref=master",
+    "html_url": "https://github.com/spring-projects/spring-data-book/blob/master/pom.xml",
+    "download_url": "https://raw.githubusercontent.com/spring-projects/spring-data-book/master/pom.xml",
+    "sha": "c276b90df24cfb92e8a732c2500793702f8f9de8",
+    "_links": {
+      "self": "https://api.github.com/repos/spring-projects/spring-data-book/contents/pom.xml?ref=master",
+      "git": "https://api.github.com/repos/spring-projects/spring-data-book/git/blobs/c276b90df24cfb92e8a732c2500793702f8f9de8",
+      "html": "https://github.com/spring-projects/spring-data-book/blob/master/pom.xml"
+    },
+    "git_url": "https://api.github.com/repos/spring-projects/spring-data-book/git/blobs/c276b90df24cfb92e8a732c2500793702f8f9de8",
+    "path": "pom.xml",
+    "type": "file",
+    "size": 3443
+  },
+  {
+    "name": "querydsl",
+    "url": "https://api.github.com/repos/spring-projects/spring-data-book/contents/querydsl?ref=master",
+    "html_url": "https://github.com/spring-projects/spring-data-book/tree/master/querydsl",
+    "download_url": null,
+    "sha": "f99f0ebc881289bbb2d7c73a18dfd87b55b2a6c0",
+    "_links": {
+      "self": "https://api.github.com/repos/spring-projects/spring-data-book/contents/querydsl?ref=master",
+      "git": "https://api.github.com/repos/spring-projects/spring-data-book/git/trees/f99f0ebc881289bbb2d7c73a18dfd87b55b2a6c0",
+      "html": "https://github.com/spring-projects/spring-data-book/tree/master/querydsl"
+    },
+    "git_url": "https://api.github.com/repos/spring-projects/spring-data-book/git/trees/f99f0ebc881289bbb2d7c73a18dfd87b55b2a6c0",
+    "path": "querydsl",
+    "type": "dir",
+    "size": 0
+  },
+  {
+    "name": "redis",
+    "url": "https://api.github.com/repos/spring-projects/spring-data-book/contents/redis?ref=master",
+    "html_url": "https://github.com/spring-projects/spring-data-book/tree/master/redis",
+    "download_url": null,
+    "sha": "080e9d4c1fa308258d5e948e847dfb5deb240164",
+    "_links": {
+      "self": "https://api.github.com/repos/spring-projects/spring-data-book/contents/redis?ref=master",
+      "git": "https://api.github.com/repos/spring-projects/spring-data-book/git/trees/080e9d4c1fa308258d5e948e847dfb5deb240164",
+      "html": "https://github.com/spring-projects/spring-data-book/tree/master/redis"
+    },
+    "git_url": "https://api.github.com/repos/spring-projects/spring-data-book/git/trees/080e9d4c1fa308258d5e948e847dfb5deb240164",
+    "path": "redis",
+    "type": "dir",
+    "size": 0
+  },
+  {
+    "name": "rest",
+    "url": "https://api.github.com/repos/spring-projects/spring-data-book/contents/rest?ref=master",
+    "html_url": "https://github.com/spring-projects/spring-data-book/tree/master/rest",
+    "download_url": null,
+    "sha": "abb99f7728a860f6cae44ddc4349ad6bec552fa8",
+    "_links": {
+      "self": "https://api.github.com/repos/spring-projects/spring-data-book/contents/rest?ref=master",
+      "git": "https://api.github.com/repos/spring-projects/spring-data-book/git/trees/abb99f7728a860f6cae44ddc4349ad6bec552fa8",
+      "html": "https://github.com/spring-projects/spring-data-book/tree/master/rest"
+    },
+    "git_url": "https://api.github.com/repos/spring-projects/spring-data-book/git/trees/abb99f7728a860f6cae44ddc4349ad6bec552fa8",
+    "path": "rest",
+    "type": "dir",
+    "size": 0
+  },
+  {
+    "name": "roo",
+    "url": "https://api.github.com/repos/spring-projects/spring-data-book/contents/roo?ref=master",
+    "html_url": "https://github.com/spring-projects/spring-data-book/tree/master/roo",
+    "download_url": null,
+    "sha": "0ecee33b0617a67423a26139865dba9f4a597620",
+    "_links": {
+      "self": "https://api.github.com/repos/spring-projects/spring-data-book/contents/roo?ref=master",
+      "git": "https://api.github.com/repos/spring-projects/spring-data-book/git/trees/0ecee33b0617a67423a26139865dba9f4a597620",
+      "html": "https://github.com/spring-projects/spring-data-book/tree/master/roo"
+    },
+    "git_url": "https://api.github.com/repos/spring-projects/spring-data-book/git/trees/0ecee33b0617a67423a26139865dba9f4a597620",
+    "path": "roo",
+    "type": "dir",
+    "size": 0
+  }
+]

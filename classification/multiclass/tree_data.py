@@ -1,9 +1,11 @@
 import pandas as pd
-
+import sys
+sys.path.append('../..')
 from collection.labels import Labels
 
 
 def features(label):
+    print('The label is :%s '%label)
     features = pd.read_csv("../../exploration/labelled/features/trees_data_%s.txt" % label, delimiter=" ", header=0)
 
     print features.shape

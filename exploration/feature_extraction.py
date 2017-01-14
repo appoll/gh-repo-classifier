@@ -3,6 +3,8 @@ import glob
 import json
 import math
 import os
+import sys
+sys.path.append('..')
 from datetime import datetime
 
 import dateutil.parser
@@ -580,7 +582,8 @@ class FeatureExtraction:
             print '%d root folders here' % total_root_folders
 
             if len(contents) > 0:
-                blob_paths = self.get_file_paths_as_str(contents=contents)
+                blob_paths = "\""
+                blob_paths += self.get_file_paths_as_str(contents=contents).replace('\"','')
                 blob_paths += " "
             else:
                 blob_paths = "\""
@@ -591,7 +594,7 @@ class FeatureExtraction:
                 for tree_entry in folder_tree:
                     # print tree_entry
                     if tree_entry['type'] == 'blob':
-                        blob_paths += tree_entry['path']
+                        blob_paths += tree_entry['path'].replace('\"','')
                         blob_paths += " "
             blob_paths += "\""
 
@@ -644,7 +647,7 @@ class FeatureExtraction:
         return result
 
     def get_file_paths_as_str(self, contents):
-        result = "\""
+        result = ""
         for entry in contents:
             if entry['type'] == 'file':
                 result += entry['name'] + " "
@@ -744,13 +747,13 @@ featureExtraction = FeatureExtraction()
 # featureExtraction.get_contents_features('web', labelled=True)
 # featureExtraction.get_contents_features('other', labelled=True)
 #
-# featureExtraction.get_trees_features('dev', labelled=True)
-# featureExtraction.get_trees_features('data', labelled=True)
-# featureExtraction.get_trees_features('docs', labelled=True)
+featureExtraction.get_trees_features('dev', labelled=True)
+featureExtraction.get_trees_features('data', labelled=True)
+featureExtraction.get_trees_features('docs', labelled=True)
 featureExtraction.get_trees_features('edu', labelled=True)
-# featureExtraction.get_trees_features('hw', labelled=True)
-# featureExtraction.get_trees_features('web', labelled=True)
-# featureExtraction.get_trees_features('other', labelled=True)
+featureExtraction.get_trees_features('hw', labelled=True)
+featureExtraction.get_trees_features('web', labelled=True)
+featureExtraction.get_trees_features('other', labelled=True)
 
 # featureExtraction.get_language_features_str('dev', labelled=True)
 # featureExtraction.get_language_features_str('data', labelled=True)
