@@ -1,17 +1,15 @@
 # Files containing auth information for github api 
 *.config
 
-
-
 # Folders containing many json files representing downloaded repositories
-/collection/web/json_*/*
-/collection/data/json_*/*
-/collection/dev/json_*/*
-/collection/docs/json_*/*
-/collection/edu/json_*/*
-/collection/hw/json_*/*
-/collection/other/json_*/*
-/exploration/additional/json_*/*
+/src/collection/web/json_*/*
+/src/collection/data/json_*/*
+/src/collection/dev/json_*/*
+/src/collection/docs/json_*/*
+/src/collection/edu/json_*/*
+/src/collection/hw/json_*/*
+/src/collection/other/json_*/*
+/src/exploration/additional/json_*/*
 
-# Byte-Compiled 
+# Byte-Compiled
 *.pyc

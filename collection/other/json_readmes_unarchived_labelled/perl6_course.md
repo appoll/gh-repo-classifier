@@ -1,1 +1,0 @@
-Shared repository for freely available Perl 6 course material
