@@ -7,12 +7,19 @@ from bs4 import BeautifulSoup
 import nltk
 from sklearn.svm import SVC
 from sklearn.ensemble import RandomForestClassifier
+from sklearn.ensemble import VotingClassifier, AdaBoostClassifier
+from sklearn.linear_model import LogisticRegression
+from sklearn.naive_bayes import GaussianNB
 from sklearn.feature_extraction.text import TfidfVectorizer
+from sklearn.model_selection import cross_val_score
+from sklearn import metrics
 from sklearn.metrics import precision_score
 from sklearn.model_selection import GridSearchCV
 from sklearn.model_selection import train_test_split
 from sklearn.svm import SVC
-from collection.labels import Labels
+
+# from classification.file_name_based_classification import Y_train
+from src.collection.labels import Labels
 from sklearn.model_selection import ShuffleSplit
 from sklearn.feature_extraction.text import CountVectorizer
 
@@ -28,12 +35,12 @@ nltk.download('stopwords')
 
 
 keywords_readme_edu = ["course", "coursera", "slide", "lecture", "assignment", "university", "student", "week", "schedule",
-                "work", "term", "condition", "education", "class"]
+                "work", "term", "education", "class", "condition"]
 keywords_readme_dev = ["library", "package", "framework", "module", "app", "application", "server", "license", "develop",
-                "dependencies", "installation", "api", "client"]
-keywords_readme_data = ["data", "dataset", "sample", "set", "database", "table"]
-keywords_readme_hw = ["homework", "solution"]
-keywords_readme_web = ["web", "website", "homepage", "javascript"]
+                "dependencies", "installation", "api", "client", "build", "release", "version", "script"]
+keywords_readme_data = ["data", "dataset", "sample", "set", "database", "lesson"]
+keywords_readme_hw = ["homework", "solution", "deadline", "problem", "definition"]
+keywords_readme_web = ["web", "website", "homepage", "javascript", "template"]
 keywords_readme_doc = ["documentation", "collection", "manuals", "docs"]
 
 keyword_readme_list = []
@@ -45,11 +52,11 @@ keyword_readme_list.extend(keywords_readme_web)
 keyword_readme_list.extend(keywords_readme_doc)
 
 
-keywords_content_edu = ["course", "slide", "lecture", "assignment", "eduation"]
-keywords_content_dev = ["scripts", "pom.xml", "framework", "install"]
-keywords_content_data = ["dataset"]
+keywords_content_edu = ["course", "slide", "lecture", "assignment", "education"]
+keywords_content_dev = ["scripts", "pom.xml", "framework", "install", "test", "bin", "src", "app", "plugin", "js"]
+keywords_content_data = ["dataset", "csv", "pdf", "html"]
 keywords_content_hw = ["homework", "hw0", "hw1", "task", "lesson", "week_"]
-keywords_content_web = ["website"]
+keywords_content_web = ["website", "css", "img", "images"]
 keywords_content_doc = ["doc"]
 
 keyword_content_list = []
@@ -239,19 +246,64 @@ print "Shape labels: ", np.shape(Y)
 
 X_train, X_test, Y_train, Y_test = train_test_split(X, Y, test_size=0.2, random_state=0)
 
-param_grid = [{'n_estimators': [100, 200, 300, 400, 500], 'max_depth': [None, 10, 20, 30, 40]}]
-svr = RandomForestClassifier(random_state=1)
+# param_grid = [{'n_estimators': [100, 200, 300, 400, 500], 'max_depth': [None, 10, 20, 30, 40]}]
+# svr = RandomForestClassifier(random_state=1)
 
-clf = GridSearchCV(svr, param_grid, verbose=10000)
+# clf = GridSearchCV(svr, param_grid, verbose=10000)
 
-# clf = RandomForestClassifier(n_estimators=500, n_jobs=-1, random_state=1, max_depth=30)
+
+# clf1 = AdaBoostClassifier(RandomForestClassifier(n_estimators=100, n_jobs=-1, random_state=1, max_depth=5))
+
+
+clf = RandomForestClassifier(n_estimators=500, n_jobs=-1, random_state=1, max_depth=30)
 clf.fit(X_train, Y_train)
 
+
+
+# clf2 = SVC(kernel="rbf", probability=True)
+# clf2.fit(X_train, Y_train)
+#
+# clf3 = GaussianNB()
+# clf3.fit(X_train, Y_train)
+#
+# clf4 = LogisticRegression()
+# clf4.fit(X_train, Y_train)
+#
+# clf = VotingClassifier(estimators=[('rf', clf1), ('svm',clf2), ('gnb', clf3), ('lr', clf4)], voting='soft')
+# clf.fit(X_train, Y_train)
+
+# print "RANDOM FOREST"
+# output1 = clf1.predict(X_test)
+# score = precision_score(Y_test, output1, average=None)
+# print score
+# print np.mean(score)
+# print clf1.score(X_test, Y_test)
+#
+# print "SVM"
+# output2 = clf2.predict(X_test)
+# score = precision_score(Y_test, output2, average=None)
+# print score
+# print np.mean(score)
+# print clf2.score(X_test, Y_test)
+#
+# print "NAIVE BAYES"
+# output3 = clf3.predict(X_test)
+# score = precision_score(Y_test, output3, average=None)
+# print score
+# print np.mean(score)
+# print clf3.score(X_test, Y_test)
+#
+# print "LOGISTIC REGRESSION"
+# output4 = clf4.predict(X_test)
+# score = precision_score(Y_test, output4, average=None)
+# print score
+# print np.mean(score)
+# print clf4.score(X_test, Y_test)
+
+#
+print "PRECISION SCORES:"
 output = clf.predict(X_test)
-
 score = precision_score(Y_test, output, average=None)
-
 print score
-
 print np.mean(score)
 print clf.score(X_test, Y_test)
