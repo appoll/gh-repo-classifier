@@ -14,6 +14,7 @@ UPDATED_REPOS = 'updated_repos'
 
 LABELLED_REPOS = 'labelled_repos'
 LABELLED_READMES = 'labelled_readmes'
+LABELLED_COMMITS_INTERVAL = 'labelled_commits_interval'
 LABELLED_COMMITS = 'labelled_commits'
 LABELLED_CONTENTS = 'labelled_contents'
 LABELLED_TREES = 'labelled_trees'
@@ -34,6 +35,7 @@ class Archiver:
         self.repos_folder_updated_labelled = "../collection/%s/json_repos_updated_labelled/"
         self.readmes_repos_folder_labelled = "../collection/%s/json_readmes_unarchived_labelled/"
         self.commits_interval_folder_labelled = "../collection/%s/json_commits_interval_labelled/"
+        self.commits_folder_labelled = "../collection/%s/json_commits_labelled/"
         self.contents_folder_labelled = "../collection/%s/json_contents_labelled/"
         self.trees_folder_labelled = "../collection/%s/json_trees_labelled/"
         self.punch_card_folder_labelled = "../collection/%s/json_punch_card_labelled/"
@@ -70,8 +72,10 @@ class Archiver:
             folder = self.repos_folder_updated_labelled % label
         elif which == LABELLED_READMES:
             folder = self.readmes_repos_folder_labelled % label
-        elif which == LABELLED_COMMITS:
+        elif which == LABELLED_COMMITS_INTERVAL:
             folder = self.commits_interval_folder_labelled % label
+        elif which == LABELLED_COMMITS:
+            folder = self.commits_folder_labelled % label
         elif which == LABELLED_CONTENTS:
             folder = self.contents_folder_labelled % label
         elif which == LABELLED_TREES:
@@ -119,8 +123,10 @@ class Archiver:
             folder = self.repos_folder_updated_labelled % label
         elif which == LABELLED_READMES:
             folder = self.readmes_repos_folder_labelled % label
-        elif which == LABELLED_COMMITS:
+        elif which == LABELLED_COMMITS_INTERVAL:
             folder = self.commits_interval_folder_labelled % label
+        elif which == LABELLED_COMMITS:
+            folder = self.commits_folder_labelled % label
         elif which == LABELLED_CONTENTS:
             folder = self.contents_folder_labelled % label
         elif which == LABELLED_TREES:
@@ -193,103 +199,117 @@ archiver = Archiver()
 
 # archiver.unarchive('data', REPO)
 
-# archiver.archive_labelled('edu', LABELLED_TREES)
-# archiver.archive_labelled('edu', LABELLED_CONTENTS)
-# archiver.archive_labelled('edu', LABELLED_COMMITS)
-# archiver.archive_labelled('edu', LABELLED_READMES)
-# archiver.archive_labelled('edu', LABELLED_REPOS)
-# archiver.archive_labelled('edu', LABELLED_PUNCH_CARD)
-#
-# archiver.archive_labelled('dev', LABELLED_TREES)
-# archiver.archive_labelled('dev', LABELLED_CONTENTS)
-# archiver.archive_labelled('dev', LABELLED_COMMITS)
-# archiver.archive_labelled('dev', LABELLED_READMES)
-# archiver.archive_labelled('dev', LABELLED_REPOS)
-# archiver.archive_labelled('dev', LABELLED_PUNCH_CARD)
-#
-# archiver.archive_labelled('docs', LABELLED_TREES)
-# archiver.archive_labelled('docs', LABELLED_CONTENTS)
-# archiver.archive_labelled('docs', LABELLED_COMMITS)
-# archiver.archive_labelled('docs', LABELLED_READMES)
-# archiver.archive_labelled('docs', LABELLED_REPOS)
-# archiver.archive_labelled('docs', LABELLED_PUNCH_CARD)
-#
-# archiver.archive_labelled('data', LABELLED_TREES)
-# archiver.archive_labelled('data', LABELLED_CONTENTS)
-# archiver.archive_labelled('data', LABELLED_COMMITS)
-# archiver.archive_labelled('data', LABELLED_READMES)
-# archiver.archive_labelled('data', LABELLED_REPOS)
-# archiver.archive_labelled('data', LABELLED_PUNCH_CARD)
-#
-# archiver.archive_labelled('web', LABELLED_TREES)
-# archiver.archive_labelled('web', LABELLED_CONTENTS)
-# archiver.archive_labelled('web', LABELLED_COMMITS)
-# archiver.archive_labelled('web', LABELLED_READMES)
-# archiver.archive_labelled('web', LABELLED_REPOS)
-# archiver.archive_labelled('web', LABELLED_PUNCH_CARD)
-#
-# archiver.archive_labelled('other', LABELLED_TREES)
-# archiver.archive_labelled('other', LABELLED_CONTENTS)
-# archiver.archive_labelled('other', LABELLED_COMMITS)
-# archiver.archive_labelled('other', LABELLED_READMES)
-# archiver.archive_labelled('other', LABELLED_REPOS)
-# archiver.archive_labelled('other', LABELLED_PUNCH_CARD)
-#
-# archiver.archive_labelled('hw', LABELLED_TREES)
-# archiver.archive_labelled('hw', LABELLED_CONTENTS)
-# archiver.archive_labelled('hw', LABELLED_COMMITS)
-# archiver.archive_labelled('hw', LABELLED_READMES)
-# archiver.archive_labelled('hw', LABELLED_REPOS)
-# archiver.archive_labelled('hw', LABELLED_PUNCH_CARD)
+archiver.archive_labelled('edu', LABELLED_TREES)
+archiver.archive_labelled('edu', LABELLED_CONTENTS)
+archiver.archive_labelled('edu', LABELLED_COMMITS_INTERVAL)
+archiver.archive_labelled('edu', LABELLED_COMMITS)
+archiver.archive_labelled('edu', LABELLED_READMES)
+archiver.archive_labelled('edu', LABELLED_REPOS)
+archiver.archive_labelled('edu', LABELLED_PUNCH_CARD)
+
+archiver.archive_labelled('dev', LABELLED_TREES)
+archiver.archive_labelled('dev', LABELLED_CONTENTS)
+archiver.archive_labelled('dev', LABELLED_COMMITS_INTERVAL)
+archiver.archive_labelled('dev', LABELLED_COMMITS)
+archiver.archive_labelled('dev', LABELLED_READMES)
+archiver.archive_labelled('dev', LABELLED_REPOS)
+archiver.archive_labelled('dev', LABELLED_PUNCH_CARD)
+
+archiver.archive_labelled('docs', LABELLED_TREES)
+archiver.archive_labelled('docs', LABELLED_CONTENTS)
+archiver.archive_labelled('docs', LABELLED_COMMITS_INTERVAL)
+archiver.archive_labelled('docs', LABELLED_COMMITS)
+archiver.archive_labelled('docs', LABELLED_READMES)
+archiver.archive_labelled('docs', LABELLED_REPOS)
+archiver.archive_labelled('docs', LABELLED_PUNCH_CARD)
+
+archiver.archive_labelled('data', LABELLED_TREES)
+archiver.archive_labelled('data', LABELLED_CONTENTS)
+archiver.archive_labelled('data', LABELLED_COMMITS_INTERVAL)
+archiver.archive_labelled('data', LABELLED_COMMITS)
+archiver.archive_labelled('data', LABELLED_READMES)
+archiver.archive_labelled('data', LABELLED_REPOS)
+archiver.archive_labelled('data', LABELLED_PUNCH_CARD)
+
+archiver.archive_labelled('web', LABELLED_TREES)
+archiver.archive_labelled('web', LABELLED_CONTENTS)
+archiver.archive_labelled('web', LABELLED_COMMITS_INTERVAL)
+archiver.archive_labelled('web', LABELLED_COMMITS)
+archiver.archive_labelled('web', LABELLED_READMES)
+archiver.archive_labelled('web', LABELLED_REPOS)
+archiver.archive_labelled('web', LABELLED_PUNCH_CARD)
+
+archiver.archive_labelled('other', LABELLED_TREES)
+archiver.archive_labelled('other', LABELLED_CONTENTS)
+archiver.archive_labelled('other', LABELLED_COMMITS_INTERVAL)
+archiver.archive_labelled('other', LABELLED_COMMITS)
+archiver.archive_labelled('other', LABELLED_READMES)
+archiver.archive_labelled('other', LABELLED_REPOS)
+archiver.archive_labelled('other', LABELLED_PUNCH_CARD)
+
+archiver.archive_labelled('hw', LABELLED_TREES)
+archiver.archive_labelled('hw', LABELLED_CONTENTS)
+archiver.archive_labelled('hw', LABELLED_COMMITS_INTERVAL)
+archiver.archive_labelled('hw', LABELLED_COMMITS)
+archiver.archive_labelled('hw', LABELLED_READMES)
+archiver.archive_labelled('hw', LABELLED_REPOS)
+archiver.archive_labelled('hw', LABELLED_PUNCH_CARD)
 
 # uncomment below
 
-archiver.unarchive_labelled('edu', LABELLED_TREES)
-archiver.unarchive_labelled('edu', LABELLED_CONTENTS)
-archiver.unarchive_labelled('edu', LABELLED_COMMITS)
-archiver.unarchive_labelled('edu', LABELLED_READMES)
-archiver.unarchive_labelled('edu', LABELLED_REPOS)
-archiver.unarchive_labelled('edu', LABELLED_PUNCH_CARD)
-
-archiver.unarchive_labelled('dev', LABELLED_TREES)
-archiver.unarchive_labelled('dev', LABELLED_CONTENTS)
-archiver.unarchive_labelled('dev', LABELLED_COMMITS)
-archiver.unarchive_labelled('dev', LABELLED_READMES)
-archiver.unarchive_labelled('dev', LABELLED_REPOS)
-archiver.unarchive_labelled('dev', LABELLED_PUNCH_CARD)
-
-archiver.unarchive_labelled('docs', LABELLED_TREES)
-archiver.unarchive_labelled('docs', LABELLED_CONTENTS)
-archiver.unarchive_labelled('docs', LABELLED_COMMITS)
-archiver.unarchive_labelled('docs', LABELLED_READMES)
-archiver.unarchive_labelled('docs', LABELLED_REPOS)
-archiver.unarchive_labelled('docs', LABELLED_PUNCH_CARD)
-
-archiver.unarchive_labelled('data', LABELLED_TREES)
-archiver.unarchive_labelled('data', LABELLED_CONTENTS)
-archiver.unarchive_labelled('data', LABELLED_COMMITS)
-archiver.unarchive_labelled('data', LABELLED_READMES)
-archiver.unarchive_labelled('data', LABELLED_REPOS)
-archiver.unarchive_labelled('data', LABELLED_PUNCH_CARD)
-
-archiver.unarchive_labelled('web', LABELLED_TREES)
-archiver.unarchive_labelled('web', LABELLED_CONTENTS)
-archiver.unarchive_labelled('web', LABELLED_COMMITS)
-archiver.unarchive_labelled('web', LABELLED_READMES)
-archiver.unarchive_labelled('web', LABELLED_REPOS)
-archiver.unarchive_labelled('web', LABELLED_PUNCH_CARD)
-
-archiver.unarchive_labelled('other', LABELLED_TREES)
-archiver.unarchive_labelled('other', LABELLED_CONTENTS)
-archiver.unarchive_labelled('other', LABELLED_COMMITS)
-archiver.unarchive_labelled('other', LABELLED_READMES)
-archiver.unarchive_labelled('other', LABELLED_REPOS)
-archiver.unarchive_labelled('other', LABELLED_PUNCH_CARD)
-
-archiver.unarchive_labelled('hw', LABELLED_TREES)
-archiver.unarchive_labelled('hw', LABELLED_CONTENTS)
-archiver.unarchive_labelled('hw', LABELLED_COMMITS)
-archiver.unarchive_labelled('hw', LABELLED_READMES)
-archiver.unarchive_labelled('hw', LABELLED_REPOS)
-archiver.unarchive_labelled('hw', LABELLED_PUNCH_CARD)
+# archiver.unarchive_labelled('edu', LABELLED_TREES)
+# archiver.unarchive_labelled('edu', LABELLED_CONTENTS)
+# archiver.unarchive_labelled('edu', LABELLED_COMMITS_INTERVAL)
+# archiver.unarchive_labelled('edu', LABELLED_COMMITS)
+# archiver.unarchive_labelled('edu', LABELLED_READMES)
+# archiver.unarchive_labelled('edu', LABELLED_REPOS)
+# archiver.unarchive_labelled('edu', LABELLED_PUNCH_CARD)
+#
+# archiver.unarchive_labelled('dev', LABELLED_TREES)
+# archiver.unarchive_labelled('dev', LABELLED_CONTENTS)
+# archiver.unarchive_labelled('dev', LABELLED_COMMITS_INTERVAL)
+# archiver.unarchive_labelled('dev', LABELLED_COMMITS)
+# archiver.unarchive_labelled('dev', LABELLED_READMES)
+# archiver.unarchive_labelled('dev', LABELLED_REPOS)
+# archiver.unarchive_labelled('dev', LABELLED_PUNCH_CARD)
+#
+# archiver.unarchive_labelled('docs', LABELLED_TREES)
+# archiver.unarchive_labelled('docs', LABELLED_CONTENTS)
+# archiver.unarchive_labelled('docs', LABELLED_COMMITS_INTERVAL)
+# archiver.unarchive_labelled('docs', LABELLED_COMMITS)
+# archiver.unarchive_labelled('docs', LABELLED_READMES)
+# archiver.unarchive_labelled('docs', LABELLED_REPOS)
+# archiver.unarchive_labelled('docs', LABELLED_PUNCH_CARD)
+#
+# archiver.unarchive_labelled('data', LABELLED_TREES)
+# archiver.unarchive_labelled('data', LABELLED_CONTENTS)
+# archiver.unarchive_labelled('data', LABELLED_COMMITS_INTERVAL)
+# archiver.unarchive_labelled('data', LABELLED_COMMITS)
+# archiver.unarchive_labelled('data', LABELLED_READMES)
+# archiver.unarchive_labelled('data', LABELLED_REPOS)
+# archiver.unarchive_labelled('data', LABELLED_PUNCH_CARD)
+#
+# archiver.unarchive_labelled('web', LABELLED_TREES)
+# archiver.unarchive_labelled('web', LABELLED_CONTENTS)
+# archiver.unarchive_labelled('web', LABELLED_COMMITS_INTERVAL)
+# archiver.unarchive_labelled('web', LABELLED_COMMITS)
+# archiver.unarchive_labelled('web', LABELLED_READMES)
+# archiver.unarchive_labelled('web', LABELLED_REPOS)
+# archiver.unarchive_labelled('web', LABELLED_PUNCH_CARD)
+#
+# archiver.unarchive_labelled('other', LABELLED_TREES)
+# archiver.unarchive_labelled('other', LABELLED_CONTENTS)
+# archiver.unarchive_labelled('other', LABELLED_COMMITS_INTERVAL)
+# archiver.unarchive_labelled('other', LABELLED_COMMITS)
+# archiver.unarchive_labelled('other', LABELLED_READMES)
+# archiver.unarchive_labelled('other', LABELLED_REPOS)
+# archiver.unarchive_labelled('other', LABELLED_PUNCH_CARD)
+#
+# archiver.unarchive_labelled('hw', LABELLED_TREES)
+# archiver.unarchive_labelled('hw', LABELLED_CONTENTS)
+# archiver.unarchive_labelled('hw', LABELLED_COMMITS_INTERVAL)
+# archiver.unarchive_labelled('hw', LABELLED_COMMITS)
+# archiver.unarchive_labelled('hw', LABELLED_READMES)
+# archiver.unarchive_labelled('hw', LABELLED_REPOS)
+# archiver.unarchive_labelled('hw', LABELLED_PUNCH_CARD)
 
