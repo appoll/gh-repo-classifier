@@ -7,6 +7,7 @@ import sys
 sys.path.append('..')
 from datetime import datetime
 
+import numpy as np
 import dateutil.parser
 
 from collection.labels import Labels
@@ -85,7 +86,12 @@ class FeatureExtraction:
         if not os.path.exists(os.path.dirname(name)):
             os.makedirs(os.path.dirname(name))
         f = open(name, 'w')
-        header = "punch_card_feature1 punch_card_feature2 punch_card_feature3 repo_name\n"
+        header = ""
+        weekdays = ['Mo', 'Tu', 'We', 'Th', 'Fr', 'Sa', 'Su']
+        for day in weekdays:
+            for i in range(24):
+                header += day + str(i) + " "
+        header += "repo_name\n"
         f.write(header)
         for filename in glob.glob(folder + '*'):
             print filename
@@ -94,21 +100,17 @@ class FeatureExtraction:
             punch_card_info = json.load(json_file)
             json_file.close()
 
-            punch_card_feature1 = len(punch_card_info)
-            punch_card_feature2 = len(punch_card_info)
-            punch_card_feature3 = len(punch_card_info)
+            punch_card_info = np.array(punch_card_info)
+            punch_card_info = punch_card_info[:, 2]
+            commit_sum = float(np.sum(punch_card_info))
+            punch_card_info = map(lambda x: x / commit_sum, punch_card_info)
 
-            line = "%.2f" % punch_card_feature1
-            line = line + " " + "%.2f" % punch_card_feature2
-            line = line + " " + "%.2f" % punch_card_feature3
-
-            line = line + " " + name.split('.')[0]
+            line = ' '.join(map(str, punch_card_info)) + " " + name.split('.')[0]
 
             f.write(line)
             f.write('\n')
         print "Wrote punch card features to %s" % f.name
         f.close()
-
     def get_commits_features(self, label, labelled):
         if labelled:
             folder = self.labelled_commits_folder % label
