@@ -32,7 +32,7 @@ for label in Labels.toArray():
     dict_label_repo_name[label] = repoNames
 
 f = open("text_data.txt", 'w')
-header = "label readme_filename\n"
+header = "label readme_filename repo_name\n"
 f.write(header)
 for label in Labels.toArray():
     repoNames = dict_label_repo_name[label]
@@ -56,7 +56,7 @@ for label in Labels.toArray():
         else:
             raise ValueError("Wrong label value!")
 
-        line = line + readmeFilenames[i]
+        line = line + readmeFilenames[i] + " " + repoNames[i]
         f.write(line)
         f.write('\n')
 f.close()
