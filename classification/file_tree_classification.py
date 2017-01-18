@@ -34,7 +34,7 @@ def normalizeFile(paths):
                 count = count + 1
         newPaths += newPath +' '
     return newPaths
-            
+def 
     
 file_names = list()
 # file_names.append('../exploration/features/contents_data_data.txt')
