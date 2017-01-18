@@ -422,7 +422,7 @@ class FeatureExtraction:
         used_languages = {}
         for label in Labels.toArray():
             print label
-            folder = self.labelled_repos_folder % label.value
+            folder = self.labelled_repos_folder % label
             for filename in glob.glob(folder + '*'):
                 print filename
                 json_file = open(filename, 'r')
@@ -716,7 +716,7 @@ featureExtraction = FeatureExtraction()
 # featureExtraction.get_commits_interval_features('edu')
 # featureExtraction.get_commits_interval_features('hw')
 # featureExtraction.get_commits_interval_features('web')
-
+#
 # featureExtraction.get_repo_features('dev', labelled=True)
 # featureExtraction.get_repo_features('data', labelled=True)
 # featureExtraction.get_repo_features('docs', labelled=True)
@@ -724,7 +724,7 @@ featureExtraction = FeatureExtraction()
 # featureExtraction.get_repo_features('hw', labelled=True)
 # featureExtraction.get_repo_features('web', labelled=True)
 # featureExtraction.get_repo_features('other', labelled=True)
-# #
+#
 # featureExtraction.get_language_features('dev', labelled=True, binary=True)
 # featureExtraction.get_language_features('data', labelled=True, binary=True)
 # featureExtraction.get_language_features('docs', labelled=True, binary=True)
@@ -749,13 +749,13 @@ featureExtraction = FeatureExtraction()
 # featureExtraction.get_contents_features('web', labelled=True)
 # featureExtraction.get_contents_features('other', labelled=True)
 #
-featureExtraction.get_trees_features('dev', labelled=True)
-featureExtraction.get_trees_features('data', labelled=True)
-featureExtraction.get_trees_features('docs', labelled=True)
-featureExtraction.get_trees_features('edu', labelled=True)
-featureExtraction.get_trees_features('hw', labelled=True)
-featureExtraction.get_trees_features('web', labelled=True)
-featureExtraction.get_trees_features('other', labelled=True)
+# featureExtraction.get_trees_features('dev', labelled=True)
+# featureExtraction.get_trees_features('data', labelled=True)
+# featureExtraction.get_trees_features('docs', labelled=True)
+# featureExtraction.get_trees_features('edu', labelled=True)
+# featureExtraction.get_trees_features('hw', labelled=True)
+# featureExtraction.get_trees_features('web', labelled=True)
+# featureExtraction.get_trees_features('other', labelled=True)
 
 # featureExtraction.get_language_features_str('dev', labelled=True)
 # featureExtraction.get_language_features_str('data', labelled=True)

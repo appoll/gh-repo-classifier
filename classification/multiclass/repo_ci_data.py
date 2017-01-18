@@ -18,7 +18,7 @@ COMMIT = "commit"
 def get_features(label, which):
     path = "../../exploration/labelled/features/%s_data_%s.txt" % (which, label)
     features = pd.read_csv(path, delimiter=" ",
-                           header=0)
+                           header=0, skipfooter=1)
     print path
     print features.shape
 
@@ -64,6 +64,11 @@ ci_data = pd.concat(ci_features)
 lang_data = pd.concat(lang_features)
 commit_data = pd.concat(commit_features)
 
+repo_data = repo_data.drop_duplicates(subset=['repo_name'])
+ci_data = ci_data.drop_duplicates(subset=['repo_name'])
+commit_data = commit_data.drop_duplicates(subset=['repo_name'])
+lang_data = lang_data.drop_duplicates(subset=['repo_name'])
+
 print 'Repo Data Shape'
 print repo_data.shape
 print 'Commits Interval Shape'
@@ -74,7 +79,7 @@ print 'Commits Shape'
 print commit_data.shape
 print '\n'
 
-data = repo_data.merge(ci_data, on=["repo_name", 'label'], how="inner")
+data = repo_data.merge(ci_data, on="repo_name", how="inner")
 data = data.merge(lang_data, on="repo_name", how="inner")
 
 # data = repo_data.merge(commit_data, on="repo_name", how="inner")
@@ -85,7 +90,6 @@ data = data.merge(lang_data, on="repo_name", how="inner")
 
 # data.to_csv('repo_ci_data_set')
 data.to_csv('repo_ci_data_set')
-print data.shape
 
 ss = ShuffleSplit(n_splits=5, test_size=0.2, random_state=0)
 
