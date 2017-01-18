@@ -244,7 +244,15 @@ print "Shape of stacked features:" , np.shape(X)
 Y = np.asarray(labels, dtype=int)
 print "Shape labels: ", np.shape(Y)
 
-X_train, X_test, Y_train, Y_test = train_test_split(X, Y, test_size=0.2, random_state=0)
+# X_train, X_test, Y_train, Y_test = train_test_split(X, Y, test_size=0.2, random_state=1)
+
+
+iteration = 0
+average_test_precision = 0
+ss = ShuffleSplit(n_splits=5, test_size=0.4, random_state=0)
+for train_index, test_index in ss.split(X):
+    X_train, X_test, Y_train, Y_test = X[train_index], X[test_index], Y[train_index], Y[test_index]
+
 
 # param_grid = [{'n_estimators': [100, 200, 300, 400, 500], 'max_depth': [None, 10, 20, 30, 40]}]
 # svr = RandomForestClassifier(random_state=1)
@@ -255,8 +263,8 @@ X_train, X_test, Y_train, Y_test = train_test_split(X, Y, test_size=0.2, random_
 # clf1 = AdaBoostClassifier(RandomForestClassifier(n_estimators=100, n_jobs=-1, random_state=1, max_depth=5))
 
 
-clf = RandomForestClassifier(n_estimators=500, n_jobs=-1, random_state=1, max_depth=30)
-clf.fit(X_train, Y_train)
+    clf = RandomForestClassifier(n_estimators=500, n_jobs=-1, random_state=1, max_depth=20)
+    clf.fit(X_train, Y_train)
 
 
 
@@ -301,9 +309,16 @@ clf.fit(X_train, Y_train)
 # print clf4.score(X_test, Y_test)
 
 #
-print "PRECISION SCORES:"
-output = clf.predict(X_test)
-score = precision_score(Y_test, output, average=None)
-print score
-print np.mean(score)
-print clf.score(X_test, Y_test)
+    print "PRECISION SCORES ITERATION " + str(iteration) + ": "
+    output = clf.predict(X_test)
+    score = precision_score(Y_test, output, average=None)
+    print score
+    print np.mean(score)
+    average_test_precision += score
+    print clf.score(X_test, Y_test)
+
+    iteration += 1
+
+average_test_precision /= iteration
+
+print average_test_precision
