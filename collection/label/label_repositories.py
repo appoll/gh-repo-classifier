@@ -34,7 +34,7 @@ class RepoLabelling():
         chosen_label = self.parse_input()
 
         f = open(self.output_file, 'a')
-        line = self.url_to_store + " " + chosen_label.value + '\n'
+        line = self.url_to_store + " " + chosen_label + '\n'
         f.write(line)
         f.close()
 
@@ -65,7 +65,7 @@ class RepoLabelling():
             repo_link = line.split(" ")[0]
             assigned_label = line.split(" ")[1].rstrip('\n')
 
-            labelled_class = open("labelled_%s" % assigned_label, 'a')
+            labelled_class = open("labelledd_%s" % assigned_label, 'a')
             labelled_class.write(Helper().build_repo_name_from_repo_link(repo_link) + '\n')
 
 class URLFileHandler(object):
@@ -119,6 +119,6 @@ def label(labelling):
 if __name__ == '__main__':
     labelling = RepoLabelling()
 
-    #label(labelling)
+    # label(labelling)
 
     labelling.update_existing()
