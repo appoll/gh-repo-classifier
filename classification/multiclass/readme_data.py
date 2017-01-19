@@ -101,8 +101,6 @@ vectorizer = TfidfVectorizer(analyzer="word",
 
 clean_readmes = train['readme_words'].tolist()
 
-print clean_readmes[0]
-print clean_readmes[10]
 X = vectorizer.fit_transform(clean_readmes)
 print X.shape
 
