@@ -100,7 +100,7 @@ def align_data_and_labels(prob_data,repo_label_num):
         X.append(row)
         Y.append(repo_label_num[key])
     X = np.vstack(X)
-    Y = np.vstack(Y)
+    Y = np.array(Y)
     return X,Y
 
 prob_files = list()
@@ -112,6 +112,17 @@ repo_label,repo_label_num = get_repo_classes()
 for prob_file in prob_files:
     commit_interval_data = get_probabilities_from_file(f =prob_file ,repo_label=repo_label)
     prob_data.append(commit_interval_data)
-X,Y = align_data_and_labels(prob_data,repo_label)
-print X.shape
-print Y.shape
+X,Y = align_data_and_labels(prob_data,repo_label_num)
+
+
+
+
+X_train, X_test, Y_train, Y_test = train_test_split(X,Y,test_size=0.2,random_state=0)
+
+
+
+n_estimators = [100,200,400,700,1000]
+clf = GridSearchCV(RandomForestClassifier(),{'n_estimators':n_estimators})
+clf.fit(X_train,Y_train)
+
+print clf.score(X_test,Y_test)
