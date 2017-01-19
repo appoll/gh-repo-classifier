@@ -19,226 +19,265 @@ REPOSITORY_NAME = "repo_name"
 readmes = pd.read_csv("../../exploration/text_data.txt", delimiter=" ", header=0)
 
 # Download stopwords corpus
-nltk.download('stopwords')
+class KeywordSpotting():
+    def __init__(self):
+        nltk.download('stopwords')
+        self.build_keyword_lists()
 
-def readmeContent(filename):
-    f = open(filename, 'r')
-    return f.read()
+        self.clf = RandomForestClassifier(n_estimators=500, n_jobs=-1, random_state=1, max_depth=20)
 
-def raw_to_words(content):
-    """
-    https://www.kaggle.com/c/word2vec-nlp-tutorial/details/part-1-for-beginners-bag-of-words
-    Method for performing text preprocessing
-    :param content: the raw content of the markdown readme file
-    """
-    # Remove HTML Markup
-    text = BeautifulSoup(content, 'lxml').getText()
+    def readmeContent(self, filename):
+        f = open(filename, 'r')
+        return f.read()
 
-    # Remove non - letters ??
-    text = re.sub("[^a-zA-Z]", " ", text)
+    def raw_to_words(self, content):
+        """
+        https://www.kaggle.com/c/word2vec-nlp-tutorial/details/part-1-for-beginners-bag-of-words
+        Method for performing text preprocessing
+        :param content: the raw content of the markdown readme file
+        """
+        # Remove HTML Markup
+        text = BeautifulSoup(content, 'lxml').getText()
 
-    # Convert to lower case, split into individual words
-    words = text.lower().split()
+        # Remove non - letters ??
+        text = re.sub("[^a-zA-Z]", " ", text)
 
-    # 4. In Python, searching a set is much faster than searching
-    #   a list, so convert the stop words to a set
-    stops = set(nltk.corpus.stopwords.words("english"))
+        # Convert to lower case, split into individual words
+        words = text.lower().split()
 
-    # 5. Remove stop words
-    meaningful_words = [w for w in words if not w in stops]
-    return (" ".join(meaningful_words))
+        # 4. In Python, searching a set is much faster than searching
+        #   a list, so convert the stop words to a set
+        stops = set(nltk.corpus.stopwords.words("english"))
 
-def build_keyword_lists():
-    keywords_readme_edu = ["course", "coursera", "slide", "lecture", "assignment", "university", "student", "week",
-                           "schedule",
-                           "work", "term", "education", "class", "condition"]
-    keywords_readme_dev = ["library", "package", "framework", "module", "app", "application", "server", "license",
-                           "develop",
-                           "dependencies", "installation", "api", "client", "build", "release", "version", "script"]
-    keywords_readme_data = ["data", "dataset", "sample", "set", "database", "lesson"]
-    keywords_readme_hw = ["homework", "solution", "deadline", "problem", "definition"]
-    keywords_readme_web = ["web", "website", "homepage", "javascript", "template"]
-    keywords_readme_doc = ["documentation", "collection", "manuals", "docs"]
+        # 5. Remove stop words
+        meaningful_words = [w for w in words if not w in stops]
+        return (" ".join(meaningful_words))
 
-    keyword_readme_list = []
-    keyword_readme_list.extend(keywords_readme_edu)
-    keyword_readme_list.extend(keywords_readme_dev)
-    keyword_readme_list.extend(keywords_readme_data)
-    keyword_readme_list.extend(keywords_readme_hw)
-    keyword_readme_list.extend(keywords_readme_web)
-    keyword_readme_list.extend(keywords_readme_doc)
+    def build_keyword_lists(self):
+        keywords_readme_edu = ["course", "coursera", "slide", "lecture", "assignment", "university", "student", "week",
+                               "schedule",
+                               "work", "term", "education", "class", "condition"]
+        keywords_readme_dev = ["library", "package", "framework", "module", "app", "application", "server", "license",
+                               "develop",
+                               "dependencies", "installation", "api", "client", "build", "release", "version", "script"]
+        keywords_readme_data = ["data", "dataset", "sample", "set", "database", "lesson"]
+        keywords_readme_hw = ["homework", "solution", "deadline", "problem", "definition"]
+        keywords_readme_web = ["web", "website", "homepage", "javascript", "template"]
+        keywords_readme_doc = ["documentation", "collection", "manuals", "docs"]
 
-    keywords_content_edu = ["course", "slide", "lecture", "assignment", "education"]
-    keywords_content_dev = ["scripts", "pom.xml", "framework", "install", "test", "bin", "src", "app", "plugin", "js"]
-    keywords_content_data = ["dataset", "csv", "pdf", "html"]
-    keywords_content_hw = ["homework", "hw0", "hw1", "task", "lesson", "week_"]
-    keywords_content_web = ["website", "css", "img", "images"]
-    keywords_content_doc = ["doc"]
+        keyword_readme_list = []
+        keyword_readme_list.extend(keywords_readme_edu)
+        keyword_readme_list.extend(keywords_readme_dev)
+        keyword_readme_list.extend(keywords_readme_data)
+        keyword_readme_list.extend(keywords_readme_hw)
+        keyword_readme_list.extend(keywords_readme_web)
+        keyword_readme_list.extend(keywords_readme_doc)
 
-    keyword_content_list = []
-    keyword_content_list.extend(keywords_content_edu)
-    keyword_content_list.extend(keywords_content_dev)
-    keyword_content_list.extend(keywords_content_data)
-    keyword_content_list.extend(keywords_content_hw)
-    keyword_content_list.extend(keywords_content_web)
-    keyword_content_list.extend(keywords_content_doc)
+        keywords_content_edu = ["course", "slide", "lecture", "assignment", "education"]
+        keywords_content_dev = ["scripts", "pom.xml", "framework", "install", "test", "bin", "src", "app", "plugin", "js"]
+        keywords_content_data = ["dataset", "csv", "pdf", "html"]
+        keywords_content_hw = ["homework", "hw0", "hw1", "task", "lesson", "week_"]
+        keywords_content_web = ["website", "css", "img", "images"]
+        keywords_content_doc = ["doc"]
 
-    # keyword_list = []
-    # keyword_list.extend(keyword_readme_list)
-    # keyword_list.extend(keyword_content_list)
+        keyword_content_list = []
+        keyword_content_list.extend(keywords_content_edu)
+        keyword_content_list.extend(keywords_content_dev)
+        keyword_content_list.extend(keywords_content_data)
+        keyword_content_list.extend(keywords_content_hw)
+        keyword_content_list.extend(keywords_content_web)
+        keyword_content_list.extend(keywords_content_doc)
 
-    return keyword_readme_list, keyword_content_list
 
-def merge_readmes_and_contents(readmes, contents):
+        self.keyword_readme_list = keyword_readme_list
+        self.keyword_content_list = keyword_content_list
 
-    data = readmes.merge(contents, on=REPOSITORY_NAME, how="inner")
+    def merge_readmes_and_contents(self, readmes, contents):
 
-    rows = data[REPOSITORY_NAME].size
-    for i in xrange(0, rows):
-        if (np.isnan(data["label_x"][i])):
-            data.loc[i, "label_x"] = data["label_y"][i]
+        data = readmes.merge(contents, on=REPOSITORY_NAME, how="inner")
 
-    return data
+        rows = data[REPOSITORY_NAME].size
+        for i in xrange(0, rows):
+            if (np.isnan(data["label_x"][i])):
+                data.loc[i, "label_x"] = data["label_y"][i]
+        return data
 
-def clean_readme_data(data):
-    rows = data[REPOSITORY_NAME].size
-    clean_readmes = []
-    for i in xrange(0, rows):
-        # Call our function for each one, and add the result to the list of
-        # clean reviews
-        path_to_readme = data[README_FILE_NAME][i]
-        if path_to_readme is not np.nan:
-            # dirty fix readme path name
-            path = "../" + path_to_readme
+    def clean_readme_data(self, data):
+        # all bullshit
+        rows = data[REPOSITORY_NAME].size
+        print rows
+        clean_readmes = []
+        for i in xrange(0, rows):
+            # Call our function for each one, and add the result to the list of
+            # clean reviews
+            print i
+            path_to_readme = data[README_FILE_NAME][i]
+            if path_to_readme is not np.nan:
+                # dirty fix readme path name
+                path = "../" + path_to_readme
+                if not os.path.exists(path):
+                    raise IOError("Readme path does not exist!")
+                content = self.readmeContent(path)
+                clean_readmes.append(self.raw_to_words(content))
+            else:
+                clean_readmes.append(None)
+        return clean_readmes
+
+    def row_to_words(self, row):
+        if row[README_FILE_NAME] is not np.nan:
+
+            path = "../" + row[README_FILE_NAME]
             if not os.path.exists(path):
-                raise IOError("Readme path does not exist!")
-            content = readmeContent(path)
-            clean_readmes.append(raw_to_words(content))
+                print 'missing %s ' % path
+            content = self.readmeContent(path)
+            # print content
+            words = self.raw_to_words(content)
         else:
-            clean_readmes.append(None)
-    return clean_readmes
+            words = None
+        return words
 
-def write_to_csv(dataframe, filename="trash_data.txt"):
-    dataframe.to_csv(filename, sep=",")
 
-def keyword_spotting(content, keyword_list):
-    # init binary vector with zeros
-    binary_vector = np.zeros(len(keyword_list))
-    if content is not None:
-        for index, key in enumerate(keyword_list):
-            word_set = content.split(" ")
-            for word in word_set:
-                if key in word:
-                    binary_vector[index] = 1
-    print binary_vector
-    return binary_vector
+    def write_to_csv(self, dataframe, filename="trash_data.txt"):
+        dataframe.to_csv(filename, sep=",")
 
-def read_contents_data(label):
-    features = pd.read_csv("../../exploration/labelled/features/contents_data_%s.txt" % label, delimiter=" ", header=0)
+    def keyword_spotting(self, content, keyword_list):
+        # init binary vector with zeros
+        binary_vector = np.zeros(len(keyword_list))
+        if content is not None:
+            for index, key in enumerate(keyword_list):
+                word_set = content.split(" ")
+                for word in word_set:
+                    if key in word:
+                        binary_vector[index] = 1
+        print binary_vector
+        return binary_vector
 
-    if label == Labels.data:
-        features['label'] = 0
-    elif label == Labels.dev:
-        features['label'] = 1
-    elif label == Labels.docs:
-        features['label'] = 2
-    elif label == Labels.edu:
-        features['label'] = 3
-    elif label == Labels.hw:
-        features['label'] = 4
-    elif label == Labels.web:
-        features['label'] = 5
-    elif label == Labels.uncertain:
-        features['label'] = 6
+    def read_contents_data(self, label):
+        features = pd.read_csv("../../exploration/labelled/features/contents_data_%s.txt" % label, delimiter=" ", header=0)
 
-    return features
+        if label == Labels.data:
+            features['label'] = 0
+        elif label == Labels.dev:
+            features['label'] = 1
+        elif label == Labels.docs:
+            features['label'] = 2
+        elif label == Labels.edu:
+            features['label'] = 3
+        elif label == Labels.hw:
+            features['label'] = 4
+        elif label == Labels.web:
+            features['label'] = 5
+        elif label == Labels.uncertain:
+            features['label'] = 6
 
-def extract_all_contents():
-    data = [read_contents_data(Labels.data), read_contents_data(Labels.dev), read_contents_data(Labels.docs), read_contents_data(Labels.edu),
-                read_contents_data(Labels.hw), read_contents_data(Labels.web), read_contents_data(Labels.uncertain)]
+        return features
 
-    data = pd.concat(data)
-    return data
+    def extract_all_contents(self):
+        data = [self.read_contents_data(Labels.data), self.read_contents_data(Labels.dev), self.read_contents_data(Labels.docs), self.read_contents_data(Labels.edu),
+                    self.read_contents_data(Labels.hw), self.read_contents_data(Labels.web), self.read_contents_data(Labels.uncertain)]
+        data = pd.concat(data)
+        return data
 
-def extract_readme_features(clean_readmes, keyword_list):
-    readme_features = []
+    def extract_readme_features(self, clean_readmes, keyword_list):
+        readme_features = []
 
-    for repository_readme in clean_readmes:
-        keys = keyword_spotting(repository_readme, keyword_list=keyword_list)
-        readme_features.append(keys)
+        for repository_readme in clean_readmes:
+            keys = self.keyword_spotting(repository_readme, keyword_list=keyword_list)
+            readme_features.append(keys)
 
-    return readme_features
+        return readme_features
 
-def extract_content_features(contents, keyword_list):
-    content_features = []
+    def extract_content_features(self, contents, keyword_list):
+        content_features = []
 
-    for repository_content in contents[CONTENT_FEATURE_NAME]:
-        if repository_content is np.nan:
-            repository_content = None
-        keys = keyword_spotting(repository_content, keyword_list=keyword_list)
-        content_features.append(keys)
+        for repository_content in contents[CONTENT_FEATURE_NAME]:
+            if repository_content is np.nan:
+                repository_content = None
+            keys = self.keyword_spotting(repository_content, keyword_list=keyword_list)
+            content_features.append(keys)
 
-    return content_features
+        return content_features
 
-def build_x_and_y():
-    keyword_readme_list, keyword_content_list = build_keyword_lists()
+    def build_x_and_y(self, data):
+        # keyword_readme_list, keyword_content_list = self.build_keyword_lists()
 
-    contents = extract_all_contents()
+        # contents = self.extract_all_contents()
+        #
+        # print np.shape(contents)
+        # print np.shape(readmes)
 
-    print np.shape(contents)
-    print np.shape(readmes)
+        # data = self.merge_readmes_and_contents(readmes, contents)
 
-    data = merge_readmes_and_contents(readmes, contents)
+        # self.write_to_csv(data)
+        print "SHAPE BEFORE ALL: ", np.shape(data)
+        data['readme_words'] = data.apply(lambda row: self.row_to_words(row), axis=1)
 
-    write_to_csv(data)
+        clean_readmes = data['readme_words'].tolist()
+        print "SHAPE OF CLEAN READMES :", np.shape(clean_readmes)
+        readme_features = self.extract_readme_features(clean_readmes, self.keyword_readme_list)
+        content_features = self.extract_content_features(data, self.keyword_content_list)
 
-    clean_readmes = clean_readme_data(data)
+        print "Shape readme features: ", np.shape(readme_features)
+        print "Shape content features: ", np.shape(content_features)
 
-    readme_features = extract_readme_features(clean_readmes, keyword_readme_list)
-    content_features = extract_content_features(data, keyword_content_list)
+        self.X = np.hstack((readme_features, content_features))
 
-    print "Shape readme features: ", np.shape(readme_features)
-    print "Shape content features: ", np.shape(content_features)
+        labels = data['label_x']
 
-    X = np.hstack((readme_features, content_features))
-    print "Shape of stacked features:", np.shape(X)
+        self.Y = np.asarray(labels.iloc[:,0], dtype=int)
+        print "Shape of stacked features:", np.shape(self.X)
+        print "Shape labels: ", np.shape(self.Y)
+        # print labels
 
-    labels = data['label_x']
-    Y = np.asarray(labels, dtype=int)
-    print "Shape labels: ", np.shape(Y)
 
-    return X, Y
-g
-def train_and_evaluate(num_iterations=3, test_size=0.3):
-    X, Y = build_x_and_y()
-    iteration = 0
-    average_test_precision = 0
-    ss = ShuffleSplit(n_splits=num_iterations, test_size=test_size, random_state=0)
-    for train_index, test_index in ss.split(X):
-        X_train, X_test, Y_train, Y_test = X[train_index], X[test_index], Y[train_index], Y[test_index]
+    def train(self, dataframe):
+        self.build_x_and_y(dataframe)
+        X, Y = self.X, self.Y
 
-        clf = RandomForestClassifier(n_estimators=500, n_jobs=-1, random_state=1, max_depth=20)
-        clf.fit(X_train, Y_train)
+        self.clf.fit(X, Y)
 
-        print "PRECISION SCORES ITERATION " + str(iteration) + ": "
-        output = clf.predict(X_test)
-        score = precision_score(Y_test, output, average=None)
+    def evaluate(self, dataframe):
+        self.build_x_and_y(dataframe)
+        X, Y = self.X, self.Y
+        output = self.clf.predict(X)
+        score = precision_score(Y, output, average=None)
+        print "PRECISION SCORE: "
         print score
         print np.mean(score)
-        average_test_precision += score
-        print clf.score(X_test, Y_test)
 
-        iteration += 1
 
-    average_test_precision /= iteration
-    print "AVERAGE TEST PRECISION OVER " + iteration + " ITERATIONS: "
-    print average_test_precision
 
-def train_classifier():
-    X, Y = build_x_and_y()
-    clf = RandomForestClassifier(n_estimators=500, n_jobs=-1, random_state=1, max_depth=20)
-    clf.fit(X, Y)
-    return clf
+    def train_and_evaluate(self, dataframe, num_iterations=3, test_size=0.3):
+        self.build_x_and_y(dataframe)
+        X, Y = self.X, self.Y
+        iteration = 0
+        average_test_precision = 0
+        ss = ShuffleSplit(n_splits=num_iterations, test_size=test_size, random_state=0)
+        for train_index, test_index in ss.split(X):
+            X_train, X_test, Y_train, Y_test = X[train_index], X[test_index], Y[train_index], Y[test_index]
+
+            clf = RandomForestClassifier(n_estimators=500, n_jobs=-1, random_state=1, max_depth=20)
+            clf.fit(X_train, Y_train)
+
+            print "PRECISION SCORES ITERATION " + str(iteration) + ": "
+            output = clf.predict(X_test)
+            score = precision_score(Y_test, output, average=None)
+            print score
+            print np.mean(score)
+            average_test_precision += score
+            print clf.score(X_test, Y_test)
+
+            iteration += 1
+
+        average_test_precision /= iteration
+        print "AVERAGE TEST PRECISION OVER " + str(iteration) + " ITERATIONS: "
+        print average_test_precision
+
+    def train_classifier(self):
+        X, Y = self.build_x_and_y()
+        clf = RandomForestClassifier(n_estimators=500, n_jobs=-1, random_state=1, max_depth=20)
+        clf.fit(X, Y)
+        return clf
 
 # def load_classifier(filepath):
 #     return
@@ -247,4 +286,5 @@ def train_classifier():
 #     return
 
 if __name__ == '__main__':
-    train_and_evaluate()
+    spotting = KeywordSpotting()
+    spotting.train_and_evaluate()
