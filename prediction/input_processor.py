@@ -1,7 +1,8 @@
 import glob
 import json
 import os
-
+import sys
+sys.path.append('..')
 import requests
 from requests.auth import HTTPBasicAuth
 
