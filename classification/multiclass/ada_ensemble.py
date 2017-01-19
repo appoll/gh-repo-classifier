@@ -5,6 +5,7 @@ from sklearn.metrics import accuracy_score
 from sklearn.metrics import mean_squared_error
 from sklearn.metrics import precision_score
 from sklearn.model_selection import train_test_split
+from keyword_spotting import KeywordSpotting
 
 from collection.labels import Labels
 
@@ -147,36 +148,50 @@ data_3 = data_2.merge(readme_data, on="repo_name", how="left")
 data_3.to_csv('data_set_3')
 print data_3.shape
 
-# hack to get language features names by excluding all the other feature names
 
-LANGUAGE_FEATURES = list(data_3.columns.values)
-LANGUAGE_FEATURES = [label for label in LANGUAGE_FEATURES if label not in REPO_FEATURES and label not in CI_FEATURES and label not in COMMIT_FEATURES and label not in ['label_x','label_y','repo_name'] and label not in README_FEATURES and label not in TREE_FEATURES and label not in CONTENT_FEATURES]
-
-
-# below dataframes have all the features which need to be separated
+# data_3.to_csv("full_data_trash.txt", sep=",")
+# # hack to get language features names by excluding all the other feature names
+#
+# LANGUAGE_FEATURES = list(data_3.columns.values)
+# LANGUAGE_FEATURES = [label for label in LANGUAGE_FEATURES if label not in REPO_FEATURES and label not in CI_FEATURES and label not in COMMIT_FEATURES and label not in ['label_x','label_y','repo_name'] and label not in README_FEATURES and label not in TREE_FEATURES and label not in CONTENT_FEATURES]
+#
+#
+# # below dataframes have all the features which need to be separated
 train_data, test_data = train_test_split(data_3, test_size=0.2, random_state=2)
 
-
-# first classifier
-train_data_1 = train_data[REPO_FEATURES + COMMIT_FEATURES + LANGUAGE_FEATURES]
-test_data_1 = test_data[REPO_FEATURES + COMMIT_FEATURES + LANGUAGE_FEATURES]
-
-train_labels_1 = train_data['label_x']
-test_labels_1 = test_data['label_x']
-
-# np.any(np.isinf(train_repo_labels))
-# np.all(np.isfinite(train_repo_labels))
-# np.any(np.isinf(train_repo_data))
-# np.all(np.isfinite(train_repo_data))
-
-forest_classifier = RandomForestClassifier(n_estimators=5000, max_depth=30)
-forest = forest_classifier.fit(train_data_1, train_labels_1)
+#
+#
+# # first classifier
+# train_data_1 = train_data[REPO_FEATURES + COMMIT_FEATURES + LANGUAGE_FEATURES]
+# test_data_1 = test_data[REPO_FEATURES + COMMIT_FEATURES + LANGUAGE_FEATURES]
+#
+# train_labels_1 = train_data['label_x']
+# test_labels_1 = test_data['label_x']
+#
+# # np.any(np.isinf(train_repo_labels))
+# # np.all(np.isfinite(train_repo_labels))
+# # np.any(np.isinf(train_repo_data))
+# # np.all(np.isfinite(train_repo_data))
+#
+# forest_classifier = RandomForestClassifier(n_estimators=5000, max_depth=30)
+# forest = forest_classifier.fit(train_data_1, train_labels_1)
 
 
 
 # second classifier
+train_data_2 = train_data[["repo_name"] + README_FEATURES + CONTENT_FEATURES + ["label_x"]]
+test_data_2 = test_data[["repo_name"] + README_FEATURES + CONTENT_FEATURES + ["label_x"]]
+
+train_data_2.to_csv("train_data_trash.txt", sep=",")
 
 
+
+clf = KeywordSpotting()
+clf.train(train_data_2)
+clf.evaluate(test_data_2)
+
+
+# clf.load("path")
 
 
 # third classifier
