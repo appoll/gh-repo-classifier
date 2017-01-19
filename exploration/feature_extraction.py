@@ -36,6 +36,7 @@ class FeatureExtraction:
         self.labelled_commits_folder = "../collection/%s/json_commits_labelled/"
         self.labelled_commits_interval_folder = "../collection/%s/json_commits_interval_labelled/"
         self.labelled_punch_card_folder = "../collection/%s/json_punch_card_labelled/"
+        self.labelled_readmes_folder = "../collection/%s/json_readmes_unarchived_labelled/"
 
         self.all_languages = {}
 
@@ -609,6 +610,28 @@ class FeatureExtraction:
         print "Wrote trees features to %s" % f.name
         f.close()
 
+    def get_readmes_features(self, label):
+        folder = self.labelled_readmes_folder % label
+        name = self.labelled_features_folder + "readme_data_%s.txt" % label
+
+        if not os.path.exists(os.path.dirname(name)):
+            os.makedirs(os.path.dirname(name))
+        f = open(name, 'w')
+        header = "readme_filename repo_name\n"
+        f.write(header)
+
+        for filename in glob.glob(folder + '*'):
+            print filename
+            name = os.path.basename(filename)
+            line = "%s" % filename
+            line = line + " " + name.split('.')[0]
+            f.write(line)
+            f.write('\n')
+
+        print "Wrote readmes features to %s" % f.name
+        f.close()
+        f.close()
+
     def get_dir_count(self, contents):
         count = 0
         for entry in contents:
@@ -788,3 +811,11 @@ featureExtraction = FeatureExtraction()
 # featureExtraction.get_commits_features('hw', labelled=True)
 # featureExtraction.get_commits_features('web', labelled=True)
 # featureExtraction.get_commits_features('other', labelled=True)
+
+featureExtraction.get_readmes_features('dev')
+featureExtraction.get_readmes_features('data')
+featureExtraction.get_readmes_features('docs')
+featureExtraction.get_readmes_features('edu')
+featureExtraction.get_readmes_features('hw')
+featureExtraction.get_readmes_features('web')
+featureExtraction.get_readmes_features('other')

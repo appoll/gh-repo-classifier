@@ -12,15 +12,47 @@ from sklearn.model_selection import GridSearchCV
 from sklearn.model_selection import train_test_split
 from sklearn.svm import SVC
 
-train = pd.read_csv("../../exploration/text_data.txt", delimiter=" ", header=0)
+from collection.labels import Labels
 
+
+def get_features(label):
+    path = "../../exploration/labelled/features/readme_data_%s.txt" % label
+    features = pd.read_csv(path, delimiter=" ",
+                           header=0, skipfooter=1)
+    print path
+    print features.shape
+
+    # features.to_csv('readmes_repo_names_%s' % label, columns=["repo_name"])
+
+    if label == Labels.data:
+        features['label'] = 0
+    elif label == Labels.dev:
+        features['label'] = 1
+    elif label == Labels.docs:
+        features['label'] = 2
+    elif label == Labels.edu:
+        features['label'] = 3
+    elif label == Labels.hw:
+        features['label'] = 4
+    elif label == Labels.web:
+        features['label'] = 5
+    elif label == Labels.uncertain:
+        features['label'] = 6
+    return features
+
+
+features = [get_features(Labels.data), get_features(Labels.dev), get_features(Labels.docs), get_features(Labels.edu),
+            get_features(Labels.hw), get_features(Labels.web), get_features(Labels.uncertain)]
+
+train = pd.concat(features)
+
+print train.shape
 
 # nltk.download()
 
 def readmeContent(filename):
     f = open(filename, 'r')
     return f.read()
-
 
 def raw_to_words(content):
     """
@@ -45,58 +77,29 @@ def raw_to_words(content):
     meaningful_words = [w for w in words if not w in stops]
     return (" ".join(meaningful_words))
 
-
-def print_words_and_count(vectorizer):
-    vocab = vectorizer.get_feature_names()
-    # print vocab
-    # Sum up the counts of each vocabulary word
-    dist = np.sum(train_data_features, axis=0)
-    # print dist
-
-    # For each, print the vocabulary word and the number of times it
-    # appears in the training set
-    for tag, count in zip(vocab, dist):
-        print count, tag
-
-
-def print_feature_matrix(features, withCorrespondingExample=False):
-    if withCorrespondingExample == True:
-        for row in range(0, features.shape[0]):
-            print features[row]
-            print train['label'][row]
-            print train['readme_filename'][row]
-    else:
-        print features
-
-
-rows = train['readme_filename'].size
-clean_readmes = []
-for i in xrange(0, rows):
-    # Call our function for each one, and add the result to the list of
-    # clean reviews
-    path_to_readme = train['readme_filename'][i]
-    # dirty fix readme path name
-    path = "../" + path_to_readme
-
+# panda dataframe row
+def row_to_words(row):
+    path = "../" + row['readme_filename']
     if not os.path.exists(path):
-        raise IOError("Readme path does not exist!")
-
+        print 'missing %s ' % path
     content = readmeContent(path)
-    clean_readmes.append(raw_to_words(content))
-#
-# vectorizer = CountVectorizer(analyzer="word",
-#                              tokenizer=None,
-#                              preprocessor=None,
-#                              stop_words=None,
-#                              max_features=1000)
+    # print content
+    words = raw_to_words(content)
+    return words
+
+train['readme_words'] = train.apply(lambda row: row_to_words(row), axis=1)
+
+print train.shape
 
 vectorizer = TfidfVectorizer(analyzer="word",
                              tokenizer=None,
                              preprocessor=None,
                              stop_words=['docs', 'framework', 'homework', 'course', 'data']
-                             ,ngram_range=(1, 3)
+                             , ngram_range=(1, 3)
                              , max_features=2000
                              )
+
+clean_readmes = train['readme_words'].tolist()
 
 X = vectorizer.fit_transform(clean_readmes)
 print X.shape
@@ -119,6 +122,5 @@ score = precision_score(Y_test, output, average=None)
 print score
 
 print np.mean(score)
-
 
 print clf.score(X_test, Y_test)
