@@ -1,0 +1,4 @@
+https://github.com/scholmd/scholmd
+https://github.com/mwaskom/seaborn
+https://github.com/fivethirtyeight/data
+https://github.com/caesar0301/awesome-public-datasets
