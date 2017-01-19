@@ -199,16 +199,7 @@ class KeywordSpotting():
         return content_features
 
     def build_x_and_y(self, data):
-        # keyword_readme_list, keyword_content_list = self.build_keyword_lists()
 
-        # contents = self.extract_all_contents()
-        #
-        # print np.shape(contents)
-        # print np.shape(readmes)
-
-        # data = self.merge_readmes_and_contents(readmes, contents)
-
-        # self.write_to_csv(data)
         print "SHAPE BEFORE ALL: ", np.shape(data)
         data['readme_words'] = data.apply(lambda row: self.row_to_words(row), axis=1)
 
@@ -245,8 +236,6 @@ class KeywordSpotting():
         print score
         print np.mean(score)
 
-
-
     def train_and_evaluate(self, dataframe, num_iterations=3, test_size=0.3):
         self.build_x_and_y(dataframe)
         X, Y = self.X, self.Y
@@ -273,11 +262,15 @@ class KeywordSpotting():
         print "AVERAGE TEST PRECISION OVER " + str(iteration) + " ITERATIONS: "
         print average_test_precision
 
-    def train_classifier(self):
-        X, Y = self.build_x_and_y()
-        clf = RandomForestClassifier(n_estimators=500, n_jobs=-1, random_state=1, max_depth=20)
-        clf.fit(X, Y)
-        return clf
+    def predict(self, X):
+        return self.clf.predict(X)
+
+    def predict_proba(self, X):
+        return self.clf.predict_proba(X)
+
+    def predict_log_proba(self, X):
+        return self.clf.predict_log_proba(X)
+
 
 # def load_classifier(filepath):
 #     return
