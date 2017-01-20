@@ -117,12 +117,13 @@ X,Y = align_data_and_labels(prob_data,repo_label_num)
 
 
 
-X_train, X_test, Y_train, Y_test = train_test_split(X,Y,test_size=0.2,random_state=0)
+X_train, X_test, Y_train, Y_test = train_test_split(X,Y,test_size=0.5,random_state=0)
 
 
 
-n_estimators = [100,200,400,700,1000]
-clf = GridSearchCV(RandomForestClassifier(),{'n_estimators':n_estimators})
+n_estimators = [1000]
+clf = GridSearchCV(RandomForestClassifier(max_depth=6),{'n_estimators':n_estimators},n_jobs = -1)
 clf.fit(X_train,Y_train)
 
 print clf.score(X_test,Y_test)
+print clf.score(X_train,Y_train)
