@@ -10,7 +10,7 @@ from sklearn.metrics import precision_score
 from sklearn.model_selection import ShuffleSplit
 from sklearn.externals import joblib
 
-from src.collection.labels import Labels
+from collection.labels import Labels
 
 
 CONTENT_FEATURE_NAME = "fo_and_fi_names"
@@ -216,9 +216,9 @@ class KeywordSpotting():
 
         X = np.hstack((readme_features, content_features))
 
-        labels = data['label_x']
+        labels = data['label']
 
-        Y = np.asarray(labels.iloc[:,0], dtype=int)
+        Y = np.asarray(labels, dtype=int)
         print "Shape of stacked features:", np.shape(X)
         print "Shape labels: ", np.shape(Y)
         # print labels

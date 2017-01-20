@@ -6,6 +6,8 @@ from sklearn.metrics import accuracy_score
 from sklearn.metrics import mean_squared_error
 from sklearn.metrics import precision_score
 from sklearn.model_selection import train_test_split
+
+from config.helper import Helper
 from keyword_spotting import KeywordSpotting
 
 from collection.labels import Labels
@@ -134,7 +136,7 @@ print contents_data.shape
 # print trees_data.shape
 print '\n'
 
-data_1 = repo_data.merge(ci_data, on=["repo_name", "label"], how="inner")
+data_1 = repo_data.merge(commit_data, on=["repo_name", "label"], how="inner")
 data_1 = data_1.merge(lang_data, on=["repo_name", "label"], how="inner")
 
 print data_1.shape
@@ -160,6 +162,11 @@ train_data, test_data = train_test_split(data_3, test_size=0.2, random_state=2)
 
 
 # first classifier
+clf_data_1 = [train_data, test_data]
+clf_data_1 = pd.concat(clf_data_1)
+repo_names_1 = clf_data_1['repo_name']
+
+clf_data_1 = clf_data_1[REPO_FEATURES + COMMIT_FEATURES +LANGUAGE_FEATURES]
 train_data_1 = train_data[REPO_FEATURES + COMMIT_FEATURES + LANGUAGE_FEATURES]
 test_data_1 = test_data[REPO_FEATURES + COMMIT_FEATURES + LANGUAGE_FEATURES]
 
@@ -174,11 +181,18 @@ test_labels_1 = test_data['label']
 forest_classifier = RandomForestClassifier(n_estimators=5000, max_depth=30)
 forest = forest_classifier.fit(train_data_1, train_labels_1)
 
+output = forest.predict(test_data_1)
+print mean_squared_error(output, test_labels_1)
+print accuracy_score(test_labels_1, output)
+score = precision_score(test_labels_1, output, average=None)
+print score
+print np.mean(score)
 
+Helper().write_probabilities(forest, clf_data_1, repo_names_1, 'prob/prob_repo_lang_commit_data')
 
 # second classifier
-train_data_2 = train_data[["repo_name"] + README_FEATURES + CONTENT_FEATURES + ["label_x"]]
-test_data_2 = test_data[["repo_name"] + README_FEATURES + CONTENT_FEATURES + ["label_x"]]
+train_data_2 = train_data[["repo_name"] + README_FEATURES + CONTENT_FEATURES + ["label"]]
+test_data_2 = test_data[["repo_name"] + README_FEATURES + CONTENT_FEATURES + ["label"]]
 
 train_data_2.to_csv("train_data_trash.txt", sep=",")
 
@@ -199,7 +213,7 @@ clf.evaluate(test_data_2)
 # predict_2 = clf.predict(train_data_2)
 # print "PREDICT 2: ", np.shape(predict_2)
 #
-# labels = train_data["label_x"]
+# labels = train_data["label"]
 # Y = labels.iloc[:,0]
 # print "TARGET :", np.shape(Y)
 # ada = AdaBoostClassifier()
