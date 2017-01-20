@@ -8,13 +8,16 @@ import nltk
 from sklearn.ensemble import RandomForestClassifier
 from sklearn.metrics import precision_score
 from sklearn.model_selection import ShuffleSplit
+from sklearn.externals import joblib
 
-from src.collection.labels import Labels
+from collection.labels import Labels
 
 
 CONTENT_FEATURE_NAME = "fo_and_fi_names"
 README_FILE_NAME = "readme_filename"
 REPOSITORY_NAME = "repo_name"
+
+PICKLE_FILE_PATH = "keyword_spotting.pkl"
 
 readmes = pd.read_csv("../../exploration/text_data.txt", delimiter=" ", header=0)
 
@@ -211,25 +214,26 @@ class KeywordSpotting():
         print "Shape readme features: ", np.shape(readme_features)
         print "Shape content features: ", np.shape(content_features)
 
-        self.X = np.hstack((readme_features, content_features))
+        X = np.hstack((readme_features, content_features))
 
-        labels = data['label_x']
+        labels = data['label']
 
-        self.Y = np.asarray(labels.iloc[:,0], dtype=int)
-        print "Shape of stacked features:", np.shape(self.X)
-        print "Shape labels: ", np.shape(self.Y)
+        Y = np.asarray(labels, dtype=int)
+        print "Shape of stacked features:", np.shape(X)
+        print "Shape labels: ", np.shape(Y)
         # print labels
+        return X, Y
 
 
     def train(self, dataframe):
-        self.build_x_and_y(dataframe)
-        X, Y = self.X, self.Y
+
+        X, Y = self.build_x_and_y(dataframe)
 
         self.clf.fit(X, Y)
 
     def evaluate(self, dataframe):
-        self.build_x_and_y(dataframe)
-        X, Y = self.X, self.Y
+
+        X, Y = self.build_x_and_y(dataframe)
         output = self.clf.predict(X)
         score = precision_score(Y, output, average=None)
         print "PRECISION SCORE: "
@@ -237,8 +241,7 @@ class KeywordSpotting():
         print np.mean(score)
 
     def train_and_evaluate(self, dataframe, num_iterations=3, test_size=0.3):
-        self.build_x_and_y(dataframe)
-        X, Y = self.X, self.Y
+        X, Y = self.build_x_and_y(dataframe)
         iteration = 0
         average_test_precision = 0
         ss = ShuffleSplit(n_splits=num_iterations, test_size=test_size, random_state=0)
@@ -262,21 +265,24 @@ class KeywordSpotting():
         print "AVERAGE TEST PRECISION OVER " + str(iteration) + " ITERATIONS: "
         print average_test_precision
 
-    def predict(self, X):
+    def predict(self, dataframe):
+        X, Y = self.build_x_and_y(dataframe)
         return self.clf.predict(X)
 
-    def predict_proba(self, X):
+    def predict_proba(self, dataframe):
+        X, Y = self.build_x_and_y(dataframe)
         return self.clf.predict_proba(X)
 
-    def predict_log_proba(self, X):
+    def predict_log_proba(self, dataframe):
+        X, Y = self.build_x_and_y(dataframe)
         return self.clf.predict_log_proba(X)
 
+    def save_classifier(self):
+        joblib.dump(self.clf, PICKLE_FILE_PATH, compress=3)
+        return
 
-# def load_classifier(filepath):
-#     return
-#
-# def save_classifier(filepath):
-#     return
+    def load_classifier(self):
+        self.clf = joblib.load(PICKLE_FILE_PATH)
 
 if __name__ == '__main__':
     spotting = KeywordSpotting()
