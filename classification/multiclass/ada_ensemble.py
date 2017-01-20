@@ -1,9 +1,6 @@
 import numpy as np
 import pandas as pd
 from sklearn.ensemble import RandomForestClassifier
-from sklearn.metrics import accuracy_score
-from sklearn.metrics import mean_squared_error
-from sklearn.metrics import precision_score
 from sklearn.model_selection import train_test_split
 
 from collection.labels import Labels
@@ -132,17 +129,17 @@ print contents_data.shape
 # print trees_data.shape
 print '\n'
 
-data_1 = repo_data.merge(commit_data, on="repo_name", how="inner")
-data_1 = data_1.merge(lang_data, on="repo_name", how="inner")
+data_1 = repo_data.merge(ci_data, on=["repo_name", "label"], how="inner")
+data_1 = data_1.merge(lang_data, on=["repo_name", "label"], how="inner")
 
 print data_1.shape
 data_1.to_csv('data_set_1')
 
-data_2 = data_1.merge(contents_data, on="repo_name", how="inner")
+data_2 = data_1.merge(contents_data, on=["repo_name","label"], how="inner")
 print data_2.shape
 data_1.to_csv('data_set_1')
 
-data_3 = data_2.merge(readme_data, on="repo_name", how="left")
+data_3 = data_2.merge(readme_data, on=["repo_name", "label"], how="left")
 
 data_3.to_csv('data_set_3')
 print data_3.shape
@@ -150,29 +147,25 @@ print data_3.shape
 # hack to get language features names by excluding all the other feature names
 
 LANGUAGE_FEATURES = list(data_3.columns.values)
-LANGUAGE_FEATURES = [label for label in LANGUAGE_FEATURES if label not in REPO_FEATURES and label not in CI_FEATURES and label not in COMMIT_FEATURES and label not in ['label_x','label_y','repo_name'] and label not in README_FEATURES and label not in TREE_FEATURES and label not in CONTENT_FEATURES]
-
+LANGUAGE_FEATURES = [label for label in LANGUAGE_FEATURES if
+                     label not in REPO_FEATURES and label not in CI_FEATURES and label not in COMMIT_FEATURES and label not in [
+                         'label', 'label',
+                         'repo_name'] and label not in README_FEATURES and label not in TREE_FEATURES and label not in CONTENT_FEATURES]
 
 # below dataframes have all the features which need to be separated
 train_data, test_data = train_test_split(data_3, test_size=0.2, random_state=2)
 
-
 # first classifier
-train_data_1 = train_data[REPO_FEATURES + COMMIT_FEATURES + LANGUAGE_FEATURES]
-test_data_1 = test_data[REPO_FEATURES + COMMIT_FEATURES + LANGUAGE_FEATURES]
+train_data_1 = train_data[REPO_FEATURES + CI_FEATURES + LANGUAGE_FEATURES]
+test_data_1 = test_data[REPO_FEATURES + CI_FEATURES + LANGUAGE_FEATURES]
 
-train_labels_1 = train_data['label_x']
-test_labels_1 = test_data['label_x']
-
-# np.any(np.isinf(train_repo_labels))
-# np.all(np.isfinite(train_repo_labels))
-# np.any(np.isinf(train_repo_data))
-# np.all(np.isfinite(train_repo_data))
+train_labels_1 = train_data['label']
+test_labels_1 = test_data['label']
 
 forest_classifier = RandomForestClassifier(n_estimators=5000, max_depth=30)
 forest = forest_classifier.fit(train_data_1, train_labels_1)
 
-
+# Helper().write_probabilities(forest, data_1, repo_names_1, 'prob/prob_repo_lang_commit_data')
 
 # second classifier
 
