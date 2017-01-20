@@ -1,3 +1,9 @@
+import numpy as np
+
+from sklearn.metrics import accuracy_score
+from sklearn.metrics import mean_squared_error
+from sklearn.metrics import precision_score
+
 
 class Helper():
 
@@ -38,10 +44,10 @@ class Helper():
         return user + '/' + name.rstrip('\r\n')
 
     @staticmethod
-    def write_probabilities(forest, data, repo_names, file_location):
+    def write_probabilities(forest, data, repo_names, labels, file_location):
         probabilities = forest.predict_log_proba(data)
         f = open(file_location, 'w')
-        header = "label_prob repo_name\n"
+        header = "label_prob repo_name label\n"
         f.write(header)
 
         for repo_name_idx, row in enumerate(probabilities):
@@ -50,6 +56,22 @@ class Helper():
                 line += str(element) + " "
             line += "\" "
             line += repo_names.values[repo_name_idx]
+            line += " "
+            line += str(labels.values[repo_name_idx])
             line += "\n"
             f.write(line)
+        f.close()
+
+    @staticmethod
+    def write_performance_to_file(filename, output, test_labels):
+        f = open(filename, 'a')
+        f.write("\n\nMean Squared Error \n")
+        f.write(str(mean_squared_error(output, test_labels)))
+        f.write("\nAccuracy score \n")
+        f.write(str(accuracy_score(test_labels, output)))
+        f.write("\nPrecision score \n")
+        score = precision_score(test_labels, output, average=None)
+        f.write(str(score))
+        f.write("\nPrecision score mean\n")
+        f.write(str(np.mean(score)))
         f.close()
