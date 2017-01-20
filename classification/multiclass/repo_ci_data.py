@@ -93,8 +93,8 @@ print '\n'
 # data = repo_data.merge(ci_data, on="repo_name", how="inner")
 # data = data.merge(lang_data, on="repo_name", how="inner")
 
-data = repo_data.merge(commit_data, on="repo_name", how="inner")
-data = data.merge(lang_data, on="repo_name", how="inner")
+data = repo_data.merge(commit_data, on=["repo_name",'label'], how="inner")
+data = data.merge(lang_data, on=["repo_name",'label'], how="inner")
 
 # data = data.drop(labels=['label_x'], axis =1 )
 # data = data.merge(punch_card_data, on="repo_name", how="inner")
@@ -106,8 +106,8 @@ data.to_csv('repo_ci_data_set')
 
 ss = ShuffleSplit(n_splits=5, test_size=0.2, random_state=0)
 
-all_labels = np.asarray(data['label_x'], dtype=int)
-data_no_labels = np.asarray(data.drop(labels=['label_x', 'label_y', 'repo_name'], axis=1))
+all_labels = np.asarray(data['label'], dtype=int)
+data_no_labels = np.asarray(data.drop(labels=['label', 'repo_name'], axis=1))
 
 for train_index, test_index in ss.split(X=data_no_labels):
     train_data, test_data, train_labels, test_labels = data_no_labels[train_index], data_no_labels[test_index], \
