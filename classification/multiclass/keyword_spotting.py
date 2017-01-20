@@ -265,13 +265,16 @@ class KeywordSpotting():
         print "AVERAGE TEST PRECISION OVER " + str(iteration) + " ITERATIONS: "
         print average_test_precision
 
-    def predict(self, X):
+    def predict(self, dataframe):
+        X, Y = self.build_x_and_y(dataframe)
         return self.clf.predict(X)
 
-    def predict_proba(self, X):
+    def predict_proba(self, dataframe):
+        X, Y = self.build_x_and_y(dataframe)
         return self.clf.predict_proba(X)
 
-    def predict_log_proba(self, X):
+    def predict_log_proba(self, dataframe):
+        X, Y = self.build_x_and_y(dataframe)
         return self.clf.predict_log_proba(X)
 
     def save_classifier(self):

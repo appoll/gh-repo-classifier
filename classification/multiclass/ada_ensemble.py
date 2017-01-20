@@ -6,6 +6,7 @@ from sklearn.metrics import accuracy_score
 from sklearn.metrics import mean_squared_error
 from sklearn.metrics import precision_score
 from sklearn.model_selection import train_test_split
+from sklearn.externals import joblib
 
 from config.helper import Helper
 from keyword_spotting import KeywordSpotting
@@ -188,7 +189,7 @@ score = precision_score(test_labels_1, output, average=None)
 print score
 print np.mean(score)
 
-Helper().write_probabilities(forest, clf_data_1, repo_names_1, 'prob/prob_repo_lang_commit_data')
+# Helper().write_probabilities(forest, clf_data_1, repo_names_1, 'prob/prob_repo_lang_commit_data')
 
 # second classifier
 train_data_2 = train_data[["repo_name"] + README_FEATURES + CONTENT_FEATURES + ["label"]]
@@ -207,18 +208,29 @@ clf.load_classifier()
 clf.evaluate(test_data_2)
 #
 #
-# # predict_1 = forest_classifier.predict(train_data_1)
-# # print "PREDICT 1: ", np.shape(predict_1)
-#
-# predict_2 = clf.predict(train_data_2)
-# print "PREDICT 2: ", np.shape(predict_2)
-#
-# labels = train_data["label"]
-# Y = labels.iloc[:,0]
-# print "TARGET :", np.shape(Y)
-# ada = AdaBoostClassifier()
+predict_1 = forest_classifier.predict_proba(train_data_1)
+predict_2 = clf.predict_proba(train_data_2)
+predict = np.column_stack((predict_1, predict_2))
 
+ada = RandomForestClassifier(n_estimators=5000, max_depth=20)
 
+ada.fit(X=predict, y=train_labels_1)
+
+eval_1 = forest_classifier.predict_proba(test_data_1)
+eval_2 = clf.predict_proba(test_data_2)
+eval = np.column_stack((eval_1, eval_2))
+
+eval_out = ada.predict(eval)
+
+joblib.dump(ada, filename="final_rf.pkl", compress=3)
+print "MSE ADABOOST: "
+print mean_squared_error(eval_out, test_labels_1)
+print "ACCURACY ADABOOST: "
+print accuracy_score(test_labels_1, eval_out)
+score = precision_score(test_labels_1, eval_out, average=None)
+print "PRECISION ADABOOST: "
+print score
+print np.mean(score)
 
 
 
