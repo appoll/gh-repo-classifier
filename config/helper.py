@@ -39,8 +39,7 @@ class Helper():
 
     @staticmethod
     def write_probabilities(forest, data, repo_names, file_location):
-        input = data.drop(labels='label', axis=1)
-        probabilities = forest.predict_log_proba(input)
+        probabilities = forest.predict_log_proba(data)
         f = open(file_location, 'w')
         header = "label_prob repo_name\n"
         f.write(header)
