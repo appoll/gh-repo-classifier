@@ -7,7 +7,8 @@ from sklearn.metrics import mean_squared_error
 from sklearn.metrics import precision_score
 from sklearn.model_selection import train_test_split
 from sklearn.externals import joblib
-
+import sys
+sys.path.append('../..')
 from config.helper import Helper
 from keyword_spotting import KeywordSpotting
 
