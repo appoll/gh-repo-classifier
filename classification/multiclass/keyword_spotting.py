@@ -279,7 +279,6 @@ class KeywordSpotting():
         Helper().write_probabilities(self.clf, X_train, dataframe_train['repo_name'], dataframe_train['label'], 'prob/prob_keyword_train')
         Helper().write_probabilities(self.clf, X_test, dataframe_test['repo_name'], dataframe_test['label'], 'prob/prob_keyword_test')
 
-
     def predict_proba(self, dataframe):
         X, Y = self.build_x_and_y(dataframe)
         return self.clf.predict_proba(X)
