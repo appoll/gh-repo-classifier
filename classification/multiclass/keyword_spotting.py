@@ -9,6 +9,9 @@ from sklearn.ensemble import RandomForestClassifier
 from sklearn.metrics import precision_score
 from sklearn.model_selection import ShuffleSplit
 from sklearn.externals import joblib
+from config.helper import Helper
+
+
 
 from collection.labels import Labels
 
@@ -268,6 +271,14 @@ class KeywordSpotting():
     def predict(self, dataframe):
         X, Y = self.build_x_and_y(dataframe)
         return self.clf.predict(X)
+
+    def write_proba(self, dataframe_train, dataframe_test):
+        X_train, Y_train = self.build_x_and_y(dataframe_train)
+        X_test, Y_test = self.build_x_and_y(dataframe_test)
+
+        Helper().write_probabilities(self.clf, X_train, dataframe_train['repo_name'], dataframe_train['label'], 'prob/prob_keyword_train')
+        Helper().write_probabilities(self.clf, X_test, dataframe_test['repo_name'], dataframe_test['label'], 'prob/prob_keyword_test')
+
 
     def predict_proba(self, dataframe):
         X, Y = self.build_x_and_y(dataframe)
