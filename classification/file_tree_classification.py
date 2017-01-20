@@ -34,7 +34,7 @@ def normalizeFile(paths):
                 count = count + 1
         newPaths += newPath +' '
     return newPaths
-def 
+
     
 file_names = list()
 # file_names.append('../exploration/features/contents_data_data.txt')
@@ -60,13 +60,13 @@ for i in range(len(file_names)):
     for row in csv_content:
         Y.append(i)
         repo = row[0]
-        repo = cleanString(normalizeFile(repo)+ ' '+ repo)
+        repo = cleanString(repo)
         data.append( repo)
 
 
 print normalizeFile('/hello/this/is/me  /hello/again')
 
-cV = CountVectorizer(ngram_range=(1,4),max_features=70000,binary=True)
+cV = CountVectorizer(ngram_range=(1,4),max_features=7000,binary=True)
 X = cV.fit_transform(data)
 
 
@@ -74,13 +74,13 @@ X = cV.fit_transform(data)
 Y = np.asarray(Y,dtype=int)
 
 
-X_train, X_test, Y_train, Y_test = train_test_split(X,Y,test_size=0.4,random_state=0)
+X_train, X_test, Y_train, Y_test = train_test_split(X,Y,test_size=0.2,random_state=0)
 
 # C_range = np.logspace(-2, 10, 13)
 # gamma_range = np.logspace(-9, 3, 13)
 # gS = GridSearchCV(SVC(),{'kernel':['rbf'],'C':C_range,'gamma':gamma_range},n_jobs=-1)
-n_estimators = [700,1000]
-clf = GridSearchCV(RandomForestClassifier(),{'n_estimators':n_estimators})
+n_estimators = [1000]
+clf = GridSearchCV(RandomForestClassifier(n_jobs=-1),{'n_estimators':n_estimators})
 
 # gS.fit(X_train,Y_train)
 clf.fit(X_train,Y_train)
