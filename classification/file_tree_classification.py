@@ -21,7 +21,21 @@ def cleanString(s):
     newS = re.sub('\W+',' ',newS)
     return newS.strip().lower()
 
-
+def normalizeFile(paths):
+    
+    newPaths = ''
+    for path in paths.split(' '):
+        count = 0
+        splited_string = path.split('/')
+        newPath = ''
+        for s in splited_string:
+            if s != '':
+                newPath += '/'+str(count)
+                count = count + 1
+        newPaths += newPath +' '
+    return newPaths
+def 
+    
 file_names = list()
 # file_names.append('../exploration/features/contents_data_data.txt')
 # file_names.append('../exploration/features/contents_data_dev.txt')
@@ -46,29 +60,32 @@ for i in range(len(file_names)):
     for row in csv_content:
         Y.append(i)
         repo = row[0]
-        repo = cleanString(repo)
+        repo = cleanString(normalizeFile(repo)+ ' '+ repo)
         data.append( repo)
 
 
-cV = CountVectorizer(ngram_range=(1,1),max_features=2000)
+print normalizeFile('/hello/this/is/me  /hello/again')
+
+cV = CountVectorizer(ngram_range=(1,4),max_features=70000,binary=True)
 X = cV.fit_transform(data)
-print X.shape
+
 
 
 Y = np.asarray(Y,dtype=int)
-print Y.shape
+
 
 X_train, X_test, Y_train, Y_test = train_test_split(X,Y,test_size=0.4,random_state=0)
 
 # C_range = np.logspace(-2, 10, 13)
 # gamma_range = np.logspace(-9, 3, 13)
 # gS = GridSearchCV(SVC(),{'kernel':['rbf'],'C':C_range,'gamma':gamma_range},n_jobs=-1)
-n_estimators = [10,100,200,300,400,500,600,700,800,900,1000]
-clf = RandomForestClassifier(n_estimators=500,n_jobs=-1,random_state=40)
+n_estimators = [700,1000]
+clf = GridSearchCV(RandomForestClassifier(),{'n_estimators':n_estimators})
 
 # gS.fit(X_train,Y_train)
 clf.fit(X_train,Y_train)
 Y_pred = clf.predict(X_test)
 s = precision_score(Y_test,Y_pred, average  = None)
 print s
+print clf.score(X_test,Y_test)
 

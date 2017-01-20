@@ -1,7 +1,12 @@
 import numpy as np
 import pandas as pd
 from sklearn.ensemble import RandomForestClassifier
+from sklearn.ensemble import AdaBoostClassifier
+from sklearn.metrics import accuracy_score
+from sklearn.metrics import mean_squared_error
+from sklearn.metrics import precision_score
 from sklearn.model_selection import train_test_split
+from keyword_spotting import KeywordSpotting
 
 from collection.labels import Labels
 
@@ -147,29 +152,63 @@ print data_3.shape
 # hack to get language features names by excluding all the other feature names
 
 LANGUAGE_FEATURES = list(data_3.columns.values)
-LANGUAGE_FEATURES = [label for label in LANGUAGE_FEATURES if
-                     label not in REPO_FEATURES and label not in CI_FEATURES and label not in COMMIT_FEATURES and label not in [
-                         'label', 'label',
-                         'repo_name'] and label not in README_FEATURES and label not in TREE_FEATURES and label not in CONTENT_FEATURES]
+LANGUAGE_FEATURES = [label for label in LANGUAGE_FEATURES if label not in REPO_FEATURES and label not in CI_FEATURES and label not in COMMIT_FEATURES and label not in ['label','repo_name'] and label not in README_FEATURES and label not in TREE_FEATURES and label not in CONTENT_FEATURES]
+
 
 # below dataframes have all the features which need to be separated
 train_data, test_data = train_test_split(data_3, test_size=0.2, random_state=2)
 
+
 # first classifier
-train_data_1 = train_data[REPO_FEATURES + CI_FEATURES + LANGUAGE_FEATURES]
-test_data_1 = test_data[REPO_FEATURES + CI_FEATURES + LANGUAGE_FEATURES]
+train_data_1 = train_data[REPO_FEATURES + COMMIT_FEATURES + LANGUAGE_FEATURES]
+test_data_1 = test_data[REPO_FEATURES + COMMIT_FEATURES + LANGUAGE_FEATURES]
 
 train_labels_1 = train_data['label']
 test_labels_1 = test_data['label']
 
+# np.any(np.isinf(train_repo_labels))
+# np.all(np.isfinite(train_repo_labels))
+# np.any(np.isinf(train_repo_data))
+# np.all(np.isfinite(train_repo_data))
+
 forest_classifier = RandomForestClassifier(n_estimators=5000, max_depth=30)
 forest = forest_classifier.fit(train_data_1, train_labels_1)
 
-# Helper().write_probabilities(forest, data_1, repo_names_1, 'prob/prob_repo_lang_commit_data')
+
 
 # second classifier
+train_data_2 = train_data[["repo_name"] + README_FEATURES + CONTENT_FEATURES + ["label_x"]]
+test_data_2 = test_data[["repo_name"] + README_FEATURES + CONTENT_FEATURES + ["label_x"]]
+
+train_data_2.to_csv("train_data_trash.txt", sep=",")
 
 
+
+clf = KeywordSpotting()
+# clf.train(train_data_2)
+# clf.save_classifier()
+
+clf.load_classifier()
+
+clf.evaluate(test_data_2)
+#
+#
+# # predict_1 = forest_classifier.predict(train_data_1)
+# # print "PREDICT 1: ", np.shape(predict_1)
+#
+# predict_2 = clf.predict(train_data_2)
+# print "PREDICT 2: ", np.shape(predict_2)
+#
+# labels = train_data["label_x"]
+# Y = labels.iloc[:,0]
+# print "TARGET :", np.shape(Y)
+# ada = AdaBoostClassifier()
+
+
+
+
+
+# clf.load("path")
 
 
 # third classifier
