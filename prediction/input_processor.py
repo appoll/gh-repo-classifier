@@ -1,5 +1,6 @@
 import glob
 import json
+import logging
 import os
 import sys
 
@@ -24,7 +25,7 @@ MD_README_FILE_NAME = "%s_%s.md"
 
 
 class InputProcessor:
-    def __init__(self):
+    def __init__(self, override=True):
         reader = ConfigReader()
         self.username, self.password = reader.get_credentials()
 
@@ -39,6 +40,8 @@ class InputProcessor:
 
         self.RESULTS_PER_PAGE = 30
 
+        self.override = override
+
     def urls_to_repo_names(self, filename):
         repo_names_filename = filename.replace('urls', 'names')
         file_repos_names = open(repo_names_filename, 'w')
@@ -47,6 +50,7 @@ class InputProcessor:
                 input_urls = file.readlines()
         except IOError:
             print 'File %s should exist in the current folder.' % filename
+            logging.debug('IOError thrown. File %s should exist in the current folder.' % filename)
             return
 
         for url in input_urls:
@@ -60,26 +64,35 @@ class InputProcessor:
                 input_names = file.readlines()
         except IOError:
             print 'File %s should exist in the current folder.' % filename
+            logging.debug('IOError thrown. File %s should exist in the current folder.' % filename)
             return
 
         for repo_name in input_names:
             repo_name = repo_name.replace('\n', '')
             repo_name = repo_name.replace('\r', '')
+
+            filename = Helper().build_path_from_folder_and_repo_name(repo_name, folder, JSON_REPO_FILE_NAME)
+            if os.path.exists(filename) and self.override == False:
+                logging.debug('File %s exists, skipping.' % filename)
+                continue
+
             print 'Fetching json repo object for %s ' % repo_name
+            logging.info('Fetching json repo object for %s ' % repo_name)
+
             request_url = "https://api.github.com/repos/" + repo_name
             r = requests.get(request_url,
                              auth=HTTPBasicAuth(self.username, self.password))
             if r.status_code == 200:
-                filename = Helper().build_path_from_folder_and_repo_name(repo_name, folder, JSON_REPO_FILE_NAME)
                 if not os.path.exists(os.path.dirname(filename)):
                     os.makedirs(os.path.dirname(filename))
                 with open(filename, 'w') as file:
                     print "Writing to %s \n" % file.name
+                    logging.info("Writing to %s \n" % file.name)
                     jsonContent = json.dumps((r.json()))
                     file.write(jsonContent)
                     file.close()
             else:
-                print r.headers
+                logging.debug(str(r.headers))
 
     def names_to_readmes(self, filename):
         folder = self.readmes_folder
@@ -88,11 +101,18 @@ class InputProcessor:
                 input_names = file.readlines()
         except IOError:
             print 'File %s should exist in the current folder.' % filename
+            logging.debug('File %s should exist in the current folder.' % filename)
             return
 
         for repo_name in input_names:
             repo_name = repo_name.replace('\n', '')
             repo_name = repo_name.replace('\r', '')
+
+            filename = Helper().build_path_from_folder_and_repo_name(repo_name, folder, MD_README_FILE_NAME)
+            if os.path.exists(filename) and self.override == False:
+                print 'File %s exists, skipping.' % filename
+                continue
+
             print 'Fetching readme file contents for %s ' % repo_name
             request_url = "https://api.github.com/repos/" + repo_name + '/readme'
             r = requests.get(request_url,
@@ -122,12 +142,17 @@ class InputProcessor:
         for repo_name in input_names:
             repo_name = repo_name.replace('\n', '')
             repo_name = repo_name.replace('\r', '')
+
+            filename = Helper().build_path_from_folder_and_repo_name(repo_name, folder, JSON_CONTENTS_FILE_NAME)
+            if os.path.exists(filename) and self.override == False:
+                print 'File %s exists, skipping.' % filename
+                continue
+
             print 'Fetching readme file contents for %s ' % repo_name
             request_url = "https://api.github.com/repos/" + repo_name + '/contents'
             r = requests.get(request_url,
                              auth=HTTPBasicAuth(self.username, self.password))
             if r.status_code == 200:
-                filename = Helper().build_path_from_folder_and_repo_name(repo_name, folder, JSON_CONTENTS_FILE_NAME)
                 if not os.path.exists(os.path.dirname(filename)):
                     os.makedirs(os.path.dirname(filename))
                 with open(filename, 'w') as file:
@@ -152,10 +177,14 @@ class InputProcessor:
         for repo_name in input_names:
             repo_name = repo_name.replace('\n', '')
             repo_name = repo_name.replace('\r', '')
-            print 'Fetching all commits for %s ' % repo_name
-            request_url = "https://api.github.com/repos/" + repo_name + '/commits'
 
             filename = Helper().build_path_from_folder_and_repo_name(repo_name, folder, JSON_COMMITS_FILE_NAME)
+            if os.path.exists(filename) and self.override == False:
+                print 'File %s exists, skipping.' % filename
+                continue
+
+            print 'Fetching all commits for %s ' % repo_name
+            request_url = "https://api.github.com/repos/" + repo_name + '/commits'
 
             if os.path.exists(filename):
                 print filename, " exists"
@@ -220,10 +249,13 @@ class InputProcessor:
             repo_name = repo_name.replace('\n', '')
             repo_name = repo_name.replace('\r', '')
 
+            filename = Helper().build_path_from_folder_and_repo_name(repo_name, folder, JSON_COMMITS_FILE_NAME)
+            if os.path.exists(filename) and self.override == False:
+                print 'File %s exists, skipping.' % filename
+                continue
+
             print 'Fetching commits interval information for %s ' % repo_name
             request_url = "https://api.github.com/repos/" + repo_name + '/commits'
-
-            filename = Helper().build_path_from_folder_and_repo_name(repo_name, folder, JSON_COMMITS_FILE_NAME)
 
             if os.path.exists(filename):
                 print filename, " exists"
@@ -292,13 +324,12 @@ class InputProcessor:
             repo_name = repo_name.replace('\r', '')
 
             filename = Helper().build_path_from_folder_and_repo_name(repo_name, folder, JSON_PUNCH_CARD_FILE_NAME)
-            if os.path.exists(filename):
-                print filename, " exists"
+            if os.path.exists(filename) and self.override == False:
+                print 'File %s exists, skipping.' % filename
                 continue
+
             print 'Fetching punch card information for %s ' % repo_name
-
             request_url = "https://api.github.com/repos/" + repo_name + '/stats/punch_card'
-
             r = requests.get(request_url,
                              auth=HTTPBasicAuth(self.username, self.password))
 
@@ -327,14 +358,13 @@ class InputProcessor:
     def contents_to_file_trees(self):
         source_folder = self.contents_folder
         for filename in glob.glob(source_folder + '*'):
-            print filename
             f = open(filename, 'r')
             contents = json.load(f)
             f.close()
 
             new_filename = filename.replace("json_contents", "json_trees")
             if os.path.exists(new_filename):
-                print '%s new_filename tree already exists' % new_filename
+                print 'File %s exists, skipping' % new_filename
                 continue
             entries_trees = []
 
@@ -941,41 +971,6 @@ class FeatureExtractor:
             return len(active_days) / math.ceil(days)
         print 'only one commit here!'
         return 1
-        #
-        # if days > 1:
-        #     prev_date = last_commit_author_date
-        #
-        #     active_days = 0
-        #
-        #     for commit in commits_list:
-        #         commit_author_date = dateutil.parser.parse(commit['author_date'])
-        #         print prev_date
-        #
-        #         print commit_author_date
-        #
-        #         print prev_date - timedelta(days=1)
-        #
-        #         print "ha"
-        #         if commit_author_date > prev_date:
-        #             print 'continue'
-        #             continue
-        #
-        #         if prev_date >= commit_author_date > prev_date - timedelta(days=1):
-        #             print 'active ++'
-        #             active_days += 1
-        #             dist = prev_date - commit_author_date
-        #             shift = dist.total_seconds() / day_in_seconds
-        #             print shift
-        #             print int(shift)
-        #             if shift < 1:
-        #                 prev_date = prev_date - timedelta(days=1)
-        #             else:
-        #                 prev_date = prev_date - timedelta(days=int(shift))
-        #
-        #     print active_days
-        #     print days
-        #     return active_days / math.ceil(days)
-        # return 1
 
     def get_all_languages(self):
         used_languages = {}
@@ -990,7 +985,7 @@ class FeatureExtractor:
                 try:
                     languages = repo["languages"]
                 except KeyError:
-                    print 'keyy'
+                    print 'Key Error in get_all_languages'
 
                 for language in languages:
                     if language not in used_languages:
@@ -1056,7 +1051,10 @@ class FeatureExtractor:
 
 
 if __name__ == '__main__':
-    input_processor = InputProcessor()
+    logging.basicConfig(filename='input_processor.log', level=logging.DEBUG)
+    logging.debug("Started...")
+
+    input_processor = InputProcessor(override=False)
     input_processor.urls_to_repo_names(filename='input_urls.txt')
     input_processor.names_to_json_repos(filename='input_names.txt')
     input_processor.names_to_readmes(filename='input_names.txt')
@@ -1086,3 +1084,5 @@ if __name__ == '__main__':
     feature_extractor.get_language_features(binary=False)
     feature_extractor.get_readmes_features()
     feature_extractor.get_trees_features()
+
+    logging.debug("Ended!")
