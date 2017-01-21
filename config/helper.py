@@ -21,7 +21,7 @@ class Helper():
 
     @staticmethod
     def get_user_and_repo_name(repo_name):
-        user_and_name = repo_name[:-1].split('/')
+        user_and_name = repo_name.split('/')
         user = user_and_name[0]
         repo_name = user_and_name[1]
         return user, repo_name
