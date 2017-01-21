@@ -10,6 +10,7 @@ from sklearn.model_selection import ShuffleSplit
 from sklearn.externals import joblib
 from config.helper import Helper
 from settings import STOPWORDS_PATH
+from settings import MODEL_PATH
 
 CONTENT_FEATURE_NAME = "fo_and_fi_names"
 README_FILE_NAME = "readme_filename"
@@ -17,11 +18,12 @@ REPOSITORY_NAME = "repo_name"
 
 STOPWORDS_LANGUAGE = "english"
 
-PICKLE_FILE_PATH = "keyword_spotting.pkl"
+PICKLE_FILE_NAME = "keyword_spotting.pkl"
 
 class KeywordSpotting():
-    def __init__(self):
+    def __init__(self, is_train):
         self.build_keyword_lists()
+        self.is_train = is_train
 
         self.clf = RandomForestClassifier(n_estimators=500, n_jobs=-1, random_state=1, max_depth=20)
 
@@ -94,8 +96,10 @@ class KeywordSpotting():
 
     def row_to_words(self, row):
         if row[README_FILE_NAME] is not np.nan:
-
-            path = "../" + row[README_FILE_NAME]
+            if self.is_train:
+                path = "../" + row[README_FILE_NAME]
+            else:
+                path = row[README_FILE_NAME]
             if not os.path.exists(path):
                 print 'missing %s ' % path
             content = self.readmeContent(path)
@@ -217,9 +221,9 @@ class KeywordSpotting():
         return self.clf.predict_log_proba(X)
 
     def save_model(self):
-        joblib.dump(self.clf, PICKLE_FILE_PATH, compress=3)
+        joblib.dump(self.clf, MODEL_PATH + PICKLE_FILE_NAME, compress=3)
         print "Successfully saved keyword spotting model!"
 
     def load_model(self):
-        self.clf = joblib.load(PICKLE_FILE_PATH)
+        self.clf = joblib.load(MODEL_PATH + PICKLE_FILE_NAME)
         print "Successfully loaded keyword spotting model!"

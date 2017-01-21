@@ -58,7 +58,7 @@ class FeaturePreparation():
                 features_list.append(features)
         else:
             path = FEATURE_PREDICT_PATH + FEATURE_DATA_FORMAT_PREDICT % (which)
-            features_list = [pd.read_csv(path, delimiter=" ", header=0, skipfooter=1)]
+            features_list = [pd.read_csv(path, delimiter=" ", header=0)]
         return features_list
 
 
@@ -103,11 +103,19 @@ class FeaturePreparation():
         # print trees_data.shape
 
     def align_feature_data(self):
-        data = self.repo_data.merge(self.commit_data, on=["repo_name", "label"], how="inner")
-        data = data.merge(self.lang_data, on=["repo_name", "label"], how="inner")
-        data = data.merge(self.contents_data, on=["repo_name", "label"], how="inner")
-        data = data.merge(self.ci_data, on=["repo_name", "label"], how="inner")
-        data = data.merge(self.readme_data, on=["repo_name", "label"], how="left")
+        if self.is_train:
+
+            data = self.repo_data.merge(self.commit_data, on=["repo_name", "label"], how="inner")
+            data = data.merge(self.lang_data, on=["repo_name", "label"], how="inner")
+            data = data.merge(self.contents_data, on=["repo_name", "label"], how="inner")
+            data = data.merge(self.ci_data, on=["repo_name", "label"], how="inner")
+            data = data.merge(self.readme_data, on=["repo_name", "label"], how="left")
+        else:
+            data = self.repo_data.merge(self.commit_data, on=["repo_name"], how="inner")
+            data = data.merge(self.lang_data, on=["repo_name"], how="inner")
+            data = data.merge(self.contents_data, on=["repo_name"], how="inner")
+            data = data.merge(self.ci_data, on=["repo_name"], how="inner")
+            data = data.merge(self.readme_data, on=["repo_name"], how="left")
         data.to_csv('data_aligned')
         print data.shape
         return data
@@ -118,34 +126,39 @@ class FeaturePreparation():
         return data
 
 class ClassificationExecutor():
-    def __init__(self):
-        self.feature_prep = FeaturePreparation(is_train=True)
+    def __init__(self, is_train=False):
+        self.is_train = is_train
+        self.feature_prep = FeaturePreparation(is_train=is_train)
         self.data = self.feature_prep.build_data()
         return
 
     def run_solid_classifier(self, data):
-        clf = SolidClassifier()
-        clf.train(data)
-        clf.save_model()
+        clf = SolidClassifier(is_train=self.is_train)
+        # clf.train(data)
+        # clf.save_model()
+        clf.load_model()
+        predictions = clf.predict(data)
+        print predictions
 
     def run_keyword_classifier(self, data):
+        #
+        # train_data_2 = data[["repo_name"] + README_FEATURES + CONTENT_FEATURES + ["label"]]
+        # test_data_2 = data[["repo_name"] + README_FEATURES + CONTENT_FEATURES + ["label"]]
+        #
+        # train_data_2.to_csv("train_data_trash.txt", sep=",")
 
-        train_data_2 = data[["repo_name"] + README_FEATURES + CONTENT_FEATURES + ["label"]]
-        test_data_2 = data[["repo_name"] + README_FEATURES + CONTENT_FEATURES + ["label"]]
-
-        train_data_2.to_csv("train_data_trash.txt", sep=",")
-
-        clf = KeywordSpotting()
+        predict_data = data[["repo_name"] + README_FEATURES + CONTENT_FEATURES]
+        clf = KeywordSpotting(self.is_train)
         # clf.predict(self.data)
         # clf.train(train_data_2)
         # clf.save_classifier()
 
         clf.load_model()
 
-        predictions = clf.predict(test_data_2)
+        predictions = clf.predict(predict_data)
         print predictions
 
 if __name__ == '__main__':
-    exe = ClassificationExecutor()
-    exe.run_keyword_classifier(exe.data)
-    # exe.run_solid_classifier(exe.data)
+    exe = ClassificationExecutor(is_train=True)
+    # exe.run_keyword_classifier(exe.data)
+    exe.run_solid_classifier(exe.data)

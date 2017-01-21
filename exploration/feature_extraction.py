@@ -4,13 +4,17 @@ import json
 import math
 import os
 import sys
+
 sys.path.append('..')
 from datetime import datetime
 
 import numpy as np
+from sklearn.externals import joblib
 import dateutil.parser
 
 from collection.labels import Labels
+from settings import LANGUAGE_FEATURES_NAME_PATH
+from config.constants import LANGUAGE_FEATURES_NAME_FILE
 
 
 class FeatureExtraction:
@@ -39,6 +43,7 @@ class FeatureExtraction:
         self.labelled_readmes_folder = "../collection/%s/json_readmes_unarchived_labelled/"
 
         self.all_languages = {}
+        self.language_features = []
 
     def get_commits_interval_features(self, label, labelled):
         if labelled:
@@ -316,9 +321,16 @@ class FeatureExtraction:
             os.makedirs(os.path.dirname(name))
         f = open(name, 'w')
         header = "languages_count languages_total_lines "
+        self.language_features = []
         for language in self.all_languages:
             language = language.replace(" ", "_")
             header += language + " "
+
+            # extend constant list of language features
+            stringyfied_language = '\"' + language + '\"'
+            self.language_features.extend([language])
+        joblib.dump(self.language_features, LANGUAGE_FEATURES_NAME_PATH + LANGUAGE_FEATURES_NAME_FILE, compress=3)
+
 
         header += "repo_name\n"
         f.write(header)
@@ -740,13 +752,13 @@ featureExtraction = FeatureExtraction()
 # featureExtraction.get_commits_interval_features('hw')
 # featureExtraction.get_commits_interval_features('web')
 #
-featureExtraction.get_repo_features('dev', labelled=True)
-featureExtraction.get_repo_features('data', labelled=True)
-featureExtraction.get_repo_features('docs', labelled=True)
-featureExtraction.get_repo_features('edu', labelled=True)
-featureExtraction.get_repo_features('hw', labelled=True)
-featureExtraction.get_repo_features('web', labelled=True)
-featureExtraction.get_repo_features('other', labelled=True)
+# featureExtraction.get_repo_features('dev', labelled=True)
+# featureExtraction.get_repo_features('data', labelled=True)
+# featureExtraction.get_repo_features('docs', labelled=True)
+# featureExtraction.get_repo_features('edu', labelled=True)
+# featureExtraction.get_repo_features('hw', labelled=True)
+# featureExtraction.get_repo_features('web', labelled=True)
+# featureExtraction.get_repo_features('other', labelled=True)
 #
 # featureExtraction.get_language_features('dev', labelled=True, binary=True)
 # featureExtraction.get_language_features('data', labelled=True, binary=True)
@@ -764,21 +776,21 @@ featureExtraction.get_language_features('hw', labelled=True, binary=False)
 featureExtraction.get_language_features('web', labelled=True, binary=False)
 featureExtraction.get_language_features('other', labelled=True, binary=False)
 
-featureExtraction.get_contents_features('dev', labelled=True)
-featureExtraction.get_contents_features('data', labelled=True)
-featureExtraction.get_contents_features('docs', labelled=True)
-featureExtraction.get_contents_features('edu', labelled=True)
-featureExtraction.get_contents_features('hw', labelled=True)
-featureExtraction.get_contents_features('web', labelled=True)
-featureExtraction.get_contents_features('other', labelled=True)
-#
-featureExtraction.get_trees_features('dev', labelled=True)
-featureExtraction.get_trees_features('data', labelled=True)
-featureExtraction.get_trees_features('docs', labelled=True)
-featureExtraction.get_trees_features('edu', labelled=True)
-featureExtraction.get_trees_features('hw', labelled=True)
-featureExtraction.get_trees_features('web', labelled=True)
-featureExtraction.get_trees_features('other', labelled=True)
+# featureExtraction.get_contents_features('dev', labelled=True)
+# featureExtraction.get_contents_features('data', labelled=True)
+# featureExtraction.get_contents_features('docs', labelled=True)
+# featureExtraction.get_contents_features('edu', labelled=True)
+# featureExtraction.get_contents_features('hw', labelled=True)
+# featureExtraction.get_contents_features('web', labelled=True)
+# featureExtraction.get_contents_features('other', labelled=True)
+# #
+# featureExtraction.get_trees_features('dev', labelled=True)
+# featureExtraction.get_trees_features('data', labelled=True)
+# featureExtraction.get_trees_features('docs', labelled=True)
+# featureExtraction.get_trees_features('edu', labelled=True)
+# featureExtraction.get_trees_features('hw', labelled=True)
+# featureExtraction.get_trees_features('web', labelled=True)
+# featureExtraction.get_trees_features('other', labelled=True)
 
 # featureExtraction.get_language_features_str('dev', labelled=True)
 # featureExtraction.get_language_features_str('data', labelled=True)
@@ -788,34 +800,34 @@ featureExtraction.get_trees_features('other', labelled=True)
 # featureExtraction.get_language_features_str('web', labelled=True)
 # featureExtraction.get_language_features_str('other', labelled=True)
 
-featureExtraction.get_commits_interval_features('dev', labelled=True)
-featureExtraction.get_commits_interval_features('data', labelled=True)
-featureExtraction.get_commits_interval_features('docs', labelled=True)
-featureExtraction.get_commits_interval_features('edu', labelled=True)
-featureExtraction.get_commits_interval_features('hw', labelled=True)
-featureExtraction.get_commits_interval_features('web', labelled=True)
-featureExtraction.get_commits_interval_features('other', labelled=True)
-
-featureExtraction.get_punchcard_features('dev', labelled=True)
-featureExtraction.get_punchcard_features('data', labelled=True)
-featureExtraction.get_punchcard_features('docs', labelled=True)
-featureExtraction.get_punchcard_features('edu', labelled=True)
-featureExtraction.get_punchcard_features('hw', labelled=True)
-featureExtraction.get_punchcard_features('web', labelled=True)
-featureExtraction.get_punchcard_features('other', labelled=True)
-
-featureExtraction.get_commits_features('dev', labelled=True)
-featureExtraction.get_commits_features('data', labelled=True)
-featureExtraction.get_commits_features('docs', labelled=True)
-featureExtraction.get_commits_features('edu', labelled=True)
-featureExtraction.get_commits_features('hw', labelled=True)
-featureExtraction.get_commits_features('web', labelled=True)
-featureExtraction.get_commits_features('other', labelled=True)
-
-featureExtraction.get_readmes_features('dev')
-featureExtraction.get_readmes_features('data')
-featureExtraction.get_readmes_features('docs')
-featureExtraction.get_readmes_features('edu')
-featureExtraction.get_readmes_features('hw')
-featureExtraction.get_readmes_features('web')
-featureExtraction.get_readmes_features('other')
+# featureExtraction.get_commits_interval_features('dev', labelled=True)
+# featureExtraction.get_commits_interval_features('data', labelled=True)
+# featureExtraction.get_commits_interval_features('docs', labelled=True)
+# featureExtraction.get_commits_interval_features('edu', labelled=True)
+# featureExtraction.get_commits_interval_features('hw', labelled=True)
+# featureExtraction.get_commits_interval_features('web', labelled=True)
+# featureExtraction.get_commits_interval_features('other', labelled=True)
+#
+# featureExtraction.get_punchcard_features('dev', labelled=True)
+# featureExtraction.get_punchcard_features('data', labelled=True)
+# featureExtraction.get_punchcard_features('docs', labelled=True)
+# featureExtraction.get_punchcard_features('edu', labelled=True)
+# featureExtraction.get_punchcard_features('hw', labelled=True)
+# featureExtraction.get_punchcard_features('web', labelled=True)
+# featureExtraction.get_punchcard_features('other', labelled=True)
+#
+# featureExtraction.get_commits_features('dev', labelled=True)
+# featureExtraction.get_commits_features('data', labelled=True)
+# featureExtraction.get_commits_features('docs', labelled=True)
+# featureExtraction.get_commits_features('edu', labelled=True)
+# featureExtraction.get_commits_features('hw', labelled=True)
+# featureExtraction.get_commits_features('web', labelled=True)
+# featureExtraction.get_commits_features('other', labelled=True)
+#
+# featureExtraction.get_readmes_features('dev')
+# featureExtraction.get_readmes_features('data')
+# featureExtraction.get_readmes_features('docs')
+# featureExtraction.get_readmes_features('edu')
+# featureExtraction.get_readmes_features('hw')
+# featureExtraction.get_readmes_features('web')
+# featureExtraction.get_readmes_features('other')

@@ -11,10 +11,11 @@ README_FEATURES = ["readme_filename"]
 CONTENT_FEATURES = ["total", "dirs", "files", "folder_names", "file_names", "fo_and_fi_names"]
 TREE_FEATURES = ["blob_paths"]
 
-
 """Defines the type of input considered by the BaseClassifier"""
 INPUT_COMMIT = 'input_commit'
 INPUT_LANGUAGE = 'input_language'
 INPUT_REPO = 'input_repo'
 INPUT_PUNCH = 'input_punch'
 INPUT_ALL = 'input_all'
+
+LANGUAGE_FEATURES_NAME_FILE = "languages.pkl"

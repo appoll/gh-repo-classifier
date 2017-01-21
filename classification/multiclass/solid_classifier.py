@@ -8,7 +8,7 @@ from sklearn.externals import joblib
 from config.constants import *
 from config.helper import Helper
 from keyword_spotting import KeywordSpotting
-from settings import MODEL_PATH
+from settings import MODEL_PATH, LANGUAGE_FEATURES_NAME_PATH
 
 REPO = "repo"
 CI = "commits_interval"
@@ -22,9 +22,10 @@ PICKLE_MODEL_NAME = "solid_classifier_model.pkl"
 
 class SolidClassifier():
     
-    def __init__(self):
+    def __init__(self, is_train):
         self.clf = RandomForestClassifier(n_estimators=5000, max_depth=30)
         self.folder_path_data = None
+        self.is_train = is_train
 
     
     def language_feature_hack(self, aligned_data):
@@ -47,11 +48,18 @@ class SolidClassifier():
     def build_features(self, dataframe):
         self.language_feature_hack(dataframe)
         data = pd.DataFrame(data=dataframe)
+
+        print "LENGTH LANGUAGE: " + str(len(self.LANGUAGE_FEATURES))
+        dif1 = self.LANGUAGE_FEATURES
+        self.LANGUAGE_FEATURES = joblib.load(LANGUAGE_FEATURES_NAME_PATH + LANGUAGE_FEATURES_NAME_FILE)
+        print "LENGTH LANGUAGE: " + str(len(self.LANGUAGE_FEATURES))
+        dif2 = self.LANGUAGE_FEATURES
+        print list(set(dif1) - set(dif2))
         data_raw_features = data[REPO_FEATURES + COMMIT_FEATURES + self.LANGUAGE_FEATURES + CI_FEATURES]
         data_keywords_features = data[["repo_name"] + README_FEATURES + CONTENT_FEATURES]
         # data_keywords_features = data[["repo_name"] + README_FEATURES + CONTENT_FEATURES + ["label"]]
 
-        keyword_spotting = KeywordSpotting()
+        keyword_spotting = KeywordSpotting(self.is_train)
         data_keywords = keyword_spotting.build_keyword_features(data_keywords_features)
 
         print np.shape(data_raw_features)
