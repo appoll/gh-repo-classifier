@@ -2,6 +2,7 @@ import numpy as np
 from sklearn.ensemble import RandomForestClassifier
 from sklearn.externals import joblib
 from sklearn.metrics import precision_score
+
 from config.constants import *
 from config.helper import Helper
 
@@ -10,7 +11,7 @@ MODEL_LOCATION = '../../models/'
 
 class BaseClassifier():
     def __init__(self, input):
-        if input not in [INPUT_COMMIT, INPUT_LANGUAGE, INPUT_REPO, INPUT_PUNCH]:
+        if input not in [INPUT_COMMIT, INPUT_LANGUAGE, INPUT_REPO, INPUT_PUNCH, INPUT_ALL]:
             raise ValueError("Mind your input! Base classifier does not handle this kind of input.")
 
         self.input_type = input
@@ -50,16 +51,18 @@ class BaseClassifier():
 
         :param data: pandas dataframe with all features, including 'repo_name' and 'label'; can be train or test data
         """
+        self.language_feature_hack(data)
+
         if self.input_type == INPUT_COMMIT:
             return data[COMMIT_FEATURES]
         elif self.input_type == INPUT_REPO:
             return data[REPO_FEATURES]
-        # elif self.input_type == INPUT_LANGUAGE:
-        #     return data[LANGUAGE_FEATURES]
+        elif self.input_type == INPUT_LANGUAGE:
+            return data[self.LANGUAGE_FEATURES]
         # elif self.input == INPUT_PUNCH:
         #     slice_data = training_data[PUNCH_CARD_FEATURES]
         elif self.input_type == INPUT_ALL:
-            return data[REPO_FEATURES + COMMIT_FEATURES] #+ LANGUAGE_FEATURES]
+            return data[REPO_FEATURES + COMMIT_FEATURES + self.LANGUAGE_FEATURES]
         else:
             raise Exception("BaseClassifier select_features() - invalid state.")
 
@@ -89,9 +92,22 @@ class BaseClassifier():
         X = self.select_features(train_data)
         train_repo_names = train_data['repo_name']
         train_labels = train_data['label']
-        Helper().write_probabilities(self.clf, X, train_repo_names, train_labels, 'prob/prob_%s_train' % self.input_type)
+        Helper().write_probabilities(self.clf, X, train_repo_names, train_labels,
+                                     'prob/prob_%s_train' % self.input_type)
 
         Y = self.select_features(test_data)
         test_repo_names = test_data['repo_name']
         test_labels = test_data['label']
         Helper().write_probabilities(self.clf, Y, test_repo_names, test_labels, 'prob/prob_%s_test' % self.input_type)
+
+    def language_feature_hack(self, aligned_data):
+        """hack to get language features names by excluding all the other feature names"""
+        LANGUAGE_FEATURES = list(aligned_data.columns.values)
+        self.LANGUAGE_FEATURES = [label for label in LANGUAGE_FEATURES
+                                  if label not in REPO_FEATURES
+                                  and label not in CI_FEATURES
+                                  and label not in COMMIT_FEATURES
+                                  and label not in ['label', 'repo_name']
+                                  and label not in README_FEATURES
+                                  and label not in TREE_FEATURES
+                                  and label not in CONTENT_FEATURES]

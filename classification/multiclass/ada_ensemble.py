@@ -185,27 +185,50 @@ LANGUAGE_FEATURES = [label for label in LANGUAGE_FEATURES if label not in REPO_F
 # below dataframes have all the features which need to be separated
 train_data, test_data = train_test_split(data_3, test_size=0.2, random_state=2)
 
-base_clf = BaseClassifier(INPUT_COMMIT)
-base_clf.train(train_data)
-base_clf.save_model()
-base_clf.write_probabilities(train_data, test_data)
+# first classifier
 
-base_clf.evaluate(test_data)
+commit_clf = BaseClassifier(INPUT_COMMIT)
+commit_clf.train(train_data)
+commit_clf.save_model()
+commit_clf.write_probabilities(train_data, test_data)
+commit_clf.evaluate(test_data)
+
+lang_clf = BaseClassifier(INPUT_LANGUAGE)
+lang_clf.train(train_data)
+lang_clf.save_model()
+lang_clf.write_probabilities(train_data, test_data)
+lang_clf.evaluate(test_data)
+
+repo_clf = BaseClassifier(INPUT_REPO)
+repo_clf.train(train_data)
+repo_clf.save_model()
+repo_clf.write_probabilities(train_data, test_data)
+repo_clf.evaluate(test_data)
+
+all_clf = BaseClassifier(INPUT_ALL)
+all_clf.train(train_data)
+all_clf.save_model()
+all_clf.write_probabilities(train_data, test_data)
+all_clf.evaluate(test_data)
 
 # new_clf = BaseClassifier(INPUT_COMMIT)
 # new_clf.load_model()
 # new_clf.evaluate(test_data)
 
 # second classifier
+train_data_2 = train_data[["repo_name"] + README_FEATURES + CONTENT_FEATURES + ["label"]]
+test_data_2 = test_data[["repo_name"] + README_FEATURES + CONTENT_FEATURES + ["label"]]
 
 
+clf = KeywordSpotting()
+clf.train(train_data_2)
 
-# clf.load("path")
+clf.write_proba(dataframe_train=train_data_2, dataframe_test=test_data_2)
 
 
 # third classifier
-tree_clf = TreeClassifier()
-tree_clf.train(train_data)
-tree_clf.write_probabilities(train_data, test_data)
-
-tree_clf.evaluate(test_data)
+# tree_clf = TreeClassifier()
+# tree_clf.train(train_data)
+# tree_clf.write_probabilities(train_data, test_data)
+#
+# tree_clf.evaluate(test_data)

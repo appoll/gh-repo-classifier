@@ -84,7 +84,7 @@ class TreeClassifier():
 
     def write_probabilities(self, train_data, test_data):
         """
-        Writes log probabilities to file
+        Writes log probabilities to file. To be called only with a fitted model.
         :param train_data: unsliced train data, including 'repo_name' and 'label'
         :param test_data: unsliced test data, including 'repo_name' and 'label'
         """
