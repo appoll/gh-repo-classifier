@@ -1,19 +1,26 @@
+import csv
+import re
+
 import numpy as np
 import pandas as pd
+import sys
+
+from classification.multiclass.tree_classifier import TreeClassifier
+from config.constants import *
 from sklearn.ensemble import RandomForestClassifier
 from sklearn.ensemble import AdaBoostClassifier
+from sklearn.feature_extraction.text import CountVectorizer
 from sklearn.metrics import accuracy_score
 from sklearn.metrics import mean_squared_error
 from sklearn.metrics import precision_score
 from sklearn.model_selection import train_test_split
 from sklearn.externals import joblib
-import sys
-sys.path.append('../..')
+from base_classifier import BaseClassifier
 from config.helper import Helper
 from keyword_spotting import KeywordSpotting
 
 from collection.labels import Labels
-
+csv.field_size_limit(sys.maxsize)
 REPO_FEATURES = ["size", "labels", "tags", "issues", "branches", "languages", "forks", "commits", "comments"]
 COMMIT_FEATURES = ["all_commits", "weekend_commits", "weekday_commits", "work_hrs_commits", "non_work_hrs_commits",
                    "inter_commit_distance_average", "commits_per_day_average", "authors_count", "author_vs_committer",
@@ -64,6 +71,20 @@ def get_features(label, which):
     return features
 
 
+def row_to_words(row):
+    blob_paths = row['blob_paths']
+    content = cleanString(blob_paths)
+    return content
+
+
+def cleanString(s):
+    p = re.compile('(?<=[a-z])(?=[A-Z])')
+    newS = p.sub(r' ', s)
+    newS = re.sub('[0-9]+', ' NN ', newS)
+    newS = re.sub('[^a-zA-Z]', ' ', newS)
+    newS = re.sub('\W+', ' ', newS)
+    return newS.strip().lower()
+
 repo_features = [get_features(Labels.data, REPO), get_features(Labels.dev, REPO), get_features(Labels.docs, REPO),
                  get_features(Labels.edu, REPO),
                  get_features(Labels.hw, REPO), get_features(Labels.web, REPO), get_features(Labels.uncertain, REPO)]
@@ -88,11 +109,11 @@ readme_features = [get_features(Labels.data, README), get_features(Labels.dev, R
                    get_features(Labels.hw, README), get_features(Labels.web, README),
                    get_features(Labels.uncertain, README)]
 
-# trees_features = [get_features(Labels.data, TREES), get_features(Labels.dev, TREES),
-#                    get_features(Labels.docs, TREES),
-#                    get_features(Labels.edu, TREES),
-#                    get_features(Labels.hw, TREES), get_features(Labels.web, TREES),
-#                    get_features(Labels.uncertain, TREES)]
+trees_features = [get_features(Labels.data, TREES), get_features(Labels.dev, TREES),
+                   get_features(Labels.docs, TREES),
+                   get_features(Labels.edu, TREES),
+                   get_features(Labels.hw, TREES), get_features(Labels.web, TREES),
+                   get_features(Labels.uncertain, TREES)]
 
 contents_features = [get_features(Labels.data, CONTENTS), get_features(Labels.dev, CONTENTS),
                      get_features(Labels.docs, CONTENTS),
@@ -109,7 +130,7 @@ readme_data = pd.concat(readme_features)
 
 contents_data = pd.concat(contents_features)
 
-# trees_data = pd.concat(trees_features)
+trees_data = pd.concat(trees_features)
 
 repo_data = repo_data.drop_duplicates(subset=['repo_name'])
 ci_data = ci_data.drop_duplicates(subset=['repo_name'])
@@ -120,7 +141,7 @@ readme_data = readme_data.drop_duplicates(subset=['repo_name'])
 
 contents_data = contents_data.drop_duplicates(subset=['repo_name'])
 
-# trees_data = trees_data.drop_duplicates(subset=['repo_name'])
+trees_data = trees_data.drop_duplicates(subset=['repo_name'])
 
 print 'Repo Data Shape'
 print repo_data.shape
@@ -134,8 +155,8 @@ print 'Readme Shape'
 print readme_data.shape
 print 'Contents Shape'
 print contents_data.shape
-# print 'Trees Shape'
-# print trees_data.shape
+print 'Trees Shape'
+print trees_data.shape
 print '\n'
 
 data_1 = repo_data.merge(commit_data, on=["repo_name", "label"], how="inner")
@@ -147,6 +168,8 @@ data_1.to_csv('data_set_1')
 data_2 = data_1.merge(contents_data, on=["repo_name","label"], how="inner")
 print data_2.shape
 data_1.to_csv('data_set_1')
+
+data_2 = data_2.merge(trees_data, on=["repo_name", "label"], how="left")
 
 data_3 = data_2.merge(readme_data, on=["repo_name", "label"], how="left")
 
@@ -162,76 +185,18 @@ LANGUAGE_FEATURES = [label for label in LANGUAGE_FEATURES if label not in REPO_F
 # below dataframes have all the features which need to be separated
 train_data, test_data = train_test_split(data_3, test_size=0.2, random_state=2)
 
+base_clf = BaseClassifier(INPUT_COMMIT)
+base_clf.train(train_data)
+base_clf.save_model()
+base_clf.write_probabilities(train_data, test_data)
 
-# first classifier
-clf_data_1 = [train_data, test_data]
-clf_data_1 = pd.concat(clf_data_1)
-repo_names_1 = clf_data_1['repo_name']
+base_clf.evaluate(test_data)
 
-clf_data_1 = clf_data_1[REPO_FEATURES + COMMIT_FEATURES +LANGUAGE_FEATURES]
-train_data_1 = train_data[REPO_FEATURES + COMMIT_FEATURES + LANGUAGE_FEATURES]
-test_data_1 = test_data[REPO_FEATURES + COMMIT_FEATURES + LANGUAGE_FEATURES]
-
-train_labels_1 = train_data['label']
-test_labels_1 = test_data['label']
-
-# np.any(np.isinf(train_repo_labels))
-# np.all(np.isfinite(train_repo_labels))
-# np.any(np.isinf(train_repo_data))
-# np.all(np.isfinite(train_repo_data))
-
-forest_classifier = RandomForestClassifier(n_estimators=5000, max_depth=30)
-forest = forest_classifier.fit(train_data_1, train_labels_1)
-
-output = forest.predict(test_data_1)
-print mean_squared_error(output, test_labels_1)
-print accuracy_score(test_labels_1, output)
-score = precision_score(test_labels_1, output, average=None)
-print score
-print np.mean(score)
-
-# Helper().write_probabilities(forest, clf_data_1, repo_names_1, 'prob/prob_repo_lang_commit_data')
+# new_clf = BaseClassifier(INPUT_COMMIT)
+# new_clf.load_model()
+# new_clf.evaluate(test_data)
 
 # second classifier
-train_data_2 = train_data[["repo_name"] + README_FEATURES + CONTENT_FEATURES + ["label"]]
-test_data_2 = test_data[["repo_name"] + README_FEATURES + CONTENT_FEATURES + ["label"]]
-
-train_data_2.to_csv("train_data_trash.txt", sep=",")
-
-
-
-clf = KeywordSpotting()
-# clf.train(train_data_2)
-# clf.save_classifier()
-
-clf.load_classifier()
-
-clf.evaluate(test_data_2)
-#
-#
-predict_1 = forest_classifier.predict_proba(train_data_1)
-predict_2 = clf.predict_proba(train_data_2)
-predict = np.column_stack((predict_1, predict_2))
-
-ada = RandomForestClassifier(n_estimators=5000, max_depth=20)
-
-ada.fit(X=predict, y=train_labels_1)
-
-eval_1 = forest_classifier.predict_proba(test_data_1)
-eval_2 = clf.predict_proba(test_data_2)
-eval = np.column_stack((eval_1, eval_2))
-
-eval_out = ada.predict(eval)
-
-joblib.dump(ada, filename="final_rf.pkl", compress=3)
-print "MSE ADABOOST: "
-print mean_squared_error(eval_out, test_labels_1)
-print "ACCURACY ADABOOST: "
-print accuracy_score(test_labels_1, eval_out)
-score = precision_score(test_labels_1, eval_out, average=None)
-print "PRECISION ADABOOST: "
-print score
-print np.mean(score)
 
 
 
@@ -239,3 +204,8 @@ print np.mean(score)
 
 
 # third classifier
+tree_clf = TreeClassifier()
+tree_clf.train(train_data)
+tree_clf.write_probabilities(train_data, test_data)
+
+tree_clf.evaluate(test_data)
