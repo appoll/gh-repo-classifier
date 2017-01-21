@@ -1,19 +1,14 @@
 import numpy as np
 import pandas as pd
 from sklearn.ensemble import RandomForestClassifier
-from sklearn.ensemble import AdaBoostClassifier
+from sklearn.model_selection import ShuffleSplit
 from sklearn.metrics import accuracy_score, precision_score, recall_score, mean_squared_error
-from sklearn.model_selection import train_test_split
 from sklearn.externals import joblib
 
+from config.constants import *
 from config.helper import Helper
 from keyword_spotting import KeywordSpotting
-
-from collection.labels import Labels
-
-FEATURE_TRAIN_LOCATION = "../../exploration/labelled/features/"
-
-FEATURE_DATA_FORMAT = "%s_data_%s.txt"
+from settings import MODEL_PATH
 
 REPO = "repo"
 CI = "commits_interval"
@@ -23,210 +18,110 @@ README = "readme"
 CONTENTS = "contents"
 TREES = "trees"
 
+PICKLE_MODEL_NAME = "solid_classifier_model.pkl"
+
 class SolidClassifier():
     
     def __init__(self):
-        self.define_features()
-        self.clf = RandomForestClassifier(n_estimators=10000, max_depth=60)
+        self.clf = RandomForestClassifier(n_estimators=5000, max_depth=30)
         self.folder_path_data = None
 
-
-    def define_features(self):
-        """Defines the column labels for the used features (excluding language features, see language_feature_hack)"""
-        self.REPO_FEATURES = ["size", "labels", "tags", "issues", "branches", "languages", "forks", "commits", "comments"]
-        self.COMMIT_FEATURES = ["all_commits", "weekend_commits", "weekday_commits", "work_hrs_commits",
-                           "non_work_hrs_commits",
-                           "inter_commit_distance_average", "commits_per_day_average", "authors_count",
-                           "author_vs_committer",
-                           "active_days"]
-        self.CI_FEATURES = ["commits_count", "commits_interval_days", "commits_per_day"]
-        self.README_FEATURES = ["readme_filename"]
-        self.CONTENT_FEATURES = ["total", "dirs", "files", "folder_names", "file_names", "fo_and_fi_names"]
-        self.TREE_FEATURES = ["blob_paths"]
-
-    def read_features_from_file(self, label, which):
-        path = self.folder_path_data + FEATURE_DATA_FORMAT % (which, label)
-        features = pd.read_csv(path, delimiter=" ", header=0, skipfooter=1)
-        print path
-        print features.shape
     
-        # features.to_csv('repo_repo_names_%s' % label, columns=["repo_name"])
-    
-        if label == Labels.data:
-            features['label'] = 0
-        elif label == Labels.dev:
-            features['label'] = 1
-        elif label == Labels.docs:
-            features['label'] = 2
-        elif label == Labels.edu:
-            features['label'] = 3
-        elif label == Labels.hw:
-            features['label'] = 4
-        elif label == Labels.web:
-            features['label'] = 5
-        elif label == Labels.uncertain:
-            features['label'] = 6
-        return features
-    
-    def build_feature_data(self):
-    
-        repo_features = [self.read_features_from_file(Labels.data, REPO), self.read_features_from_file(Labels.dev, REPO), self.read_features_from_file(Labels.docs, REPO),
-                         self.read_features_from_file(Labels.edu, REPO),
-                         self.read_features_from_file(Labels.hw, REPO), self.read_features_from_file(Labels.web, REPO), self.read_features_from_file(Labels.uncertain, REPO)]
-        
-        ci_features = [self.read_features_from_file(Labels.data, CI), self.read_features_from_file(Labels.dev, CI), self.read_features_from_file(Labels.docs, CI),
-                       self.read_features_from_file(Labels.edu, CI),
-                       self.read_features_from_file(Labels.hw, CI), self.read_features_from_file(Labels.web, CI), self.read_features_from_file(Labels.uncertain, CI)]
-        
-        lang_features = [self.read_features_from_file(Labels.data, LANG), self.read_features_from_file(Labels.dev, LANG), self.read_features_from_file(Labels.docs, LANG),
-                         self.read_features_from_file(Labels.edu, LANG),
-                         self.read_features_from_file(Labels.hw, LANG), self.read_features_from_file(Labels.web, LANG), self.read_features_from_file(Labels.uncertain, LANG)]
-        
-        commit_features = [self.read_features_from_file(Labels.data, COMMIT), self.read_features_from_file(Labels.dev, COMMIT),
-                           self.read_features_from_file(Labels.docs, COMMIT),
-                           self.read_features_from_file(Labels.edu, COMMIT),
-                           self.read_features_from_file(Labels.hw, COMMIT), self.read_features_from_file(Labels.web, COMMIT),
-                           self.read_features_from_file(Labels.uncertain, COMMIT)]
-        
-        readme_features = [self.read_features_from_file(Labels.data, README), self.read_features_from_file(Labels.dev, README),
-                           self.read_features_from_file(Labels.docs, README),
-                           self.read_features_from_file(Labels.edu, README),
-                           self.read_features_from_file(Labels.hw, README), self.read_features_from_file(Labels.web, README),
-                           self.read_features_from_file(Labels.uncertain, README)]
-        
-        # trees_features = [self.read_features_from_file(Labels.data, TREES), self.read_features_from_file(Labels.dev, TREES),
-        #                    self.read_features_from_file(Labels.docs, TREES),
-        #                    self.read_features_from_file(Labels.edu, TREES),
-        #                    self.read_features_from_file(Labels.hw, TREES), self.read_features_from_file(Labels.web, TREES),
-        #                    self.read_features_from_file(Labels.uncertain, TREES)]
-        
-        contents_features = [self.read_features_from_file(Labels.data, CONTENTS), self.read_features_from_file(Labels.dev, CONTENTS),
-                             self.read_features_from_file(Labels.docs, CONTENTS),
-                             self.read_features_from_file(Labels.edu, CONTENTS),
-                             self.read_features_from_file(Labels.hw, CONTENTS), self.read_features_from_file(Labels.web, CONTENTS),
-                             self.read_features_from_file(Labels.uncertain, CONTENTS)]
-        
-        repo_data = pd.concat(repo_features)
-        ci_data = pd.concat(ci_features)
-        lang_data = pd.concat(lang_features)
-        commit_data = pd.concat(commit_features)
-        readme_data = pd.concat(readme_features)
-        contents_data = pd.concat(contents_features)
-        # trees_data = pd.concat(trees_features)
-        
-        
-        self.repo_data = repo_data.drop_duplicates(subset=['repo_name'])
-        self.ci_data = ci_data.drop_duplicates(subset=['repo_name'])
-        self.commit_data = commit_data.drop_duplicates(subset=['repo_name'])
-        self.lang_data = lang_data.drop_duplicates(subset=['repo_name'])
-        self.readme_data = readme_data.drop_duplicates(subset=['repo_name'])
-        self.contents_data = contents_data.drop_duplicates(subset=['repo_name'])
-        # self.trees_data = trees_data.drop_duplicates(subset=['repo_name'])
-        
-        print 'Repo Data Shape'
-        print repo_data.shape
-        print 'Commits Interval Shape'
-        print ci_data.shape
-        print 'Languages Shape'
-        print lang_data.shape
-        print 'Commits Shape'
-        print commit_data.shape
-        print 'Readme Shape'
-        print readme_data.shape
-        print 'Contents Shape'
-        print contents_data.shape
-        # print 'Trees Shape'
-        # print trees_data.shape
-
-    def align_feature_data(self):
-        data = self.repo_data.merge(self.commit_data, on=["repo_name", "label"], how="inner")
-        data = data.merge(self.lang_data, on=["repo_name", "label"], how="inner")
-        data = data.merge(self.contents_data, on=["repo_name","label"], how="inner")
-        data = data.merge(self.ci_data, on=["repo_name", "label"], how="inner")
-        data = data.merge(self.readme_data, on=["repo_name", "label"], how="left")
-        data.to_csv('data_aligned')
-        print data.shape
-        return data
-
     def language_feature_hack(self, aligned_data):
         """hack to get language features names by excluding all the other feature names"""
         LANGUAGE_FEATURES = list(aligned_data.columns.values)
         self.LANGUAGE_FEATURES = [label for label in LANGUAGE_FEATURES
-                             if label not in self.REPO_FEATURES
-                             and label not in self.CI_FEATURES
-                             and label not in self.COMMIT_FEATURES
-                             and label not in ['label','repo_name']
-                             and label not in self.README_FEATURES
-                             and label not in self.TREE_FEATURES
-                             and label not in self.CONTENT_FEATURES]
+                                  if label not in REPO_FEATURES
+                                  and label not in CI_FEATURES
+                                  and label not in COMMIT_FEATURES
+                                  and label not in ['label', 'repo_name']
+                                  and label not in README_FEATURES
+                                  and label not in TREE_FEATURES
+                                  and label not in CONTENT_FEATURES]
 
-    def build_data(self):
-        self.build_feature_data()
-        data = self.align_feature_data()
-        self.language_feature_hack(data)
-        return data
+    def build_labels(self, dataframe):
+        Y = dataframe['label']
+        return Y
 
-    def train(self, evaluate=True):
-        self.folder_path_data = FEATURE_TRAIN_LOCATION
-        data = self.build_data()
+
+    def build_features(self, dataframe):
+        self.language_feature_hack(dataframe)
+        data = pd.DataFrame(data=dataframe)
+        data_raw_features = data[REPO_FEATURES + COMMIT_FEATURES + self.LANGUAGE_FEATURES + CI_FEATURES]
+        data_keywords_features = data[["repo_name"] + README_FEATURES + CONTENT_FEATURES]
+        # data_keywords_features = data[["repo_name"] + README_FEATURES + CONTENT_FEATURES + ["label"]]
+
         keyword_spotting = KeywordSpotting()
+        data_keywords = keyword_spotting.build_keyword_features(data_keywords_features)
 
+        print np.shape(data_raw_features)
+        print np.shape(data_keywords)
 
-        if evaluate:
-            # below dataframes have all the features which need to be separated
-            train_data, test_data = train_test_split(data, test_size=0.2, random_state=0)
-        else:
-            train_data = data
-            test_data = None
+        combined_data = np.column_stack((data_raw_features, data_keywords))
+        return combined_data
 
-        train_labels = train_data['label']
+    def train(self, data):
+        X, Y = self.build_features(data), self.build_labels(data)
+        self.clf.fit(X, Y)
 
-        train_data_1 = train_data[self.REPO_FEATURES + self.COMMIT_FEATURES + self.LANGUAGE_FEATURES + self.CI_FEATURES]
+    def evaluate(self, dataframe):
+        X, Y = self.build_features(dataframe), self.build_labels(dataframe)
+        output = self.clf.predict(X)
+        score = precision_score(Y, output, average=None)
+        print "PRECISION SCORE: "
+        print score
+        print np.mean(score)
 
-        train_data_2 = train_data[["repo_name"] + self.README_FEATURES + self.CONTENT_FEATURES + ["label"]]
-        train_data_keywords, trash = keyword_spotting.build_x_and_y(train_data_2)
+    def train_and_evaluate(self, dataframe, num_iterations=3, test_size=0.3):
+        X, Y = self.build_features(dataframe), self.build_labels(dataframe)
+        iteration = 0
+        average_test_precision = 0
+        ss = ShuffleSplit(n_splits=num_iterations, test_size=test_size, random_state=0)
+        for train_index, test_index in ss.split(X):
+            X_train, X_test, Y_train, Y_test = X[train_index], X[test_index], Y[train_index], Y[test_index]
 
-        print np.shape(train_data_1)
-        print np.shape(train_data_keywords)
+            self.clf.fit(X_train, Y_train)
 
-        train_data_combined = np.column_stack((train_data_1, train_data_keywords))
+            print "PRECISION SCORES ITERATION " + str(iteration) + ": "
+            output = self.clf.predict(X_test)
+            score = precision_score(Y_test, output, average=None)
+            print score
+            print np.mean(score)
+            average_test_precision += score
+            print self.clf.score(X_test, Y_test)
 
-        self.clf.fit(train_data_combined, train_labels)
+            iteration += 1
 
-        if evaluate:
+        average_test_precision /= iteration
+        print "AVERAGE TEST PRECISION OVER " + str(iteration) + " ITERATIONS: "
+        print average_test_precision
 
-            test_data_1 = test_data[self.REPO_FEATURES + self.COMMIT_FEATURES + self.LANGUAGE_FEATURES + self.CI_FEATURES]
-            test_labels_1 = test_data['label']
-            test_data_2 = test_data[["repo_name"] + self.README_FEATURES + self.CONTENT_FEATURES + ["label"]]
-            X_test, Y_test = keyword_spotting.build_x_and_y(test_data_2)
-            all_testing = np.column_stack((test_data_1, X_test))
+    def predict(self, dataframe):
+        X = self.build_features(dataframe)
+        return self.clf.predict(X)
 
-            output = self.clf.predict(all_testing)
+    def write_proba(self, dataframe_train, dataframe_test):
+        X_train, Y_train = self.build_features(dataframe_train), self.build_labels(dataframe_train)
+        X_test, Y_test = self.build_features(dataframe_test), self.build_labels(dataframe_test)
 
-            print "MSE :", mean_squared_error(output, test_labels_1)
-            print "ACCURACY :", accuracy_score(test_labels_1, output)
-            prec_score = precision_score(test_labels_1, output, average=None)
-            print "PRECISION :", prec_score
-            print np.mean(prec_score)
-            rec_score = recall_score(test_labels_1, output, average=None)
-            print "RECALL :", rec_score
-            print np.mean(rec_score)
+        Helper().write_probabilities(self.clf, X_train, dataframe_train['repo_name'], dataframe_train['label'], 'prob/prob_keyword_train')
+        Helper().write_probabilities(self.clf, X_test, dataframe_test['repo_name'], dataframe_test['label'], 'prob/prob_keyword_test')
 
-    def predict(self, folder_path_data):
-        self.folder_path_data = folder_path_data
-        data = self.build_data()
-        keyword_spotting = KeywordSpotting()
+    def predict_proba(self, dataframe):
+        X = self.build_features(dataframe)
+        return self.clf.predict_proba(X)
 
-        train_labels = data['label']
+    def predict_log_proba(self, dataframe):
+        X = self.build_features(dataframe)
+        return self.clf.predict_log_proba(X)
 
-        train_data_1 = data[self.REPO_FEATURES + self.COMMIT_FEATURES + self.LANGUAGE_FEATURES + self.CI_FEATURES]
+    def save_model(self):
+        joblib.dump(self.clf, MODEL_PATH + PICKLE_MODEL_NAME, compress=9)
+        print "Successfully saved solid classifier model!"
 
-        train_data_2 = data[["repo_name"] + self.README_FEATURES + self.CONTENT_FEATURES + ["label"]]
-        train_data_keywords = keyword_spotting.build_x_and_y(train_data_2)
-
-        train_data_combined = np.column_stack((train_data_1, train_data_keywords))
-
-        return self.clf.predict(train_data_combined)
+    def load_model(self):
+        self.clf = joblib.load(MODEL_PATH + PICKLE_MODEL_NAME)
+        print "Successfully loaded solid classifier model!"
 
 if __name__ == '__main__':
     clf = SolidClassifier()
