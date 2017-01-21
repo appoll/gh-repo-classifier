@@ -7,13 +7,19 @@ sys.path.append('..')
 import requests
 from requests.auth import HTTPBasicAuth
 from datetime import datetime, time
+from sklearn.externals import joblib
 import dateutil.parser
 import math
 import numpy as np
 import collections
+
+from config.constants import LANGUAGE_FEATURES_NAME_FILE
 from config.helper import Helper
 from config.reader import ConfigReader
 from collection.labels import Labels
+from classification.multiclass import executor
+from settings import JSON_README_FOLDER_PREDICT, LANGUAGE_FEATURES_NAME_PATH
+
 
 JSON_REPO_FILE_NAME = "%s_%s.json"
 JSON_COMMITS_FILE_NAME = "%s_%s.json"
@@ -29,7 +35,7 @@ class InputProcessor:
         self.username, self.password = reader.get_credentials()
 
         self.repos_folder = 'json_repos/'
-        self.readmes_folder = 'json_readmes/'
+        self.readmes_folder = JSON_README_FOLDER_PREDICT
         self.contents_folder = 'json_contents/'
         self.commits_folder = 'json_commits/'
         self.commits_interval_folder = 'json_commits_interval/'
@@ -634,7 +640,7 @@ class FeatureExtractor:
         f = open(name, 'w')
         header = "languages_count languages_total_lines "
         for language in self.all_languages:
-            language = language.replace(" ", "_")
+            # language = language.replace(" ", "_")
             header += language + " "
 
         header += "repo_name\n"
@@ -643,7 +649,8 @@ class FeatureExtractor:
         for filename in glob.glob(folder + '*'):
             print filename
             # print len(self.all_languages)
-            current_languages = self.all_languages.fromkeys(self.all_languages, 0)
+            current_languages =  {el:0 for el in self.all_languages}
+
             json_file = open(filename, 'r')
             name = os.path.basename(filename)
             repo = json.load(json_file)
@@ -941,63 +948,10 @@ class FeatureExtractor:
             return len(active_days) / math.ceil(days)
         print 'only one commit here!'
         return 1
-        #
-        # if days > 1:
-        #     prev_date = last_commit_author_date
-        #
-        #     active_days = 0
-        #
-        #     for commit in commits_list:
-        #         commit_author_date = dateutil.parser.parse(commit['author_date'])
-        #         print prev_date
-        #
-        #         print commit_author_date
-        #
-        #         print prev_date - timedelta(days=1)
-        #
-        #         print "ha"
-        #         if commit_author_date > prev_date:
-        #             print 'continue'
-        #             continue
-        #
-        #         if prev_date >= commit_author_date > prev_date - timedelta(days=1):
-        #             print 'active ++'
-        #             active_days += 1
-        #             dist = prev_date - commit_author_date
-        #             shift = dist.total_seconds() / day_in_seconds
-        #             print shift
-        #             print int(shift)
-        #             if shift < 1:
-        #                 prev_date = prev_date - timedelta(days=1)
-        #             else:
-        #                 prev_date = prev_date - timedelta(days=int(shift))
-        #
-        #     print active_days
-        #     print days
-        #     return active_days / math.ceil(days)
-        # return 1
 
     def get_all_languages(self):
-        used_languages = {}
-        for label in Labels.toArray():
-            print label
-            folder = self.updated_repos_folder
-            for filename in glob.glob(folder + '*'):
-                print filename
-                json_file = open(filename, 'r')
-                repo = json.load(json_file)
-
-                try:
-                    languages = repo["languages"]
-                except KeyError:
-                    print 'keyy'
-
-                for language in languages:
-                    if language not in used_languages:
-                        used_languages[language] = 0
-                        print 'Added %s to the list of used languages' % language
-        print len(used_languages.keys())
-        return collections.OrderedDict(used_languages)
+        used_languages = joblib.load(LANGUAGE_FEATURES_NAME_PATH + LANGUAGE_FEATURES_NAME_FILE)
+        return used_languages
 
     def get_dir_count(self, contents):
         count = 0
@@ -1086,3 +1040,7 @@ if __name__ == '__main__':
     feature_extractor.get_language_features(binary=False)
     feature_extractor.get_readmes_features()
     feature_extractor.get_trees_features()
+
+    exe = executor.ClassificationExecutor()
+    exe.run_keyword_classifier(exe.data)
+    exe.run_solid_classifier(exe.data)
