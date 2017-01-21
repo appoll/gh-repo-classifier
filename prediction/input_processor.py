@@ -45,6 +45,15 @@ class InputProcessor:
 
         self.override = override
 
+        self.repo_names = []
+        f = open('input_names.txt', 'r')
+        lines = f.readlines()
+        for line in lines:
+            line = line.replace('\n', '')
+            line = line.replace('\r', '')
+            line = line.replace('/', '_')
+            self.repo_names.append(line)
+
     def urls_to_repo_names(self, filename):
         repo_names_filename = filename.replace('urls', 'names')
         file_repos_names = open(repo_names_filename, 'w')
@@ -375,6 +384,11 @@ class InputProcessor:
     def contents_to_file_trees(self):
         source_folder = self.contents_folder
         for filename in glob.glob(source_folder + '*'):
+            name = os.path.basename(filename)
+            repo_name = os.path.splitext(name)[0]
+            if repo_name not in self.repo_names:
+                continue
+
             f = open(filename, 'r')
             contents = json.load(f)
             f.close()
@@ -416,6 +430,12 @@ class InputProcessor:
 
         for filename in glob.glob(source_folder + '*'):
             print filename
+
+            name = os.path.basename(filename)
+            repo_name = os.path.splitext(name)[0]
+            if repo_name not in self.repo_names:
+                continue
+
             f = open(filename, 'r')
             repoObject = json.load(f)
             f.close()
@@ -475,7 +495,10 @@ class InputProcessor:
 
         for filename in glob.glob(source_folder + '*'):
             print "Fetching languages for %s" % filename
-
+            name = os.path.basename(filename)
+            repo_name = os.path.splitext(name)[0]
+            if repo_name not in self.repo_names:
+                continue
             f = open(filename, 'r')
             updated_folder_filename = filename.replace("json_repos", "json_repos_updated")
             updated_folder_file = open(updated_folder_filename, 'r')
@@ -529,6 +552,15 @@ class FeatureExtractor:
 
         self.all_languages = {}
 
+        self.repo_names = []
+        f = open('input_names.txt', 'r')
+        lines = f.readlines()
+        for line in lines:
+            line = line.replace('\n', '')
+            line = line.replace('\r', '')
+            line = line.replace('/', '_')
+            self.repo_names.append(line)
+
     def get_commits_interval_features(self):
         folder = self.commits_interval_folder
         name = self.features_folder + "commits_interval_data.txt"
@@ -542,6 +574,9 @@ class FeatureExtractor:
             print filename
             json_file = open(filename, 'r')
             name = os.path.basename(filename)
+            repo_name = os.path.splitext(name)[0]
+            if repo_name not in self.repo_names:
+                continue
             commits_interval = json.load(json_file)
             json_file.close()
 
@@ -555,7 +590,8 @@ class FeatureExtractor:
             line = line + " " + "%.2f" % commits_interval_days
             line = line + " " + "%.2f" % commits_per_day
 
-            line = line + " " + name.split('.')[0]
+
+            line = line + " " + repo_name
 
             f.write(line)
             f.write('\n')
@@ -580,6 +616,9 @@ class FeatureExtractor:
             print filename
             json_file = open(filename, 'r')
             name = os.path.basename(filename)
+            repo_name = os.path.splitext(name)[0]
+            if repo_name not in self.repo_names:
+                continue
             punch_card_info = json.load(json_file)
             json_file.close()
 
@@ -588,7 +627,7 @@ class FeatureExtractor:
             commit_sum = float(np.sum(punch_card_info))
             punch_card_info = map(lambda x: x / commit_sum, punch_card_info)
 
-            line = ' '.join(map(str, punch_card_info)) + " " + name.split('.')[0]
+            line = ' '.join(map(str, punch_card_info)) + " " + os.path.splitext(name)[0]
 
             f.write(line)
             f.write('\n')
@@ -610,6 +649,9 @@ class FeatureExtractor:
             print filename
             json_file = open(filename, 'r')
             name = os.path.basename(filename)
+            repo_name = os.path.splitext(name)[0]
+            if repo_name not in self.repo_names:
+                continue
             commits_list = json.load(json_file)
             json_file.close()
 
@@ -664,7 +706,7 @@ class FeatureExtractor:
             line = line + " " + "%.2f" % (self.get_authors_vs_committers(commits_list))
             line = line + " " + "%.2f" % (self.get_active_days(commits_list))
 
-            line = line + " " + name.split('.')[0]
+            line = line + " " + os.path.splitext(name)[0]
 
             f.write(line)
             f.write('\n')
@@ -699,6 +741,9 @@ class FeatureExtractor:
 
             json_file = open(filename, 'r')
             name = os.path.basename(filename)
+            repo_name = os.path.splitext(name)[0]
+            if repo_name not in self.repo_names:
+                continue
             repo = json.load(json_file)
 
             try:
@@ -717,7 +762,8 @@ class FeatureExtractor:
             for language, code_lines in languages.iteritems():
                 # print language
                 if language not in current_languages:
-                    raise ValueError("Should not be!")
+                    print "New language: %s" % language
+                    continue
                 try:
                     if binary == True:
                         current_languages[language] = 1
@@ -734,7 +780,7 @@ class FeatureExtractor:
             for code_lines in current_languages.values():
                 line = line + " " + str(code_lines)
 
-            line = line + " " + name.split('.')[0]
+            line = line + " " + os.path.splitext(name)[0]
 
             f.write(line)
             f.write('\n')
@@ -759,6 +805,9 @@ class FeatureExtractor:
             print filename
             json_file = open(filename, 'r')
             name = os.path.basename(filename)
+            repo_name = os.path.splitext(name)[0]
+            if repo_name not in self.repo_names:
+                continue
             repo = json.load(json_file)
             json_file.close()
 
@@ -793,7 +842,7 @@ class FeatureExtractor:
             line = line + " " + "%d" % commits
             line = line + " " + "%d" % comments
 
-            line = line + " " + name.split('.')[0]
+            line = line + " " + os.path.splitext(name)[0]
 
             f.write(line)
             f.write('\n')
@@ -815,6 +864,9 @@ class FeatureExtractor:
             print filename
             json_file = open(filename, 'r')
             name = os.path.basename(filename)
+            repo_name = os.path.splitext(name)[0]
+            if repo_name not in self.repo_names:
+                continue
             contents = json.load(json_file)
             json_file.close()
 
@@ -837,7 +889,7 @@ class FeatureExtractor:
             line = line + " " + file_names
             line = line + " " + fo_and_fi_names
 
-            line = line + " " + name.split('.')[0]
+            line = line + " " + os.path.splitext(name)[0]
             print line
             # line = line.replace(u"\u2019", "'")
             line = line.encode('utf-8')
@@ -860,8 +912,11 @@ class FeatureExtractor:
         for filename in glob.glob(folder + '*'):
             print filename
             name = os.path.basename(filename)
+            repo_name = os.path.splitext(name)[0]
+            if repo_name not in self.repo_names:
+                continue
             line = "%s" % filename
-            line = line + " " + name.split('.')[0]
+            line = line + " " + os.path.splitext(name)[0]
             f.write(line)
             f.write('\n')
 
@@ -883,7 +938,9 @@ class FeatureExtractor:
             logging.debug("get_trees_features % " % filename)
             json_file = open(filename, 'r')
             name = os.path.basename(filename)
-
+            repo_name = os.path.splitext(name)[0]
+            if repo_name not in self.repo_names:
+                continue
             contents_filename = filename.replace("json_trees", "json_contents")
             contents_json_file = open(contents_filename, 'r')
 
@@ -914,7 +971,7 @@ class FeatureExtractor:
             blob_paths += "\""
 
             line = "%s" % blob_paths
-            line = line + " " + name.split('.')[0]
+            line = line + " " + os.path.splitext(name)[0]
             line = line.encode('utf-8')
             f.write(line)
             f.write('\n')
@@ -1095,7 +1152,7 @@ if __name__ == '__main__':
     feature_extractor.get_trees_features()
 
     exe = executor.ClassificationExecutor()
-    exe.run_keyword_classifier(exe.data)
+    # exe.run_keyword_classifier(exe.data)
     exe.run_solid_classifier(exe.data)
 
     logging.debug("Ended!")
