@@ -2,13 +2,15 @@ import glob
 import json
 import os
 import sys
+
 sys.path.append('..')
 import requests
 from requests.auth import HTTPBasicAuth
-from datetime import datetime
+from datetime import datetime, time
 import dateutil.parser
 import math
 import numpy as np
+import collections
 from config.helper import Helper
 from config.reader import ConfigReader
 from collection.labels import Labels
@@ -17,6 +19,7 @@ JSON_REPO_FILE_NAME = "%s_%s.json"
 JSON_COMMITS_FILE_NAME = "%s_%s.json"
 JSON_CONTENTS_FILE_NAME = "%s_%s.json"
 JSON_COMMITS_INTERVAL_FILE_NAME = "%s_%s.json"
+JSON_PUNCH_CARD_FILE_NAME = "%s_%s.json"
 MD_README_FILE_NAME = "%s_%s.md"
 
 
@@ -30,6 +33,7 @@ class InputProcessor:
         self.contents_folder = 'json_contents/'
         self.commits_folder = 'json_commits/'
         self.commits_interval_folder = 'json_commits_interval/'
+        self.punch_card_folder = "json_punch_card/"
 
         self.updated_repos_folder = 'json_repos_updated/'
 
@@ -274,6 +278,52 @@ class InputProcessor:
             else:
                 print r.headers
 
+    def names_to_punchcard(self, filename):
+        folder = self.punch_card_folder
+        try:
+            with open(filename, 'r') as file:
+                input_names = file.readlines()
+        except IOError:
+            print 'File %s should exist in the current folder.' % filename
+            return
+
+        for repo_name in input_names:
+            repo_name = repo_name.replace('\n', '')
+            repo_name = repo_name.replace('\r', '')
+
+            filename = Helper().build_path_from_folder_and_repo_name(repo_name, folder, JSON_PUNCH_CARD_FILE_NAME)
+            if os.path.exists(filename):
+                print filename, " exists"
+                continue
+            print 'Fetching punch card information for %s ' % repo_name
+
+            request_url = "https://api.github.com/repos/" + repo_name + '/stats/punch_card'
+
+            r = requests.get(request_url,
+                             auth=HTTPBasicAuth(self.username, self.password))
+
+            if r.status_code == 202:
+                while r.status_code == 202:
+                    print "status code: ", r.status_code
+                    r = requests.get(request_url,
+                                     auth=HTTPBasicAuth(self.username, self.password))
+                    time.sleep(3)
+
+            if r.status_code == 200:
+                print "status code: ", r.status_code
+                filename = Helper().build_path_from_folder_and_repo_name(repo_name, folder,
+                                                                         JSON_PUNCH_CARD_FILE_NAME)
+
+                if not os.path.exists(os.path.dirname(filename)):
+                    os.makedirs(os.path.dirname(filename))
+                with open(filename, 'w') as file:
+                    print "Writing to %s" % file.name
+                    jsonContent = json.dumps((r.json()))
+                    file.write(jsonContent)
+                    file.close()
+            else:
+                print r.headers
+
     def contents_to_file_trees(self):
         source_folder = self.contents_folder
         for filename in glob.glob(source_folder + '*'):
@@ -423,17 +473,14 @@ class FeatureExtractor:
         self.contents_folder = 'json_contents/'
         self.commits_folder = 'json_commits/'
         self.commits_interval_folder = 'json_commits_interval/'
+        self.trees_folder = "json_trees/"
+        self.punch_card_folder = "json_punch_card/"
 
         self.updated_repos_folder = 'json_repos_updated/'
 
-        self.features_folder = "../exploration/features/"
-        self.additional_features_folder = "../exploration/additional/features/"
-        self.labelled_features_folder = "../exploration/labelled/features/"
-
         self.features_folder = "features/"
 
-        self.trees_folder = "../collection/%s/json_trees/"
-        self.punch_card_folder = "../collection/%s/json_punch_card/"
+        self.all_languages = {}
 
     def get_commits_interval_features(self):
         folder = self.commits_interval_folder
@@ -573,6 +620,252 @@ class FeatureExtractor:
         print "Wrote commits features to %s" % f.name
         f.close()
 
+    def get_language_features(self, binary):
+
+        folder = self.updated_repos_folder
+        name = self.features_folder + "languages_data.txt"
+
+        if len(self.all_languages.keys()) == 0:
+            print 'Initialize all languages dict'
+            self.all_languages = self.get_all_languages()
+
+        if not os.path.exists(os.path.dirname(name)):
+            os.makedirs(os.path.dirname(name))
+        f = open(name, 'w')
+        header = "languages_count languages_total_lines "
+        for language in self.all_languages:
+            language = language.replace(" ", "_")
+            header += language + " "
+
+        header += "repo_name\n"
+        f.write(header)
+
+        for filename in glob.glob(folder + '*'):
+            print filename
+            # print len(self.all_languages)
+            current_languages = self.all_languages.fromkeys(self.all_languages, 0)
+            json_file = open(filename, 'r')
+            name = os.path.basename(filename)
+            repo = json.load(json_file)
+
+            try:
+                languages = repo["languages"]
+                repo_size = repo['size']
+            except KeyError:
+                print "Key Error in %s" % filename
+                continue
+
+            all_languages_count = len(languages)
+            total_lines = sum(languages.itervalues())
+
+            #            if repo_size == 0:
+            #                continue
+
+            for language, code_lines in languages.iteritems():
+                # print language
+                if language not in current_languages:
+                    raise ValueError("Should not be!")
+                try:
+                    if binary == True:
+                        current_languages[language] = 1
+                    else:
+                        current_languages[language] = "%.2f" % (float(code_lines) / total_lines)
+                except ZeroDivisionError:
+                    current_languages[language] = 0
+                    # raise ZeroDivisionError("Somewhere you missed a check on total_bytes!")
+
+            # print len(current_languages)
+
+            line = "%.2f" % all_languages_count
+            line = line + " " + "%.2f" % total_lines
+            for code_lines in current_languages.values():
+                line = line + " " + str(code_lines)
+
+            line = line + " " + name.split('.')[0]
+
+            f.write(line)
+            f.write('\n')
+        print "Wrote languages features to %s" % f.name
+        f.close()
+
+    def get_repo_features(self):
+        folder = self.updated_repos_folder
+        name = self.features_folder + "repo_data.txt"
+
+        if not os.path.exists(folder):
+            raise Exception("Folder should exist!")
+
+        if not os.path.exists(os.path.dirname(name)):
+            os.makedirs(os.path.dirname(name))
+        f = open(name, 'w')
+        header = "size labels tags issues branches languages forks commits comments repo_name\n"
+        f.write(header)
+
+        for filename in glob.glob(folder + '*'):
+            print filename
+            json_file = open(filename, 'r')
+            name = os.path.basename(filename)
+            repo = json.load(json_file)
+            json_file.close()
+
+            try:
+                # size in KB
+                size = repo['size']
+                labels = repo['labels_count']
+                # contributors = repo['contributors_count']
+                tags = repo['tags_count']
+                issues = repo['issues_count']
+                branches = repo['branches_count']
+                languages = repo['languages_count']
+                forks = repo['forks']
+                commits = repo['commits_count']
+                comments = repo['comments_count']
+            except KeyError:
+                print 'KeyError, not considering repo'
+                continue
+
+            if size == 0:
+                print 'Not considering empty repos'
+                continue
+
+            line = "%d" % size
+            line = line + " " + "%d" % labels
+            # line = line + " " + "%d" % contributors
+            line = line + " " + "%d" % tags
+            line = line + " " + "%d" % issues
+            line = line + " " + "%d" % branches
+            line = line + " " + "%d" % languages
+            line = line + " " + "%d" % forks
+            line = line + " " + "%d" % commits
+            line = line + " " + "%d" % comments
+
+            line = line + " " + name.split('.')[0]
+
+            f.write(line)
+            f.write('\n')
+        print "Wrote repo features to %s" % f.name
+        f.close()
+
+    def get_contents_features(self):
+        folder = self.contents_folder
+        name = self.features_folder + "contents_data.txt"
+
+        if not os.path.exists(os.path.dirname(name)):
+            os.makedirs(os.path.dirname(name))
+        f = open(name, 'w')
+        header = "total dirs files folder_names file_names fo_and_fi_names repo_name\n"
+        f.write(header)
+
+        for filename in glob.glob(folder + '*'):
+            print filename
+            json_file = open(filename, 'r')
+            name = os.path.basename(filename)
+            contents = json.load(json_file)
+            json_file.close()
+
+            total = len(contents)
+            dir_count = self.get_dir_count(contents)
+            file_count = self.get_file_count(contents)
+            folder_names = self.get_folder_names_as_str(contents)
+            file_names = self.get_file_names_as_str(contents)
+            fo_and_fi_names = self.get_folder_and_file_names_as_str(contents)
+
+            line = "%d" % total
+            if total > 0:
+                line = line + " " + "%.2f" % (float(dir_count) / total)
+                line = line + " " + "%.2f" % (float(file_count) / total)
+            else:
+                line = line + " " + "%.2f" % 0
+                line = line + " " + "%.2f" % 0
+
+            line = line + " " + folder_names
+            line = line + " " + file_names
+            line = line + " " + fo_and_fi_names
+
+            line = line + " " + name.split('.')[0]
+            print line
+            # line = line.replace(u"\u2019", "'")
+            line = line.encode('utf-8')
+            f.write(line)
+            f.write('\n')
+        print "Wrote contents features to %s" % f.name
+        f.close()
+
+    def get_readmes_features(self):
+        folder = self.readmes_folder
+        name = self.features_folder + "readme_data.txt"
+
+        if not os.path.exists(os.path.dirname(name)):
+            os.makedirs(os.path.dirname(name))
+        f = open(name, 'w')
+        header = "readme_filename repo_name\n"
+        f.write(header)
+
+        for filename in glob.glob(folder + '*'):
+            print filename
+            name = os.path.basename(filename)
+            line = "%s" % filename
+            line = line + " " + name.split('.')[0]
+            f.write(line)
+            f.write('\n')
+
+        print "Wrote readmes features to %s" % f.name
+        f.close()
+        f.close()
+
+    def get_trees_features(self):
+        folder = self.trees_folder
+        name = self.features_folder + "trees_data.txt"
+
+        if not os.path.exists(os.path.dirname(name)):
+            os.makedirs(os.path.dirname(name))
+        f = open(name, 'w')
+        header = "blob_paths repo_name\n"
+        f.write(header)
+
+        for filename in glob.glob(folder + '*'):
+            print filename
+            json_file = open(filename, 'r')
+            name = os.path.basename(filename)
+
+            contents_filename = filename.replace("json_trees", "json_contents")
+            contents_json_file = open(contents_filename, 'r')
+
+            root_folder_trees = json.load(json_file)
+            contents = json.load(contents_json_file)
+
+            contents_json_file.close()
+            json_file.close()
+
+            total_root_folders = len(root_folder_trees)
+            print '%d root folders here' % total_root_folders
+
+            if len(contents) > 0:
+                blob_paths = "\""
+                blob_paths += self.get_file_paths_as_str(contents=contents).replace('\"', '')
+                blob_paths += " "
+            else:
+                blob_paths = "\""
+
+            for root_folder_entry in root_folder_trees:
+                folder_name = root_folder_entry['root_folder_name']
+                folder_tree = root_folder_entry['tree']
+                for tree_entry in folder_tree:
+                    # print tree_entry
+                    if tree_entry['type'] == 'blob':
+                        blob_paths += tree_entry['path'].replace('\"', '')
+                        blob_paths += " "
+            blob_paths += "\""
+
+            line = "%s" % blob_paths
+            line = line + " " + name.split('.')[0]
+            line = line.encode('utf-8')
+            f.write(line)
+            f.write('\n')
+
+        print "Wrote trees features to %s" % f.name
+        f.close()
+
     def get_inter_commit_distance_average(self, inter_commit_distance, total_commits):
         if total_commits > 1:
             return inter_commit_distance / (total_commits - 1)
@@ -684,123 +977,11 @@ class FeatureExtractor:
         #     return active_days / math.ceil(days)
         # return 1
 
-    def get_language_features(self, label, labelled, binary):
-
-        folder = self.updated_repos_folder
-        name = self.features_folder + "languages_data.txt"
-
-        if len(self.all_languages.keys()) == 0:
-            print 'Initialize all languages dict'
-            self.all_languages = self.get_all_languages()
-
-        if not os.path.exists(os.path.dirname(name)):
-            os.makedirs(os.path.dirname(name))
-        f = open(name, 'w')
-        header = "languages_count languages_total_lines "
-        for language in self.all_languages:
-            language = language.replace(" ", "_")
-            header += language + " "
-
-        header += "repo_name\n"
-        f.write(header)
-
-        for filename in glob.glob(folder + '*'):
-            print filename
-            # print len(self.all_languages)
-            current_languages = self.all_languages.fromkeys(self.all_languages, 0)
-            json_file = open(filename, 'r')
-            name = os.path.basename(filename)
-            repo = json.load(json_file)
-
-            try:
-                languages = repo["languages"]
-                repo_size = repo['size']
-            except KeyError:
-                print "Key Error in %s" % filename
-                continue
-
-            all_languages_count = len(languages)
-            total_lines = sum(languages.itervalues())
-
-            #            if repo_size == 0:
-            #                continue
-
-            for language, code_lines in languages.iteritems():
-                # print language
-                if language not in current_languages:
-                    raise ValueError("Should not be!")
-                try:
-                    if binary == True:
-                        current_languages[language] = 1
-                    else:
-                        current_languages[language] = "%.2f" % (float(code_lines) / total_lines)
-                except ZeroDivisionError:
-                    current_languages[language] = 0
-                    # raise ZeroDivisionError("Somewhere you missed a check on total_bytes!")
-
-            # print len(current_languages)
-
-            line = "%.2f" % all_languages_count
-            line = line + " " + "%.2f" % total_lines
-            for code_lines in current_languages.values():
-                line = line + " " + str(code_lines)
-
-            line = line + " " + name.split('.')[0]
-
-            f.write(line)
-            f.write('\n')
-        print "Wrote languages features to %s" % f.name
-        f.close()
-
-    def get_language_features_str(self):
-        folder = self.updated_repos_folder
-        name = self.features_folder + "languages_str_data.txt"
-
-        if not os.path.exists(os.path.dirname(name)):
-            os.makedirs(os.path.dirname(name))
-        f = open(name, 'w')
-        header = "languages_count languages_str "
-        # for language in self.all_languages:
-        #     language = language.replace(" ", "_")
-        #     header += language + " "
-        #
-        header += "repo_name\n"
-        f.write(header)
-
-        for filename in glob.glob(folder + '*'):
-            print filename
-            json_file = open(filename, 'r')
-            name = os.path.basename(filename)
-            repo = json.load(json_file)
-
-            try:
-                languages = repo["languages"]
-                repo_size = repo['size']
-            except KeyError:
-                print "Key Error in %s" % filename
-                continue
-
-            all_languages_count = len(languages)
-
-            all_languages_str = self.get_languages_names_as_str(languages)
-
-            if repo_size == 0 or all_languages_count == 0:
-                continue
-
-            line = "%.2f" % all_languages_count
-            line = line + " " + "%s" % all_languages_str
-            line = line + " " + name.split('.')[0]
-
-            f.write(line)
-            f.write('\n')
-        print "Wrote languages str features to %s" % f.name
-        f.close()
-
     def get_all_languages(self):
         used_languages = {}
         for label in Labels.toArray():
             print label
-            folder = self.labelled_repos_folder % label
+            folder = self.updated_repos_folder
             for filename in glob.glob(folder + '*'):
                 print filename
                 json_file = open(filename, 'r')
@@ -815,115 +996,8 @@ class FeatureExtractor:
                     if language not in used_languages:
                         used_languages[language] = 0
                         print 'Added %s to the list of used languages' % language
-        print 'uradura'
         print len(used_languages.keys())
         return collections.OrderedDict(used_languages)
-
-    def get_repo_features(self):
-
-        folder = self.updated_repos_folder
-        name = "features/repo_data.txt"
-
-        if not os.path.exists(folder):
-            raise Exception("Folder should exist!")
-
-        if not os.path.exists(os.path.dirname(name)):
-            os.makedirs(os.path.dirname(name))
-        f = open(name, 'w')
-        header = "size labels tags issues branches languages forks commits comments repo_name\n"
-        f.write(header)
-
-        for filename in glob.glob(folder + '*'):
-            print filename
-            json_file = open(filename, 'r')
-            name = os.path.basename(filename)
-            repo = json.load(json_file)
-            json_file.close()
-
-            try:
-                # size in KB
-                size = repo['size']
-                labels = repo['labels_count']
-                # contributors = repo['contributors_count']
-                tags = repo['tags_count']
-                issues = repo['issues_count']
-                branches = repo['branches_count']
-                languages = repo['languages_count']
-                forks = repo['forks']
-                commits = repo['commits_count']
-                comments = repo['comments_count']
-            except KeyError:
-                print 'KeyError, not considering repo'
-                continue
-
-            if size == 0:
-                print 'Not considering empty repos'
-                continue
-
-            line = "%d" % size
-            line = line + " " + "%d" % labels
-            # line = line + " " + "%d" % contributors
-            line = line + " " + "%d" % tags
-            line = line + " " + "%d" % issues
-            line = line + " " + "%d" % branches
-            line = line + " " + "%d" % languages
-            line = line + " " + "%d" % forks
-            line = line + " " + "%d" % commits
-            line = line + " " + "%d" % comments
-
-            line = line + " " + name.split('.')[0]
-
-            f.write(line)
-            f.write('\n')
-        print "Wrote repo features to %s" % f.name
-        f.close()
-
-
-    def get_contents_features(self):
-
-        folder = self.contents_folder
-        name = "features/contents_data.txt"
-
-        if not os.path.exists(os.path.dirname(name)):
-            os.makedirs(os.path.dirname(name))
-        f = open(name, 'w')
-        header = "total dirs files folder_names file_names fo_and_fi_names repo_name\n"
-        f.write(header)
-
-        for filename in glob.glob(folder + '*'):
-            print filename
-            json_file = open(filename, 'r')
-            name = os.path.basename(filename)
-            contents = json.load(json_file)
-            json_file.close()
-
-            total = len(contents)
-            dir_count = self.get_dir_count(contents)
-            file_count = self.get_file_count(contents)
-            folder_names = self.get_folder_names_as_str(contents)
-            file_names = self.get_file_names_as_str(contents)
-            fo_and_fi_names = self.get_folder_and_file_names_as_str(contents)
-
-            line = "%d" % total
-            if total > 0:
-                line = line + " " + "%.2f" % (float(dir_count) / total)
-                line = line + " " + "%.2f" % (float(file_count) / total)
-            else:
-                line = line + " " + "%.2f" % 0
-                line = line + " " + "%.2f" % 0
-
-            line = line + " " + folder_names
-            line = line + " " + file_names
-            line = line + " " + fo_and_fi_names
-
-            line = line + " " + name.split('.')[0]
-            print line
-            # line = line.replace(u"\u2019", "'")
-            line = line.encode('utf-8')
-            f.write(line)
-            f.write('\n')
-        print "Wrote contents features to %s" % f.name
-        f.close()
 
     def get_dir_count(self, contents):
         count = 0
@@ -980,31 +1054,35 @@ class FeatureExtractor:
         result += "\""
         return result
 
-if __name__ == '__main__':
 
-    # input_processor = InputProcessor()
-    #
-    # input_processor.urls_to_repo_names(filename='input_urls.txt')
-    # input_processor.names_to_json_repos(filename='input_names.txt')
-    # input_processor.names_to_readmes(filename='input_names.txt')
-    # input_processor.names_to_commits(filename='input_names.txt')
-    # input_processor.names_to_commits_interval(filename='input_names.txt')
-    # input_processor.names_to_contents(filename='input_names.txt')
-    #
-    # input_processor.contents_to_file_trees()
-    #
-    # input_processor.update_repos('commits_url', 'commits_count')
-    # input_processor.update_repos('comments_url', 'comments_count')
-    # input_processor.update_repos('languages_url', 'languages_count')
-    # input_processor.update_repos('labels_url', 'labels_count')
-    # input_processor.update_repos('tags_url', 'tags_count')
-    # input_processor.update_repos('issues_url', 'issues_count')
-    # input_processor.update_repos('branches_url', 'branches_count')
-    #
-    # input_processor.update_repos_with_languages()
+if __name__ == '__main__':
+    input_processor = InputProcessor()
+    input_processor.urls_to_repo_names(filename='input_urls.txt')
+    input_processor.names_to_json_repos(filename='input_names.txt')
+    input_processor.names_to_readmes(filename='input_names.txt')
+    input_processor.names_to_commits(filename='input_names.txt')
+    input_processor.names_to_commits_interval(filename='input_names.txt')
+    input_processor.names_to_contents(filename='input_names.txt')
+    input_processor.names_to_punchcard(filename='input_names.txt')
+    input_processor.contents_to_file_trees()
+
+    input_processor.update_repos('commits_url', 'commits_count')
+    input_processor.update_repos('comments_url', 'comments_count')
+    input_processor.update_repos('languages_url', 'languages_count')
+    input_processor.update_repos('labels_url', 'labels_count')
+    input_processor.update_repos('tags_url', 'tags_count')
+    input_processor.update_repos('issues_url', 'issues_count')
+    input_processor.update_repos('branches_url', 'branches_count')
+
+    input_processor.update_repos_with_languages()
 
     feature_extractor = FeatureExtractor()
     feature_extractor.get_contents_features()
     feature_extractor.get_repo_features()
     feature_extractor.get_commits_features()
     feature_extractor.get_commits_interval_features()
+
+    feature_extractor.get_punchcard_features()
+    feature_extractor.get_language_features(binary=False)
+    feature_extractor.get_readmes_features()
+    feature_extractor.get_trees_features()
