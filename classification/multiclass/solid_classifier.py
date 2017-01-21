@@ -27,37 +27,15 @@ class SolidClassifier():
         self.folder_path_data = None
         self.is_train = is_train
 
-    
-    def language_feature_hack(self, aligned_data):
-        """hack to get language features names by excluding all the other feature names"""
-        LANGUAGE_FEATURES = list(aligned_data.columns.values)
-        self.LANGUAGE_FEATURES = [label for label in LANGUAGE_FEATURES
-                                  if label not in REPO_FEATURES
-                                  and label not in CI_FEATURES
-                                  and label not in COMMIT_FEATURES
-                                  and label not in ['label', 'repo_name']
-                                  and label not in README_FEATURES
-                                  and label not in TREE_FEATURES
-                                  and label not in CONTENT_FEATURES]
-
     def build_labels(self, dataframe):
         Y = dataframe['label']
         return Y
 
-
     def build_features(self, dataframe):
-        self.language_feature_hack(dataframe)
         data = pd.DataFrame(data=dataframe)
-
-        print "LENGTH LANGUAGE: " + str(len(self.LANGUAGE_FEATURES))
-        dif1 = self.LANGUAGE_FEATURES
         self.LANGUAGE_FEATURES = joblib.load(LANGUAGE_FEATURES_NAME_PATH + LANGUAGE_FEATURES_NAME_FILE)
-        print "LENGTH LANGUAGE: " + str(len(self.LANGUAGE_FEATURES))
-        dif2 = self.LANGUAGE_FEATURES
-        print list(set(dif1) - set(dif2))
         data_raw_features = data[REPO_FEATURES + COMMIT_FEATURES + self.LANGUAGE_FEATURES + CI_FEATURES]
         data_keywords_features = data[["repo_name"] + README_FEATURES + CONTENT_FEATURES]
-        # data_keywords_features = data[["repo_name"] + README_FEATURES + CONTENT_FEATURES + ["label"]]
 
         keyword_spotting = KeywordSpotting(self.is_train)
         data_keywords = keyword_spotting.build_keyword_features(data_keywords_features)
@@ -130,7 +108,3 @@ class SolidClassifier():
     def load_model(self):
         self.clf = joblib.load(MODEL_PATH + PICKLE_MODEL_NAME)
         print "Successfully loaded solid classifier model!"
-
-if __name__ == '__main__':
-    clf = SolidClassifier()
-    clf.train()
