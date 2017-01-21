@@ -12,17 +12,11 @@ from sklearn.externals import joblib
 from config.helper import Helper
 
 
-
-from collection.labels import Labels
-
-
 CONTENT_FEATURE_NAME = "fo_and_fi_names"
 README_FILE_NAME = "readme_filename"
 REPOSITORY_NAME = "repo_name"
 
 PICKLE_FILE_PATH = "keyword_spotting.pkl"
-
-readmes = pd.read_csv("../../exploration/text_data.txt", delimiter=" ", header=0)
 
 # Download stopwords corpus
 class KeywordSpotting():
@@ -98,36 +92,6 @@ class KeywordSpotting():
         self.keyword_readme_list = keyword_readme_list
         self.keyword_content_list = keyword_content_list
 
-    def merge_readmes_and_contents(self, readmes, contents):
-
-        data = readmes.merge(contents, on=REPOSITORY_NAME, how="inner")
-
-        rows = data[REPOSITORY_NAME].size
-        for i in xrange(0, rows):
-            if (np.isnan(data["label_x"][i])):
-                data.loc[i, "label_x"] = data["label_y"][i]
-        return data
-
-    def clean_readme_data(self, data):
-        # all bullshit
-        rows = data[REPOSITORY_NAME].size
-        print rows
-        clean_readmes = []
-        for i in xrange(0, rows):
-            # Call our function for each one, and add the result to the list of
-            # clean reviews
-            print i
-            path_to_readme = data[README_FILE_NAME][i]
-            if path_to_readme is not np.nan:
-                # dirty fix readme path name
-                path = "../" + path_to_readme
-                if not os.path.exists(path):
-                    raise IOError("Readme path does not exist!")
-                content = self.readmeContent(path)
-                clean_readmes.append(self.raw_to_words(content))
-            else:
-                clean_readmes.append(None)
-        return clean_readmes
 
     def row_to_words(self, row):
         if row[README_FILE_NAME] is not np.nan:
@@ -136,7 +100,6 @@ class KeywordSpotting():
             if not os.path.exists(path):
                 print 'missing %s ' % path
             content = self.readmeContent(path)
-            # print content
             words = self.raw_to_words(content)
         else:
             words = None
@@ -155,34 +118,7 @@ class KeywordSpotting():
                 for word in word_set:
                     if key in word:
                         binary_vector[index] = 1
-        print binary_vector
         return binary_vector
-
-    def read_contents_data(self, label):
-        features = pd.read_csv("../../exploration/labelled/features/contents_data_%s.txt" % label, delimiter=" ", header=0)
-
-        if label == Labels.data:
-            features['label'] = 0
-        elif label == Labels.dev:
-            features['label'] = 1
-        elif label == Labels.docs:
-            features['label'] = 2
-        elif label == Labels.edu:
-            features['label'] = 3
-        elif label == Labels.hw:
-            features['label'] = 4
-        elif label == Labels.web:
-            features['label'] = 5
-        elif label == Labels.uncertain:
-            features['label'] = 6
-
-        return features
-
-    def extract_all_contents(self):
-        data = [self.read_contents_data(Labels.data), self.read_contents_data(Labels.dev), self.read_contents_data(Labels.docs), self.read_contents_data(Labels.edu),
-                    self.read_contents_data(Labels.hw), self.read_contents_data(Labels.web), self.read_contents_data(Labels.uncertain)]
-        data = pd.concat(data)
-        return data
 
     def extract_readme_features(self, clean_readmes, keyword_list):
         readme_features = []
@@ -204,39 +140,33 @@ class KeywordSpotting():
 
         return content_features
 
-    def build_x_and_y(self, data):
+    def build_keyword_features(self, slice_data):
+        data = pd.DataFrame(data=slice_data)
 
-        print "SHAPE BEFORE ALL: ", np.shape(data)
         data['readme_words'] = data.apply(lambda row: self.row_to_words(row), axis=1)
-
         clean_readmes = data['readme_words'].tolist()
-        print "SHAPE OF CLEAN READMES :", np.shape(clean_readmes)
+
         readme_features = self.extract_readme_features(clean_readmes, self.keyword_readme_list)
         content_features = self.extract_content_features(data, self.keyword_content_list)
 
-        print "Shape readme features: ", np.shape(readme_features)
-        print "Shape content features: ", np.shape(content_features)
-
         X = np.hstack((readme_features, content_features))
+        return X
 
+    def build_labels(self, slice_data):
+        data = pd.DataFrame(data=slice_data)
         labels = data['label']
 
         Y = np.asarray(labels, dtype=int)
-        print "Shape of stacked features:", np.shape(X)
-        print "Shape labels: ", np.shape(Y)
-        # print labels
-        return X, Y
+        return Y
 
 
     def train(self, dataframe):
-
-        X, Y = self.build_x_and_y(dataframe)
-
+        X, Y = self.build_keyword_features(dataframe), self.build_labels(dataframe)
         self.clf.fit(X, Y)
 
     def evaluate(self, dataframe):
 
-        X, Y = self.build_x_and_y(dataframe)
+        X, Y = self.build_keyword_features(dataframe), self.build_labels(dataframe)
         output = self.clf.predict(X)
         score = precision_score(Y, output, average=None)
         print "PRECISION SCORE: "
@@ -244,7 +174,7 @@ class KeywordSpotting():
         print np.mean(score)
 
     def train_and_evaluate(self, dataframe, num_iterations=3, test_size=0.3):
-        X, Y = self.build_x_and_y(dataframe)
+        X, Y = self.build_keyword_features(dataframe), self.build_labels(dataframe)
         iteration = 0
         average_test_precision = 0
         ss = ShuffleSplit(n_splits=num_iterations, test_size=test_size, random_state=0)
@@ -269,31 +199,29 @@ class KeywordSpotting():
         print average_test_precision
 
     def predict(self, dataframe):
-        X, Y = self.build_x_and_y(dataframe)
+        X = self.build_keyword_features(dataframe)
         return self.clf.predict(X)
 
     def write_proba(self, dataframe_train, dataframe_test):
-        X_train, Y_train = self.build_x_and_y(dataframe_train)
-        X_test, Y_test = self.build_x_and_y(dataframe_test)
+        X_train, Y_train = self.build_keyword_features(dataframe_train), self.build_labels(dataframe_train)
+        X_test, Y_test = self.build_keyword_features(dataframe_test), self.build_labels(dataframe_test)
 
         Helper().write_probabilities(self.clf, X_train, dataframe_train['repo_name'], dataframe_train['label'], 'prob/prob_keyword_train')
         Helper().write_probabilities(self.clf, X_test, dataframe_test['repo_name'], dataframe_test['label'], 'prob/prob_keyword_test')
 
     def predict_proba(self, dataframe):
-        X, Y = self.build_x_and_y(dataframe)
+        X = self.build_keyword_features(dataframe)
         return self.clf.predict_proba(X)
 
     def predict_log_proba(self, dataframe):
-        X, Y = self.build_x_and_y(dataframe)
+        X = self.build_keyword_features(dataframe)
         return self.clf.predict_log_proba(X)
 
     def save_classifier(self):
         joblib.dump(self.clf, PICKLE_FILE_PATH, compress=3)
+        print "Successfully saved keyword spotting classifier!"
         return
 
     def load_classifier(self):
         self.clf = joblib.load(PICKLE_FILE_PATH)
-
-if __name__ == '__main__':
-    spotting = KeywordSpotting()
-    spotting.train_and_evaluate()
+        print "Successfully loaded keyword spotting classifier!"
