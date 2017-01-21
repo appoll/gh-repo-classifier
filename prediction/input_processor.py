@@ -12,15 +12,12 @@ from sklearn.externals import joblib
 import dateutil.parser
 import math
 import numpy as np
-import collections
 
 from config.constants import LANGUAGE_FEATURES_NAME_FILE
 from config.helper import Helper
 from config.reader import ConfigReader
-from collection.labels import Labels
 from classification.multiclass import executor
 from settings import JSON_README_FOLDER_PREDICT, LANGUAGE_FEATURES_NAME_PATH
-
 
 JSON_REPO_FILE_NAME = "%s_%s.json"
 JSON_COMMITS_FILE_NAME = "%s_%s.json"
@@ -125,10 +122,11 @@ class InputProcessor:
 
             filename = Helper().build_path_from_folder_and_repo_name(repo_name, folder, MD_README_FILE_NAME)
             if os.path.exists(filename) and self.override == False:
-                print 'File %s exists, skipping.' % filename
+                logging.debug('File %s exists, skipping.' % filename)
                 continue
 
             print 'Fetching readme file contents for %s ' % repo_name
+            logging.info('Fetching readme file contents for %s ' % repo_name)
             request_url = "https://api.github.com/repos/" + repo_name + '/readme'
             r = requests.get(request_url,
                              auth=HTTPBasicAuth(self.username, self.password))
@@ -152,6 +150,7 @@ class InputProcessor:
                 input_names = file.readlines()
         except IOError:
             print 'File %s should exist in the current folder.' % filename
+            logging.debug('IOError thrown. File %s should exist in the current folder.' % filename)
             return
 
         for repo_name in input_names:
@@ -160,10 +159,12 @@ class InputProcessor:
 
             filename = Helper().build_path_from_folder_and_repo_name(repo_name, folder, JSON_CONTENTS_FILE_NAME)
             if os.path.exists(filename) and self.override == False:
-                print 'File %s exists, skipping.' % filename
+                logging.debug('File %s exists, skipping.' % filename)
                 continue
 
-            print 'Fetching readme file contents for %s ' % repo_name
+            print 'Fetching contents data for %s ' % repo_name
+            logging.info('Fetching contents data for %s ' % repo_name)
+
             request_url = "https://api.github.com/repos/" + repo_name + '/contents'
             r = requests.get(request_url,
                              auth=HTTPBasicAuth(self.username, self.password))
@@ -172,6 +173,7 @@ class InputProcessor:
                     os.makedirs(os.path.dirname(filename))
                 with open(filename, 'w') as file:
                     print "Writing to %s \n" % file.name
+                    logging.info("Writing to %s \n" % file.name)
                     contents = json.dumps((r.json()))
                     file.write(contents)
                     file.close()
@@ -187,6 +189,7 @@ class InputProcessor:
                 input_names = file.readlines()
         except IOError:
             print 'File %s should exist in the current folder.' % filename
+            logging.debug('IOError thrown. File %s should exist in the current folder.' % filename)
             return
 
         for repo_name in input_names:
@@ -195,10 +198,12 @@ class InputProcessor:
 
             filename = Helper().build_path_from_folder_and_repo_name(repo_name, folder, JSON_COMMITS_FILE_NAME)
             if os.path.exists(filename) and self.override == False:
-                print 'File %s exists, skipping.' % filename
+                logging.debug('File %s exists, skipping.' % filename)
                 continue
 
             print 'Fetching all commits for %s ' % repo_name
+            logging.info('Fetching all commits for %s ' % repo_name)
+
             request_url = "https://api.github.com/repos/" + repo_name + '/commits'
 
             if os.path.exists(filename):
@@ -258,6 +263,7 @@ class InputProcessor:
                 input_names = file.readlines()
         except IOError:
             print 'File %s should exist in the current folder.' % filename
+            logging.debug('IOError thrown. File %s should exist in the current folder.' % filename)
             return
 
         for repo_name in input_names:
@@ -266,10 +272,12 @@ class InputProcessor:
 
             filename = Helper().build_path_from_folder_and_repo_name(repo_name, folder, JSON_COMMITS_FILE_NAME)
             if os.path.exists(filename) and self.override == False:
-                print 'File %s exists, skipping.' % filename
+                logging.debug('File %s exists, skipping.' % filename)
                 continue
 
             print 'Fetching commits interval information for %s ' % repo_name
+            logging.info('Fetching commits interval information data for %s ' % repo_name)
+
             request_url = "https://api.github.com/repos/" + repo_name + '/commits'
 
             if os.path.exists(filename):
@@ -332,6 +340,7 @@ class InputProcessor:
                 input_names = file.readlines()
         except IOError:
             print 'File %s should exist in the current folder.' % filename
+            logging.debug('IOError thrown. File %s should exist in the current folder.' % filename)
             return
 
         for repo_name in input_names:
@@ -340,10 +349,12 @@ class InputProcessor:
 
             filename = Helper().build_path_from_folder_and_repo_name(repo_name, folder, JSON_PUNCH_CARD_FILE_NAME)
             if os.path.exists(filename) and self.override == False:
-                print 'File %s exists, skipping.' % filename
+                logging.debug('File %s exists, skipping.' % filename)
                 continue
 
             print 'Fetching punch card information for %s ' % repo_name
+            logging.info('Fetching punch card information for %s ' % repo_name)
+
             request_url = "https://api.github.com/repos/" + repo_name + '/stats/punch_card'
             r = requests.get(request_url,
                              auth=HTTPBasicAuth(self.username, self.password))
@@ -384,7 +395,7 @@ class InputProcessor:
 
             new_filename = filename.replace("json_contents", "json_trees")
             if os.path.exists(new_filename):
-                print 'File %s exists, skipping' % new_filename
+                logging.debug('File %s exists, skipping.' % filename)
                 continue
             entries_trees = []
 
@@ -585,6 +596,7 @@ class FeatureExtractor:
             f.write(line)
             f.write('\n')
         print "Wrote commits interval features to %s" % f.name
+        logging.info("Wrote commits interval features to %s" % f.name)
         f.close()
 
     def get_punchcard_features(self):
@@ -620,6 +632,7 @@ class FeatureExtractor:
             f.write(line)
             f.write('\n')
         print "Wrote punch card features to %s" % f.name
+        logging.info("Wrote punch card features to %s" % f.name)
         f.close()
 
     def get_commits_features(self):
@@ -652,6 +665,8 @@ class FeatureExtractor:
             prev_date = 0
 
             print 'Processing %s commits...' % len(commits_list)
+            logging.info('Processing %s commits...' % len(commits_list))
+
             for commit in commits_list:
                 author_date = dateutil.parser.parse(commit['author_date'])
 
@@ -696,6 +711,7 @@ class FeatureExtractor:
             f.write(line)
             f.write('\n')
         print "Wrote commits features to %s" % f.name
+        logging.info("Wrote commits features to %s" % f.name)
         f.close()
 
     def get_language_features(self, binary):
@@ -704,7 +720,7 @@ class FeatureExtractor:
         name = self.features_folder + "languages_data.txt"
 
         if len(self.all_languages.keys()) == 0:
-            print 'Initialize all languages dict'
+            logging.info('Initialize all languages dict')
             self.all_languages = self.get_all_languages()
 
         if not os.path.exists(os.path.dirname(name)):
@@ -721,7 +737,7 @@ class FeatureExtractor:
         for filename in glob.glob(folder + '*'):
             print filename
             # print len(self.all_languages)
-            current_languages =  {el:0 for el in self.all_languages}
+            current_languages = {el: 0 for el in self.all_languages}
 
             json_file = open(filename, 'r')
             name = os.path.basename(filename)
@@ -768,7 +784,8 @@ class FeatureExtractor:
 
             f.write(line)
             f.write('\n')
-        print "Wrote languages features to %s" % f.name
+        print "Wrote language features to %s" % f.name
+        logging.info("Wrote language features to %s" % f.name)
         f.close()
 
     def get_repo_features(self):
@@ -830,6 +847,7 @@ class FeatureExtractor:
             f.write(line)
             f.write('\n')
         print "Wrote repo features to %s" % f.name
+        logging.info("Wrote repo features to %s" % f.name)
         f.close()
 
     def get_contents_features(self):
@@ -878,6 +896,7 @@ class FeatureExtractor:
             f.write(line)
             f.write('\n')
         print "Wrote contents features to %s" % f.name
+        logging.info("Wrote contents features to %s" % f.name)
         f.close()
 
     def get_readmes_features(self):
@@ -901,8 +920,8 @@ class FeatureExtractor:
             f.write(line)
             f.write('\n')
 
-        print "Wrote readmes features to %s" % f.name
-        f.close()
+        print "Wrote readme features to %s" % f.name
+        logging.info("Wrote readme features to %s" % f.name)
         f.close()
 
     def get_trees_features(self):
@@ -916,7 +935,7 @@ class FeatureExtractor:
         f.write(header)
 
         for filename in glob.glob(folder + '*'):
-            print filename
+            logging.debug("get_trees_features % " % filename)
             json_file = open(filename, 'r')
             name = os.path.basename(filename)
             repo_name = os.path.splitext(name)[0]
@@ -932,7 +951,7 @@ class FeatureExtractor:
             json_file.close()
 
             total_root_folders = len(root_folder_trees)
-            print '%d root folders here' % total_root_folders
+            logging.debug('%d root folders here' % total_root_folders)
 
             if len(contents) > 0:
                 blob_paths = "\""
@@ -957,7 +976,9 @@ class FeatureExtractor:
             f.write(line)
             f.write('\n')
 
-        print "Wrote trees features to %s" % f.name
+        print "Wrote tree features to %s" % f.name
+        logging.info("Wrote tree features to %s" % f.name)
+
         f.close()
 
     def get_inter_commit_distance_average(self, inter_commit_distance, total_commits):
@@ -1033,7 +1054,6 @@ class FeatureExtractor:
             if len(active_days) / math.ceil(days) > 1:
                 return 1
             return len(active_days) / math.ceil(days)
-        print 'only one commit here!'
         return 1
 
     def get_all_languages(self):
