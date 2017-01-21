@@ -3,6 +3,7 @@ from sklearn.ensemble import RandomForestClassifier
 from sklearn.externals import joblib
 from sklearn.metrics import precision_score
 from config.constants import *
+from config.helper import Helper
 
 MODEL_LOCATION = '../../models/'
 
@@ -78,3 +79,19 @@ class BaseClassifier():
 
     def build_model_filename(self):
         return MODEL_LOCATION + self.input_type + ".pkl"
+
+    def write_probabilities(self, train_data, test_data):
+        """
+        Writes log probabilities to file
+        :param train_data: unsliced train data, including 'repo_name' and 'label'
+        :param test_data: unsliced test data, including 'repo_name' and 'label'
+        """
+        X = self.select_features(train_data)
+        train_repo_names = train_data['repo_name']
+        train_labels = train_data['label']
+        Helper().write_probabilities(self.clf, X, train_repo_names, train_labels, 'prob/prob_%s_train' % self.input_type)
+
+        Y = self.select_features(test_data)
+        test_repo_names = test_data['repo_name']
+        test_labels = test_data['label']
+        Helper().write_probabilities(self.clf, Y, test_repo_names, test_labels, 'prob/prob_%s_test' % self.input_type)
