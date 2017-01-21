@@ -4,24 +4,23 @@ import re
 import numpy as np
 import pandas as pd
 from bs4 import BeautifulSoup
-import nltk
 from sklearn.ensemble import RandomForestClassifier
 from sklearn.metrics import precision_score
 from sklearn.model_selection import ShuffleSplit
 from sklearn.externals import joblib
 from config.helper import Helper
-
+from settings import STOPWORDS_PATH
 
 CONTENT_FEATURE_NAME = "fo_and_fi_names"
 README_FILE_NAME = "readme_filename"
 REPOSITORY_NAME = "repo_name"
 
+STOPWORDS_LANGUAGE = "english"
+
 PICKLE_FILE_PATH = "keyword_spotting.pkl"
 
-# Download stopwords corpus
 class KeywordSpotting():
     def __init__(self):
-        nltk.download('stopwords')
         self.build_keyword_lists()
 
         self.clf = RandomForestClassifier(n_estimators=500, n_jobs=-1, random_state=1, max_depth=20)
@@ -47,7 +46,7 @@ class KeywordSpotting():
 
         # 4. In Python, searching a set is much faster than searching
         #   a list, so convert the stop words to a set
-        stops = set(nltk.corpus.stopwords.words("english"))
+        stops = set(STOPWORDS_PATH + STOPWORDS_LANGUAGE)
 
         # 5. Remove stop words
         meaningful_words = [w for w in words if not w in stops]
@@ -217,11 +216,10 @@ class KeywordSpotting():
         X = self.build_keyword_features(dataframe)
         return self.clf.predict_log_proba(X)
 
-    def save_classifier(self):
+    def save_model(self):
         joblib.dump(self.clf, PICKLE_FILE_PATH, compress=3)
-        print "Successfully saved keyword spotting classifier!"
-        return
+        print "Successfully saved keyword spotting model!"
 
-    def load_classifier(self):
+    def load_model(self):
         self.clf = joblib.load(PICKLE_FILE_PATH)
-        print "Successfully loaded keyword spotting classifier!"
+        print "Successfully loaded keyword spotting model!"
