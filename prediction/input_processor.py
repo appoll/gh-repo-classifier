@@ -1,24 +1,23 @@
+import sys
+sys.path.append('..')
 import glob
 import json
 import logging
+import math
 import os
-import sys
+from datetime import datetime, time
 
-from collection.labels import Labels
-
-sys.path.append('..')
+import dateutil.parser
+import numpy as np
 import requests
 from requests.auth import HTTPBasicAuth
-from datetime import datetime, time
 from sklearn.externals import joblib
-import dateutil.parser
-import math
-import numpy as np
 
+from classification.multiclass import executor
+from collection.labels import Labels
 from config.constants import LANGUAGE_FEATURES_NAME_FILE
 from config.helper import Helper
 from config.reader import ConfigReader
-from classification.multiclass import executor
 from settings import JSON_README_FOLDER_PREDICT, LANGUAGE_FEATURES_NAME_PATH
 
 JSON_REPO_FILE_NAME = "%s_%s.json"
