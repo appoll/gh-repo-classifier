@@ -13,8 +13,8 @@ MODEL_LOCATION = '../../models/'
 
 
 class BaseClassifier():
-    def __init__(self, input, seed):
-        if input not in [INPUT_COMMIT, INPUT_LANGUAGE, INPUT_REPO, INPUT_PUNCH, INPUT_ALL]:
+    def __init__(self, input, seed=0):
+        if input not in [INPUT_COMMIT, INPUT_LANGUAGE, INPUT_REPO, INPUT_PUNCH, INPUT_ALL, INPUT_CI]:
             raise ValueError("Mind your input! Base classifier does not handle this kind of input.")
 
         self.input_type = input
@@ -61,6 +61,8 @@ class BaseClassifier():
 
         if self.input_type == INPUT_COMMIT:
             return data[COMMIT_FEATURES]
+        elif self.input_type == INPUT_CI:
+            return data[CI_FEATURES]
         elif self.input_type == INPUT_REPO:
             return data[REPO_FEATURES]
         elif self.input_type == INPUT_LANGUAGE:
@@ -68,7 +70,7 @@ class BaseClassifier():
         # elif self.input == INPUT_PUNCH:
         #     slice_data = training_data[PUNCH_CARD_FEATURES]
         elif self.input_type == INPUT_ALL:
-            return data[REPO_FEATURES + COMMIT_FEATURES + self.LANGUAGE_FEATURES]
+            return data[REPO_FEATURES + COMMIT_FEATURES + self.LANGUAGE_FEATURES + CI_FEATURES]
         else:
             raise Exception("BaseClassifier select_features() - invalid state.")
 

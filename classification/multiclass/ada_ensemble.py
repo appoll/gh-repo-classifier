@@ -205,6 +205,8 @@ data_2 = data_2.merge(trees_data, on=["repo_name", "label"], how="left")
 
 data_3 = data_2.merge(readme_data, on=["repo_name", "label"], how="left")
 
+data_3 = data_3.merge(ci_data, on=["repo_name", "label"], how="left")
+
 data_3.to_csv('data_set_3')
 print data_3.shape
 
@@ -215,12 +217,13 @@ LANGUAGE_FEATURES = [label for label in LANGUAGE_FEATURES if label not in REPO_F
 
 scores = {}
 scores[INPUT_COMMIT] = []
+scores[INPUT_CI] = []
 scores[INPUT_LANGUAGE] = []
 scores[INPUT_REPO] = []
 scores[INPUT_ALL] = []
 
 
-seeds = 2
+seeds = 10
 for seed in range(seeds):
 
 # below dataframes have all the features which need to be separated
@@ -233,6 +236,12 @@ for seed in range(seeds):
     commit_clf.save_model()
     commit_clf.write_probabilities(train_data, test_data)
     scores[INPUT_COMMIT].append(commit_clf.evaluate(test_data))
+
+    ci_clf = BaseClassifier(INPUT_CI, seed)
+    ci_clf.train(train_data)
+    ci_clf.save_model()
+    ci_clf.write_probabilities(train_data, test_data)
+    scores[INPUT_CI].append(ci_clf.evaluate(test_data))
 
     lang_clf = BaseClassifier(INPUT_LANGUAGE, seed)
     lang_clf.train(train_data)
