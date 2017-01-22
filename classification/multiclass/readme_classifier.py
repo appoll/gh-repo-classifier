@@ -78,7 +78,7 @@ class ReadmeClassifier():
         Saves trained model to file.
         """
         joblib.dump(self.clf, self.build_model_filename(), compress=3)
-        joblib.dump(self.clf, self.build_vectorizer_filename(), compress = 3)
+        joblib.dump(self.vectorizer, self.build_vectorizer_filename(), compress = 3)
         print "Successfully saved ReadmeClassifier!"
 
     def load_model(self):
