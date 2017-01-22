@@ -1,8 +1,10 @@
 import numpy as np
 from sklearn.ensemble import RandomForestClassifier
 from sklearn.externals import joblib
+from sklearn.metrics import confusion_matrix
 from sklearn.metrics import precision_score
 
+from collection.labels import Labels
 from config.constants import *
 from config.helper import Helper
 
@@ -38,6 +40,8 @@ class BaseClassifier():
         Y = test_data['label']
 
         output = self.clf.predict(X)
+
+        self.confusion_matrix(Y, output)
 
         score = precision_score(Y, output, average=None)
         print "\nEvaluating %s BaseClassifier" % self.input_type
@@ -111,3 +115,17 @@ class BaseClassifier():
                                   and label not in README_FEATURES
                                   and label not in TREE_FEATURES
                                   and label not in CONTENT_FEATURES]
+
+    def confusion_matrix(self, y_test, y_pred):
+        """
+        Saves confusion matrix to file
+
+        :param y_test: test labels
+        :param y_pred: predicted labels
+        """
+        confusion_m = confusion_matrix(y_test, y_pred)
+
+        Helper().plot_confusion_matrix(self.input_type, confusion_m, normalize=True, classes=Labels.toArray(),
+                                       title='Confusion matrix for %s classifier' % self.input_type)
+        Helper().plot_confusion_matrix(self.input_type, confusion_m, normalize=False, classes=Labels.toArray(),
+                                       title='Confusion matrix for %s classifier' % self.input_type)

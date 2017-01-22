@@ -212,19 +212,20 @@ all_clf.save_model()
 all_clf.write_probabilities(train_data, test_data)
 all_clf.evaluate(test_data)
 
-# new_clf = BaseClassifier(INPUT_COMMIT)
-# new_clf.load_model()
-# new_clf.evaluate(test_data)
+new_clf = BaseClassifier(INPUT_COMMIT)
+new_clf.load_model()
+new_clf.evaluate(test_data)
+
 
 # second classifier
-train_data_2 = train_data[["repo_name"] + README_FEATURES + CONTENT_FEATURES + ["label"]]
-test_data_2 = test_data[["repo_name"] + README_FEATURES + CONTENT_FEATURES + ["label"]]
-
-
-clf = KeywordSpotting()
-clf.train(train_data_2)
-
-clf.write_proba(dataframe_train=train_data_2, dataframe_test=test_data_2)
+# train_data_2 = train_data[["repo_name"] + README_FEATURES + CONTENT_FEATURES + ["label"]]
+# test_data_2 = test_data[["repo_name"] + README_FEATURES + CONTENT_FEATURES + ["label"]]
+#
+#
+# clf = KeywordSpotting()
+# clf.train(train_data_2)
+#
+# clf.write_proba(dataframe_train=train_data_2, dataframe_test=test_data_2)
 
 
 # third classifier
@@ -235,7 +236,7 @@ clf.write_proba(dataframe_train=train_data_2, dataframe_test=test_data_2)
 # tree_clf.evaluate(test_data)
 
 # fourth classifier
-readme_clf = ReadmeClassifier()
-readme_clf.train(train_data)
-readme_clf.write_probabilities(train_data, test_data)
-readme_clf.evaluate(test_data)
+# readme_clf = ReadmeClassifier()
+# readme_clf.train(train_data)
+# readme_clf.write_probabilities(train_data, test_data)
+# readme_clf.evaluate(test_data)
