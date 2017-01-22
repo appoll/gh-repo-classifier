@@ -5,6 +5,7 @@ import numpy as np
 import pandas as pd
 import sys
 
+from classification.multiclass.readme_classifier import ReadmeClassifier
 from classification.multiclass.tree_classifier import TreeClassifier
 from config.constants import *
 from sklearn.ensemble import RandomForestClassifier
@@ -232,3 +233,9 @@ clf.write_proba(dataframe_train=train_data_2, dataframe_test=test_data_2)
 # tree_clf.write_probabilities(train_data, test_data)
 #
 # tree_clf.evaluate(test_data)
+
+# fourth classifier
+readme_clf = ReadmeClassifier()
+readme_clf.train(train_data)
+readme_clf.write_probabilities(train_data, test_data)
+readme_clf.evaluate(test_data)
