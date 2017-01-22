@@ -102,6 +102,7 @@ class Helper():
 
         if normalize:
             cm = cm.astype('float') / cm.sum(axis=1)[:, np.newaxis]
+            cm = np.array([[round(s,2) for s in xs] for xs in cm])
         #     print("Normalized confusion matrix")
         # else:
         #     print('Confusion matrix, without normalization')
