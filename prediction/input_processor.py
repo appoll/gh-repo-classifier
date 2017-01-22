@@ -1,4 +1,6 @@
+import shutil
 import sys
+
 sys.path.append('..')
 import glob
 import json
@@ -29,7 +31,7 @@ MD_README_FILE_NAME = "%s_%s.md"
 
 
 class InputProcessor:
-    def __init__(self, override=True):
+    def __init__(self, override=True, fresh_start=True, commit_limit=3000):
         reader = ConfigReader()
         self.username, self.password = reader.get_credentials()
 
@@ -42,9 +44,13 @@ class InputProcessor:
 
         self.updated_repos_folder = 'json_repos_updated/'
 
+        if fresh_start:
+            self.clean_all_folders()
+
         self.RESULTS_PER_PAGE = 30
 
         self.override = override
+        self.commits_limit = commit_limit
 
         self.repo_names = []
         f = open('input_names.txt', 'r')
@@ -54,6 +60,11 @@ class InputProcessor:
             line = line.replace('\r', '')
             line = line.replace('/', '_')
             self.repo_names.append(line)
+
+    def clean_all_folders(self):
+        filelist = glob.glob("json_*")
+        for f in filelist:
+            shutil.rmtree(f)
 
     def urls_to_repo_names(self, filename):
         repo_names_filename = filename.replace('urls', 'names')
@@ -207,8 +218,8 @@ class InputProcessor:
 
             request_url = "https://api.github.com/repos/" + repo_name + '/commits'
 
-            if os.path.exists(filename):
-                print filename, " exists"
+            if os.path.exists(filename) and self.override == False:
+                logging.debug('File %s exists, skipping.' % filename)
                 continue
 
             r = requests.get(request_url, params=query,
@@ -231,6 +242,9 @@ class InputProcessor:
                         jsonCommits.extend(next_page_request.json())
                         links = next_page_request.links
                     print "commits loaded:", len(jsonCommits)
+                    if len(jsonCommits) >= self.commits_limit:
+                        logging.debug('Commits limit reached.')
+                        break
 
                 jsonCommitsList = []
                 for commit in jsonCommits:
@@ -1165,7 +1179,7 @@ if __name__ == '__main__':
     logging.basicConfig(filename='input_processor.log', level=logging.DEBUG)
     logging.debug("Started...")
 
-    input_processor = InputProcessor(override=False)
+    input_processor = InputProcessor(override=False, fresh_start=False)
     input_processor.urls_to_repo_names(filename='input_urls.txt')
     input_processor.names_to_json_repos(filename='input_names.txt')
     input_processor.names_to_readmes(filename='input_names.txt')
