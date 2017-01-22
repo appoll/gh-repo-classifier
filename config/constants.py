@@ -12,6 +12,7 @@ CONTENT_FEATURES = ["total", "dirs", "files", "folder_names", "file_names", "fo_
 TREE_FEATURES = ["blob_paths"]
 
 """Defines the type of input considered by the BaseClassifier"""
+INPUT_CI = 'input_ci'
 INPUT_COMMIT = 'input_commit'
 INPUT_CI = 'input_ci'
 INPUT_LANGUAGE = 'input_language'
