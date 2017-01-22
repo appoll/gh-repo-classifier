@@ -1,5 +1,5 @@
-import re
 import os
+import re
 
 import numpy as np
 import pandas as pd
@@ -11,22 +11,20 @@ from sklearn.metrics import precision_score
 
 from config.constants import *
 from config.helper import Helper
-from settings import STOPWORDS_PATH
+from settings import STOPWORDS_PATH, MODEL_PATH
 
 STOPWORDS_LANGUAGE = "english"
-MODEL_LOCATION = '../../models/'
 
 
 class ReadmeClassifier():
     def __init__(self):
         self.clf = RandomForestClassifier(n_estimators=1000, max_depth=30)
-        
+
         self.vectorizer = TfidfVectorizer(analyzer="word",
                                           tokenizer=None,
                                           preprocessor=None,
-                                          stop_words=['docs', 'framework', 'homework', 'course', 'data']
-                                          , ngram_range=(1, 3)
-                                          , max_features=2000
+                                          ngram_range=(1, 3),
+                                          max_features=2000
                                           )
 
     def train(self, train_data):
@@ -80,6 +78,7 @@ class ReadmeClassifier():
         Saves trained model to file.
         """
         joblib.dump(self.clf, self.build_model_filename(), compress=3)
+        joblib.dump(self.clf, self.build_vectorizer_filename(), compress = 3)
         print "Successfully saved ReadmeClassifier!"
 
     def load_model(self):
@@ -87,10 +86,14 @@ class ReadmeClassifier():
         Loads trained model from file.
         """
         self.clf = joblib.load(self.build_model_filename())
+        self.vectorizer = joblib.load(self.build_vectorizer_filename())
         print "Successfully loaded ReadmeClassifier!"
 
     def build_model_filename(self):
-        return MODEL_LOCATION + 'readme_clf' + ".pkl"
+        return MODEL_PATH + 'readme_clf' + ".pkl"
+
+    def build_vectorizer_filename(self):
+        return MODEL_PATH + 'readme_clf_vectorizer' + ".pkl"
 
     def write_probabilities(self, train_data, test_data):
         """
@@ -114,6 +117,27 @@ class ReadmeClassifier():
         test_repo_names = test_data['repo_name']
         test_labels = test_data['label']
         Helper().write_probabilities(self.clf, x_test, test_repo_names, test_labels, 'prob/prob_%s_test' % 'readmes')
+
+    def get_train_prob(self, train_data):
+        """
+        Writes log probabilities to file. To be called only with a fitted model.
+        :param train_data: unsliced train data, including 'repo_name' and 'label'
+        :param test_data: unsliced test data, including 'repo_name' and 'label'
+        """
+        train_data_trees = pd.DataFrame(data=self.select_features(train_data))
+        train_data_trees['clean_readmes'] = train_data_trees.apply(lambda row: self.row_to_words(row), axis=1)
+        x_train = self.vectorizer.transform(train_data_trees['clean_readmes'])
+
+        return self.clf.predict_log_proba(x_train)
+
+    def get_test_prob(self, test_data):
+        test_data_trees = pd.DataFrame(data=self.select_features(test_data))
+        test_data_trees['clean_readmes'] = test_data_trees.apply(lambda row: self.row_to_words(row), axis=1)
+        x_test = self.vectorizer.transform(test_data_trees['clean_readmes'])
+
+        # test_repo_names = test_data['repo_name']
+        # test_labels = test_data['label']
+        return self.clf.predict_log_proba(x_test)
 
     def row_to_words(self, row):
         if row['readme_filename'] is not np.nan:

@@ -4,6 +4,9 @@ import re
 import numpy as np
 import pandas as pd
 import sys
+
+from classification.multiclass.prob_classifier import ProbClassifier
+
 sys.path.append("../..")
 
 from classification.multiclass.readme_classifier import ReadmeClassifier
@@ -164,16 +167,16 @@ trees_data = pd.concat(trees_features)
 #
 # trees_data = trees_data.drop_duplicates(subset=['repo_name'])
 
-repo_data = repo_data.drop_duplicates(cols=['repo_name'])
-ci_data = ci_data.drop_duplicates(cols=['repo_name'])
-commit_data = commit_data.drop_duplicates(cols=['repo_name'])
-lang_data = lang_data.drop_duplicates(cols=['repo_name'])
+repo_data = repo_data.drop_duplicates(subset=['repo_name'])
+ci_data = ci_data.drop_duplicates(subset=['repo_name'])
+commit_data = commit_data.drop_duplicates(subset=['repo_name'])
+lang_data = lang_data.drop_duplicates(subset=['repo_name'])
 
-readme_data = readme_data.drop_duplicates(cols=['repo_name'])
+readme_data = readme_data.drop_duplicates(subset=['repo_name'])
 
-contents_data = contents_data.drop_duplicates(cols=['repo_name'])
+contents_data = contents_data.drop_duplicates(subset=['repo_name'])
 
-trees_data = trees_data.drop_duplicates(cols=['repo_name'])
+trees_data = trees_data.drop_duplicates(subset=['repo_name'])
 
 print 'Repo Data Shape'
 print repo_data.shape
@@ -223,51 +226,51 @@ scores[INPUT_REPO] = []
 scores[INPUT_ALL] = []
 
 
-seeds = 10
-for seed in range(seeds):
+# seeds = 10
+# for seed in range(seeds):
 
 # below dataframes have all the features which need to be separated
-    train_data, test_data = train_test_split(data_3, test_size=0.2, random_state=seed)
-
-    # first classifier
-    print "seed: " + str(seed)
-    commit_clf = BaseClassifier(INPUT_COMMIT, seed)
-    commit_clf.train(train_data)
-    commit_clf.save_model()
-    commit_clf.write_probabilities(train_data, test_data)
-    scores[INPUT_COMMIT].append(commit_clf.evaluate(test_data))
-
-    ci_clf = BaseClassifier(INPUT_CI, seed)
-    ci_clf.train(train_data)
-    ci_clf.save_model()
-    ci_clf.write_probabilities(train_data, test_data)
-    scores[INPUT_CI].append(ci_clf.evaluate(test_data))
-
-    lang_clf = BaseClassifier(INPUT_LANGUAGE, seed)
-    lang_clf.train(train_data)
-    lang_clf.save_model()
-    lang_clf.write_probabilities(train_data, test_data)
-    scores[INPUT_LANGUAGE].append(lang_clf.evaluate(test_data))
-
-    repo_clf = BaseClassifier(INPUT_REPO, seed)
-    repo_clf.train(train_data)
-    repo_clf.save_model()
-    repo_clf.write_probabilities(train_data, test_data)
-    scores[INPUT_REPO].append(repo_clf.evaluate(test_data))
-
-    all_clf = BaseClassifier(INPUT_ALL, seed)
-    all_clf.train(train_data)
-    all_clf.save_model()
-    all_clf.write_probabilities(train_data, test_data)
-    scores[INPUT_ALL].append(all_clf.evaluate(test_data))
-
-dump_score(scores,seeds)
-
-new_clf = BaseClassifier(INPUT_COMMIT, seed)
-new_clf.load_model()
-new_clf.evaluate(test_data)
-
-
+train_data, test_data = train_test_split(data_3, test_size=0.2)
+#
+#     # first classifier
+#     print "seed: " + str(seed)
+#     commit_clf = BaseClassifier(INPUT_COMMIT, seed)
+#     commit_clf.train(train_data)
+#     commit_clf.save_model()
+#     commit_clf.write_probabilities(train_data, test_data)
+#     scores[INPUT_COMMIT].append(commit_clf.evaluate(test_data))
+#
+#     ci_clf = BaseClassifier(INPUT_CI, seed)
+#     ci_clf.train(train_data)
+#     ci_clf.save_model()
+#     ci_clf.write_probabilities(train_data, test_data)
+#     scores[INPUT_CI].append(ci_clf.evaluate(test_data))
+#
+#     lang_clf = BaseClassifier(INPUT_LANGUAGE, seed)
+#     lang_clf.train(train_data)
+#     lang_clf.save_model()
+#     lang_clf.write_probabilities(train_data, test_data)
+#     scores[INPUT_LANGUAGE].append(lang_clf.evaluate(test_data))
+#
+#     repo_clf = BaseClassifier(INPUT_REPO, seed)
+#     repo_clf.train(train_data)
+#     repo_clf.save_model()
+#     repo_clf.write_probabilities(train_data, test_data)
+#     scores[INPUT_REPO].append(repo_clf.evaluate(test_data))
+#
+#     all_clf = BaseClassifier(INPUT_ALL, seed)
+#     all_clf.train(train_data)
+#     all_clf.save_model()
+#     all_clf.write_probabilities(train_data, test_data)
+#     scores[INPUT_ALL].append(all_clf.evaluate(test_data))
+#
+# dump_score(scores,seeds)
+#
+# new_clf = BaseClassifier(INPUT_COMMIT, seed)
+# new_clf.load_model()
+# new_clf.evaluate(test_data)
+#
+#
 
 
 # second classifier
@@ -289,7 +292,12 @@ new_clf.evaluate(test_data)
 # tree_clf.evaluate(test_data)
 
 # fourth classifier
-# readme_clf = ReadmeClassifier()
-# readme_clf.train(train_data)
+readme_clf = ReadmeClassifier()
+readme_clf.train(train_data)
+readme_clf.save_model()
 # readme_clf.write_probabilities(train_data, test_data)
-# readme_clf.evaluate(test_data)
+readme_clf.evaluate(test_data)
+
+prob_clf = ProbClassifier(is_train=True)
+prob_clf.train(train_data)
+prob_clf.evaluate(test_data)

@@ -9,14 +9,12 @@ from sklearn.metrics import precision_score
 
 from config.constants import TREE_FEATURES
 from config.helper import Helper
-
-MODEL_LOCATION = '../../models/'
-
+from settings import MODEL_PATH
 
 class TreeClassifier():
     def __init__(self):
         self.clf = RandomForestClassifier(n_estimators=1000)
-        self.cV = CountVectorizer(ngram_range=(1,4),max_features=200, binary=True)
+        self.cV = CountVectorizer(ngram_range=(1,4),max_features=7000, binary=True)
 
     def train(self, train_data):
         """
@@ -70,6 +68,7 @@ class TreeClassifier():
         Saves trained model to file.
         """
         joblib.dump(self.clf, self.build_model_filename(), compress=3)
+	joblib.dump(self.cV, self.build_vectorizer_filename(), compress = 7)	
         print "Successfully saved TreeClassifier!"
 
     def load_model(self):
@@ -77,10 +76,14 @@ class TreeClassifier():
         Loads trained model from file.
         """
         self.clf = joblib.load(self.build_model_filename())
+        self.cV = joblib.load(self.build_vectorizer_filename())
         print "Successfully loaded TreeClassifier!"
 
     def build_model_filename(self):
-        return MODEL_LOCATION + 'tree_clf' + ".pkl"
+        return MODEL_PATH + 'tree_clf' + ".pkl"
+
+    def build_vectorizer_filename(self):
+        return MODEL_PATH + 'tree_clf_vectorizer' + '.pkl'
 
     def write_probabilities(self, train_data, test_data):
         """
@@ -103,6 +106,34 @@ class TreeClassifier():
         test_repo_names = test_data['repo_name']
         test_labels = test_data['label']
         Helper().write_probabilities(self.clf, x_test, test_repo_names, test_labels, 'prob/prob_%s_test' % 'trees')
+
+    def get_train_prob(self, train_data):
+            """
+            Writes log probabilities to file. To be called only with a fitted model.
+            :param train_data: unsliced train data, including 'repo_name' and 'label'
+            :param test_data: unsliced test data, including 'repo_name' and 'label'
+            """
+            train_data_trees = pd.DataFrame(data=self.select_features(train_data))
+            train_data_trees['blob_paths_updated'] = train_data_trees.apply(lambda row: self.row_to_words(row), axis=1)
+            x_train = self.cV.transform(train_data_trees['blob_paths_updated'])
+            # train_repo_names = train_data['repo_name']
+            # train_labels = train_data['label']
+            #
+            #        Helper().write_probabilities(self.clf, x_train, train_repo_names, train_labels, 'prob/prob_%s_train' % 'trees')
+
+            return self.clf.predict_log_proba(x_train)
+
+    def get_test_prob(self, test_data):
+        test_data_trees = pd.DataFrame(data=self.select_features(test_data))
+        test_data_trees['blob_paths_updated'] = test_data_trees.apply(lambda row: self.row_to_words(row), axis=1)
+        x_test = self.cV.transform(test_data_trees['blob_paths_updated'])
+
+        # test_repo_names = test_data['repo_name']
+        #     test_labels = test_data['label']
+        #     # Helper().write_probabilities(self.clf, x_test, test_repo_names, test_labels, 'prob/prob_%s_test' % 'trees')
+
+
+        return self.clf.predict_log_proba(x_test)
 
     def row_to_words(self, row):
         blob_paths = row['blob_paths']
