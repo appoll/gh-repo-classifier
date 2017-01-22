@@ -62,11 +62,11 @@ Make sure that you have a working and stable internet connection while running t
 Depending on the amount of repositories you want to classify and their corresponding sizes, this process 
 can take some time, as it has to fetch information like commits, readmes and file-trees.
 A cup of coffee can help to bridge the time gap.
-During fetching it will save the data in folders (e.g. ```json_readmes```), which will be used to extract the features.
+During fetching it will save the data in folders (e.g. ```json_readmes/```), which will be used to extract the features.
 
 ### Feature extraction
 In the data extraction, the repository data stored in the json folders is used to extract features from them.
-The extracted features will be saved in a folder called ```features```.
+The extracted features will be saved in a folder called ```features/```.
 
 ### Classification
 The extracted features are then fed into pre-trained classifiers and classified into the one of the 7 classes.
@@ -74,7 +74,7 @@ The extracted features are then fed into pre-trained classifiers and classified 
 
 Contributors
 ------------
-The following people contributed in this project:
+The following people contributed to this project:
 - Paul Anton
 - Erik Fließwasser
 - Thomas Hummel
