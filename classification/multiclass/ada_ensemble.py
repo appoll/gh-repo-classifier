@@ -4,6 +4,7 @@ import re
 import numpy as np
 import pandas as pd
 import sys
+sys.path.append("../..")
 
 from classification.multiclass.readme_classifier import ReadmeClassifier
 from classification.multiclass.tree_classifier import TreeClassifier
@@ -86,6 +87,25 @@ def cleanString(s):
     newS = re.sub('\W+', ' ', newS)
     return newS.strip().lower()
 
+def dump_score(scores,seeds):
+    with open('scores.txt', 'w') as file:
+        for key in scores.keys():
+            label_scores = []
+            file.write(key + "\n")
+            file.write("seed: | DEV | HW | EDU | DOCS | WEB | DATA | OTHER | MEAN |\n")
+            for single_scores, mean_score, input_type, seed in scores[key]:
+                single_scores_string = " | ".join(map(str,single_scores))
+                output = str(seed)+"   : | "+single_scores_string+" | "+str(mean_score)+" |\n"
+                file.write(output)
+                if len(label_scores) == 0:
+                    label_scores = single_scores
+                else:
+                    label_scores = [label_scores[i] + single_scores[i] for i in range(len(label_scores))]
+                print label_scores
+            label_scores_string = " | ".join(map(lambda x: str(x / seeds), label_scores))
+            file.write("MEAN: | " + label_scores_string + " |\n")
+
+
 repo_features = [get_features(Labels.data, REPO), get_features(Labels.dev, REPO), get_features(Labels.docs, REPO),
                  get_features(Labels.edu, REPO),
                  get_features(Labels.hw, REPO), get_features(Labels.web, REPO), get_features(Labels.uncertain, REPO)]
@@ -133,16 +153,27 @@ contents_data = pd.concat(contents_features)
 
 trees_data = pd.concat(trees_features)
 
-repo_data = repo_data.drop_duplicates(subset=['repo_name'])
-ci_data = ci_data.drop_duplicates(subset=['repo_name'])
-commit_data = commit_data.drop_duplicates(subset=['repo_name'])
-lang_data = lang_data.drop_duplicates(subset=['repo_name'])
+# repo_data = repo_data.drop_duplicates(subset=['repo_name'])
+# ci_data = ci_data.drop_duplicates(subset=['repo_name'])
+# commit_data = commit_data.drop_duplicates(subset=['repo_name'])
+# lang_data = lang_data.drop_duplicates(subset=['repo_name'])
+#
+# readme_data = readme_data.drop_duplicates(subset=['repo_name'])
+#
+# contents_data = contents_data.drop_duplicates(subset=['repo_name'])
+#
+# trees_data = trees_data.drop_duplicates(subset=['repo_name'])
 
-readme_data = readme_data.drop_duplicates(subset=['repo_name'])
+repo_data = repo_data.drop_duplicates(cols=['repo_name'])
+ci_data = ci_data.drop_duplicates(cols=['repo_name'])
+commit_data = commit_data.drop_duplicates(cols=['repo_name'])
+lang_data = lang_data.drop_duplicates(cols=['repo_name'])
 
-contents_data = contents_data.drop_duplicates(subset=['repo_name'])
+readme_data = readme_data.drop_duplicates(cols=['repo_name'])
 
-trees_data = trees_data.drop_duplicates(subset=['repo_name'])
+contents_data = contents_data.drop_duplicates(cols=['repo_name'])
+
+trees_data = trees_data.drop_duplicates(cols=['repo_name'])
 
 print 'Repo Data Shape'
 print repo_data.shape
@@ -182,39 +213,52 @@ print data_3.shape
 LANGUAGE_FEATURES = list(data_3.columns.values)
 LANGUAGE_FEATURES = [label for label in LANGUAGE_FEATURES if label not in REPO_FEATURES and label not in CI_FEATURES and label not in COMMIT_FEATURES and label not in ['label','repo_name'] and label not in README_FEATURES and label not in TREE_FEATURES and label not in CONTENT_FEATURES]
 
+scores = {}
+scores[INPUT_COMMIT] = []
+scores[INPUT_LANGUAGE] = []
+scores[INPUT_REPO] = []
+scores[INPUT_ALL] = []
+
+
+seeds = 2
+for seed in range(seeds):
 
 # below dataframes have all the features which need to be separated
-train_data, test_data = train_test_split(data_3, test_size=0.2, random_state=2)
+    train_data, test_data = train_test_split(data_3, test_size=0.2, random_state=seed)
 
-# first classifier
+    # first classifier
+    print "seed: " + str(seed)
+    commit_clf = BaseClassifier(INPUT_COMMIT, seed)
+    commit_clf.train(train_data)
+    commit_clf.save_model()
+    commit_clf.write_probabilities(train_data, test_data)
+    scores[INPUT_COMMIT].append(commit_clf.evaluate(test_data))
 
-commit_clf = BaseClassifier(INPUT_COMMIT)
-commit_clf.train(train_data)
-commit_clf.save_model()
-commit_clf.write_probabilities(train_data, test_data)
-commit_clf.evaluate(test_data)
+    lang_clf = BaseClassifier(INPUT_LANGUAGE, seed)
+    lang_clf.train(train_data)
+    lang_clf.save_model()
+    lang_clf.write_probabilities(train_data, test_data)
+    scores[INPUT_LANGUAGE].append(lang_clf.evaluate(test_data))
 
-lang_clf = BaseClassifier(INPUT_LANGUAGE)
-lang_clf.train(train_data)
-lang_clf.save_model()
-lang_clf.write_probabilities(train_data, test_data)
-lang_clf.evaluate(test_data)
+    repo_clf = BaseClassifier(INPUT_REPO, seed)
+    repo_clf.train(train_data)
+    repo_clf.save_model()
+    repo_clf.write_probabilities(train_data, test_data)
+    scores[INPUT_REPO].append(repo_clf.evaluate(test_data))
 
-repo_clf = BaseClassifier(INPUT_REPO)
-repo_clf.train(train_data)
-repo_clf.save_model()
-repo_clf.write_probabilities(train_data, test_data)
-repo_clf.evaluate(test_data)
+    all_clf = BaseClassifier(INPUT_ALL, seed)
+    all_clf.train(train_data)
+    all_clf.save_model()
+    all_clf.write_probabilities(train_data, test_data)
+    scores[INPUT_ALL].append(all_clf.evaluate(test_data))
 
-all_clf = BaseClassifier(INPUT_ALL)
-all_clf.train(train_data)
-all_clf.save_model()
-all_clf.write_probabilities(train_data, test_data)
-all_clf.evaluate(test_data)
+dump_score(scores,seeds)
 
-new_clf = BaseClassifier(INPUT_COMMIT)
+new_clf = BaseClassifier(INPUT_COMMIT, seed)
 new_clf.load_model()
 new_clf.evaluate(test_data)
+
+
 
 
 # second classifier

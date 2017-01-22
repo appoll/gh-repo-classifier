@@ -55,7 +55,7 @@ def get_num_py_row(str_row):
 
 
 prefix = './multiclass/prob/prob_'
-classifier_names = ['trees','keyword']#,'input_all']#,'input_language','input_repo','trees']#,'input_all']#,'trees']#,'r_c_l']
+classifier_names = ['trees','input_all','readmes']#,'trees']#,'input_all']#,'trees']#,'r_c_l']
 # classifier_names = ['commit','keyword','lang','repo']
 X_train, Y_train = read_data(prefix,classifier_names,True)
 X_test, Y_test   = read_data(prefix,classifier_names,False)

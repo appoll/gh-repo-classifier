@@ -3,6 +3,7 @@ from sklearn.ensemble import RandomForestClassifier
 from sklearn.externals import joblib
 from sklearn.metrics import confusion_matrix
 from sklearn.metrics import precision_score
+from sklearn.metrics import f1_score
 
 from collection.labels import Labels
 from config.constants import *
@@ -12,13 +13,13 @@ MODEL_LOCATION = '../../models/'
 
 
 class BaseClassifier():
-    def __init__(self, input):
+    def __init__(self, input, seed):
         if input not in [INPUT_COMMIT, INPUT_LANGUAGE, INPUT_REPO, INPUT_PUNCH, INPUT_ALL]:
             raise ValueError("Mind your input! Base classifier does not handle this kind of input.")
 
         self.input_type = input
-        self.clf = RandomForestClassifier(n_estimators=5000, random_state=1, max_depth=30)
-
+        self.clf = RandomForestClassifier(n_estimators=5000, random_state=seed, max_depth=30)
+        self.seed = seed
     def train(self, train_data):
         """
         Trains the classifier on the slice corresponding to the input features of interest.
@@ -43,11 +44,12 @@ class BaseClassifier():
 
         self.confusion_matrix(Y, output)
 
-        score = precision_score(Y, output, average=None)
+        score = f1_score(Y, output, average=None) # aver None? Why not micro/macro?
         print "\nEvaluating %s BaseClassifier" % self.input_type
-        print "PRECISION SCORE: "
+        print "F1 SCORE: "
         print score
         print np.mean(score)
+        return score, np.mean(score), self.input_type, self.seed
 
     def select_features(self, data):
         """
@@ -85,7 +87,7 @@ class BaseClassifier():
         print "Successfully loaded BaseClassifier!"
 
     def build_model_filename(self):
-        return MODEL_LOCATION + self.input_type + ".pkl"
+        return MODEL_LOCATION + self.input_type + "_" + str(self.seed) + ".pkl"
 
     def write_probabilities(self, train_data, test_data):
         """
