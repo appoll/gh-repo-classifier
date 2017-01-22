@@ -14,7 +14,7 @@ from settings import MODEL_PATH
 class TreeClassifier():
     def __init__(self):
         self.clf = RandomForestClassifier(n_estimators=1000)
-        self.cV = CountVectorizer(ngram_range=(1,4),max_features=200, binary=True)
+        self.cV = CountVectorizer(ngram_range=(1,4),max_features=7000, binary=True)
 
     def train(self, train_data):
         """
@@ -68,6 +68,7 @@ class TreeClassifier():
         Saves trained model to file.
         """
         joblib.dump(self.clf, self.build_model_filename(), compress=3)
+	joblib.dump(self.cV, self.build_vectorizer_filename(), compress = 7)	
         print "Successfully saved TreeClassifier!"
 
     def load_model(self):
