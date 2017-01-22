@@ -8,4 +8,9 @@ python-dateutil>=2.6.0
 beautifulsoup4>=4.5.3
 bs4>=0.0.1
 enum==0.4.6
+six>=1.10.0
 lxml>=3.4.0
+pyparsing>=2.1.10
+cycler>=0.10.0
+functools32>=3.2.2-3
+pytz>=2016.10
