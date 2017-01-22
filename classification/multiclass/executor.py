@@ -136,30 +136,16 @@ class ClassificationExecutor():
         return
 
     def run_solid_classifier(self):
-        clf = SolidClassifier(is_train=self.is_train)
-        # clf.train(data)
-        # clf.save_model()
+        clf = SolidClassifier(is_train=False)
         clf.load_model()
         predictions = clf.predict(self.data)
         return predictions, self.input_repo_names
 
-    def run_keyword_classifier(self, data):
-        #
-        # train_data_2 = data[["repo_name"] + README_FEATURES + CONTENT_FEATURES + ["label"]]
-        # test_data_2 = data[["repo_name"] + README_FEATURES + CONTENT_FEATURES + ["label"]]
-        #
-        # train_data_2.to_csv("train_data_trash.txt", sep=",")
-
-        predict_data = data[["repo_name"] + README_FEATURES + CONTENT_FEATURES]
-        clf = KeywordSpotting(self.is_train)
-        # clf.predict(self.data)
-        # clf.train(train_data_2)
-        # clf.save_classifier()
-
+    def run_keyword_classifier(self):
+        clf = KeywordSpotting(is_train=False)
         clf.load_model()
-
-        predictions = clf.predict(predict_data)
-        print predictions
+        predictions = clf.predict(self.data)
+        return predictions, self.input_repo_names
 
 if __name__ == '__main__':
     exe = ClassificationExecutor(is_train=True)

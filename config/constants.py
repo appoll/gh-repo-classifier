@@ -14,6 +14,7 @@ TREE_FEATURES = ["blob_paths"]
 """Defines the type of input considered by the BaseClassifier"""
 INPUT_CI = 'input_ci'
 INPUT_COMMIT = 'input_commit'
+INPUT_CI = 'input_ci'
 INPUT_LANGUAGE = 'input_language'
 INPUT_REPO = 'input_repo'
 INPUT_PUNCH = 'input_punch'
