@@ -4,6 +4,8 @@ import logging
 import os
 import sys
 
+from collection.labels import Labels
+
 sys.path.append('..')
 import requests
 from requests.auth import HTTPBasicAuth
@@ -478,7 +480,7 @@ class InputProcessor:
                 try:
                     del updated_repo_object[url_key]
                 except KeyError:
-                    print 'nothing to delete. move along'
+                    logging.debug("update_repos() no key needs to be deleted")
 
                 if not os.path.exists(os.path.dirname(new_filename)):
                     os.makedirs(os.path.dirname(new_filename))
@@ -589,7 +591,6 @@ class FeatureExtractor:
             line = "%.2f" % all_commits_count
             line = line + " " + "%.2f" % commits_interval_days
             line = line + " " + "%.2f" % commits_per_day
-
 
             line = line + " " + repo_name
 
@@ -935,7 +936,7 @@ class FeatureExtractor:
         f.write(header)
 
         for filename in glob.glob(folder + '*'):
-            logging.debug("get_trees_features % " % filename)
+            logging.debug("get_trees_features %s " % filename)
             json_file = open(filename, 'r')
             name = os.path.basename(filename)
             repo_name = os.path.splitext(name)[0]
@@ -1116,6 +1117,51 @@ class FeatureExtractor:
         return result
 
 
+class OutputProcessor:
+    def __init__(self, input_filename, output_filename):
+        self.urls_file = open(input_filename, 'r')
+        self.output_file = open(output_filename, 'w')
+
+    def write_output(self, output, repo_names):
+        urls = self.urls_file.readlines()
+        print urls
+        print repo_names
+
+        for idx, url in enumerate(urls):
+
+            for idx, repo_name in enumerate(repo_names):
+                hacky_url = url.replace('/', '_')
+                if repo_name in hacky_url:
+                    labelled_idx = idx
+                    break
+
+            url = url.replace('\n', '')
+            url = url.replace('\r', '')
+
+            print 'a'
+            print repo_names[labelled_idx]
+            print url
+            print output[labelled_idx]
+            print 'a'
+
+            if output[labelled_idx] == 0:
+                label = Labels.data.upper()
+            elif output[labelled_idx] == 1:
+                label = Labels.dev.upper()
+            elif output[labelled_idx] == 2:
+                label = Labels.docs.upper()
+            elif output[labelled_idx] == 3:
+                label = Labels.edu.upper()
+            elif output[labelled_idx] == 4:
+                label = Labels.hw.upper()
+            elif output[labelled_idx] == 5:
+                label = Labels.web.upper()
+            elif output[labelled_idx] == 6:
+                label = Labels.other.upper()
+            line = url + " " + label + '\n'
+            self.output_file.write(line)
+
+
 if __name__ == '__main__':
     logging.basicConfig(filename='input_processor.log', level=logging.DEBUG)
     logging.debug("Started...")
@@ -1153,6 +1199,11 @@ if __name__ == '__main__':
 
     exe = executor.ClassificationExecutor()
     # exe.run_keyword_classifier(exe.data)
-    exe.run_solid_classifier(exe.data)
+    output, repo_names = exe.run_solid_classifier()
+    print output
+    print repo_names
+
+    output_processor = OutputProcessor(input_filename='input_urls.txt', output_filename='output.txt')
+    output_processor.write_output(output, repo_names)
 
     logging.debug("Ended!")

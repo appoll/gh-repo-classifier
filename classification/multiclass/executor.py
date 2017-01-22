@@ -130,15 +130,18 @@ class ClassificationExecutor():
         self.is_train = is_train
         self.feature_prep = FeaturePreparation(is_train=is_train)
         self.data = self.feature_prep.build_data()
+        self.input_repo_names = self.data['repo_name']
+        print 'input repo names:'
+        print self.input_repo_names
         return
 
-    def run_solid_classifier(self, data):
+    def run_solid_classifier(self):
         clf = SolidClassifier(is_train=self.is_train)
         # clf.train(data)
         # clf.save_model()
         clf.load_model()
-        predictions = clf.predict(data)
-        print predictions
+        predictions = clf.predict(self.data)
+        return predictions, self.input_repo_names
 
     def run_keyword_classifier(self, data):
         #

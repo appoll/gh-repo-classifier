@@ -33,6 +33,8 @@ class SolidClassifier():
 
     def build_features(self, dataframe):
         data = pd.DataFrame(data=dataframe)
+        print 'build_features method dataframe repo names'
+        print data['repo_name']
         self.LANGUAGE_FEATURES = joblib.load(LANGUAGE_FEATURES_NAME_PATH + LANGUAGE_FEATURES_NAME_FILE)
         data_raw_features = data[REPO_FEATURES + COMMIT_FEATURES + self.LANGUAGE_FEATURES + CI_FEATURES]
         data_keywords_features = data[["repo_name"] + README_FEATURES + CONTENT_FEATURES]
@@ -83,6 +85,8 @@ class SolidClassifier():
         print average_test_precision
 
     def predict(self, dataframe):
+        print 'predict method dataframe repo names'
+        print dataframe['repo_name']
         X = self.build_features(dataframe)
         return self.clf.predict(X)
 
