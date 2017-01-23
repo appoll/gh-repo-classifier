@@ -1,21 +1,26 @@
 import numpy as np
 from sklearn.externals import joblib
+from sklearn.metrics import f1_score
 from sklearn.metrics import precision_score
 from sklearn.metrics import recall_score
 from sklearn.svm import SVC
 
 from classification.multiclass.readme_classifier import ReadmeClassifier
 from classification.multiclass.tree_classifier import TreeClassifier
+from config.constants import PROB_CLF
 from settings import MODEL_PATH
 
 
 class ProbClassifier():
-    def __init__(self, is_train):
+    def __init__(self, is_train, seed):
         self.clf = SVC(C=0.111)
         self.is_train = is_train
 
-        self.tree_clf = TreeClassifier()
-        self.readme_clf = ReadmeClassifier()
+        self.tree_clf = TreeClassifier(seed=seed)
+        self.readme_clf = ReadmeClassifier(seed=seed)
+
+        self.seed = seed
+        self.input_type = PROB_CLF
 
         self.tree_clf.load_model()
         self.readme_clf.load_model()
@@ -58,15 +63,21 @@ class ProbClassifier():
 
         output = self.clf.predict(prob_test)
 
-        score = precision_score(Y, output, average=None)
-        recall = recall_score(Y, output, average=None)
-        print "\nEvaluating ProbClassifier"
-        print "PRECISION SCORE: "
+        # score = precision_score(Y, output, average=None)
+        # recall = recall_score(Y, output, average=None)
+        # print "\nEvaluating ProbClassifier"
+        # print "PRECISION SCORE: "
+        # print score
+        # print np.mean(score)
+        # print "RECALL SCORE: "
+        # print recall
+        # print np.mean(recall)
+        score = f1_score(Y, output, average=None)
+        print "\nEvaluating %s ProbClassifier" % self.input_type
+        print "F1 SCORE: "
         print score
         print np.mean(score)
-        print "RECALL SCORE: "
-        print recall
-        print np.mean(recall)
+        return score, np.mean(score), self.input_type, self.seed
 
     def save_model(self):
         """
