@@ -58,6 +58,26 @@ https://github.com/jonico/other OTHER
 ```
 
 ### Fetching repositories
+Authenticated requests will be made while fetching the repository information. As such, it is needed to define the github credentials in files belonging to the root folder, using json format:
+
+* github-api-credentials.config
+
+```
+{
+"username": "...",
+"password": "..."
+}
+```
+
+* github-api-OAuth.config
+```
+{
+"token": "..."
+}
+```
+NOTE: In the current version, both config files need to exist but only the username and password will be used. The token value can be left empty.
+
+
 Make sure that you have a working and stable internet connection while running the classification.
 Depending on the amount of repositories you want to classify and their corresponding sizes, this process 
 can take some time, as it has to fetch information like commits, readmes and file-trees.
