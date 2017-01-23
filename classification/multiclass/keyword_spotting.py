@@ -175,12 +175,12 @@ class KeywordSpotting():
 
         X, Y = self.build_keyword_features(dataframe), self.build_labels(dataframe)
         output = self.clf.predict(X)
-        score = precision_score(Y, output, average=None)
-        print "PRECISION SCORE: "
-        print score
-        print np.mean(score)
+        # score = precision_score(Y, output, average=None)
+        # print "PRECISION SCORE: "
+        # print score
+        # print np.mean(score)
 
-        score = f1_score(Y, output, average='micro')  # aver None? Why not micro/macro?
+        score = f1_score(Y, output, average=None)
         print "\nEvaluating %s BaseClassifier" % self.input_type
         print "F1 SCORE: "
         print score

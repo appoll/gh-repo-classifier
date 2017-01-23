@@ -59,20 +59,20 @@ class SolidClassifier():
     def evaluate(self, dataframe):
         X, Y = self.build_features(dataframe), self.build_labels(dataframe)
         output = self.clf.predict(X)
-        score = precision_score(Y, output, average=None)
-        recall = recall_score(Y, output, average=None)
-        f1 = f1_score(Y, output, average='micro')
-        print "PRECISION SCORE: "
-        print score
-        print np.mean(score)
-        print "RECALL: "
-        print recall
-        print np.mean(recall)
-        print "F1: "
-        print f1
-        print np.mean(f1)
+        # score = precision_score(Y, output, average=None)
+        # recall = recall_score(Y, output, average=None)
+        # f1 = f1_score(Y, output, average='micro')
+        # print "PRECISION SCORE: "
+        # print score
+        # print np.mean(score)
+        # print "RECALL: "
+        # print recall
+        # print np.mean(recall)
+        # print "F1: "
+        # print f1
+        # print np.mean(f1)
 
-        score = f1_score(Y, output, average='micro')  # aver None? Why not micro/macro?
+        score = f1_score(Y, output, average=None)
         print "\nEvaluating %s BaseClassifier" % self.input_type
         print "F1 SCORE: "
         print score

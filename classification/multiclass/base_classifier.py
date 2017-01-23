@@ -45,14 +45,14 @@ class BaseClassifier():
 
         # self.confusion_matrix(Y, output)
 
-        score = recall_score(Y, output, average=None) # aver None? Why not micro/macro?
-        print "\nEvaluating %s BaseClassifier" % self.input_type
-        print "Recall SCORE: "
-        print score
-        print np.mean(score)
+        # score = recall_score(Y, output, average=None) # aver None? Why not micro/macro?
+        # print "\nEvaluating %s BaseClassifier" % self.input_type
+        # print "Recall SCORE: "
+        # print score
+        # print np.mean(score)
 
 
-        score = f1_score(Y, output, average='micro') # aver None? Why not micro/macro?
+        score = f1_score(Y, output, average=None)
         print "\nEvaluating %s BaseClassifier" % self.input_type
         print "F1 SCORE: "
         print score
