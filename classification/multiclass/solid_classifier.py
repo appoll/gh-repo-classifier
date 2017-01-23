@@ -25,10 +25,13 @@ PICKLE_MODEL_NAME = "solid_classifier_model.pkl"
 
 
 class SolidClassifier():
-    def __init__(self, is_train):
+    def __init__(self, is_train, seed):
         self.clf = RandomForestClassifier(n_estimators=5000, max_depth=30)
         self.folder_path_data = None
         self.is_train = is_train
+
+        self.seed = seed
+        self.input_type = INPUT_SOLID
 
     def build_labels(self, dataframe):
         Y = dataframe['label']
@@ -40,7 +43,7 @@ class SolidClassifier():
         data_raw_features = data[REPO_FEATURES + COMMIT_FEATURES + self.LANGUAGE_FEATURES + CI_FEATURES]
         data_keywords_features = data[["repo_name"] + README_FEATURES + CONTENT_FEATURES]
 
-        keyword_spotting = KeywordSpotting(self.is_train)
+        keyword_spotting = KeywordSpotting(self.is_train, seed = self.seed)
         data_keywords = keyword_spotting.build_keyword_features(data_keywords_features)
 
         # print np.shape(data_raw_features)
@@ -68,6 +71,13 @@ class SolidClassifier():
         print "F1: "
         print f1
         print np.mean(f1)
+
+        score = f1_score(Y, output, average='micro')  # aver None? Why not micro/macro?
+        print "\nEvaluating %s BaseClassifier" % self.input_type
+        print "F1 SCORE: "
+        print score
+        print np.mean(score)
+        return score, np.mean(score), self.input_type, self.seed
 
     def train_and_evaluate(self, dataframe, num_iterations=3, test_size=0.3):
         X, Y = self.build_features(dataframe), self.build_labels(dataframe)

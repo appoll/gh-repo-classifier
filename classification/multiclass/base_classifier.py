@@ -4,6 +4,7 @@ from sklearn.externals import joblib
 from sklearn.metrics import confusion_matrix
 from sklearn.metrics import precision_score
 from sklearn.metrics import f1_score
+from sklearn.metrics import recall_score
 
 from collection.labels import Labels
 from config.constants import *
@@ -42,9 +43,16 @@ class BaseClassifier():
 
         output = self.clf.predict(X)
 
-        self.confusion_matrix(Y, output)
+        # self.confusion_matrix(Y, output)
 
-        score = f1_score(Y, output, average=None) # aver None? Why not micro/macro?
+        score = recall_score(Y, output, average=None) # aver None? Why not micro/macro?
+        print "\nEvaluating %s BaseClassifier" % self.input_type
+        print "Recall SCORE: "
+        print score
+        print np.mean(score)
+
+
+        score = f1_score(Y, output, average='micro') # aver None? Why not micro/macro?
         print "\nEvaluating %s BaseClassifier" % self.input_type
         print "F1 SCORE: "
         print score

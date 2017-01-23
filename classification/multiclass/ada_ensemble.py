@@ -6,6 +6,7 @@ import pandas as pd
 import sys
 
 from classification.multiclass.prob_classifier import ProbClassifier
+from classification.multiclass.solid_classifier import SolidClassifier
 
 sys.path.append("../..")
 
@@ -224,47 +225,57 @@ scores[INPUT_CI] = []
 scores[INPUT_LANGUAGE] = []
 scores[INPUT_REPO] = []
 scores[INPUT_ALL] = []
+scores[INPUT_KS] = []
+scores[INPUT_SOLID] = []
 
-
-# seeds = 10
-# for seed in range(seeds):
+seeds = 10
+for seed in range(seeds):
 
 # below dataframes have all the features which need to be separated
-train_data, test_data = train_test_split(data_3, test_size=0.2)
+    train_data, test_data = train_test_split(data_3, test_size=0.2)
+
+    # first classifier
+    print "seed: " + str(seed)
+    commit_clf = BaseClassifier(INPUT_COMMIT, seed)
+    commit_clf.train(train_data)
+    # commit_clf.save_model()
+    #commit_clf.write_probabilities(train_data, test_data)
+    scores[INPUT_COMMIT].append(commit_clf.evaluate(test_data))
+
+    ci_clf = BaseClassifier(INPUT_CI, seed)
+    ci_clf.train(train_data)
+    # ci_clf.save_model()
+    #ci_clf.write_probabilities(train_data, test_data)
+    scores[INPUT_CI].append(ci_clf.evaluate(test_data))
+
+    lang_clf = BaseClassifier(INPUT_LANGUAGE, seed)
+    lang_clf.train(train_data)
+    # lang_clf.save_model()
+    #lang_clf.write_probabilities(train_data, test_data)
+    scores[INPUT_LANGUAGE].append(lang_clf.evaluate(test_data))
+
+    repo_clf = BaseClassifier(INPUT_REPO, seed)
+    repo_clf.train(train_data)
+    # repo_clf.save_model()
+    #repo_clf.write_probabilities(train_data, test_data)
+    scores[INPUT_REPO].append(repo_clf.evaluate(test_data))
+
+    all_clf = BaseClassifier(INPUT_ALL, seed)
+    all_clf.train(train_data)
+    # all_clf.save_model()
+    #all_clf.write_probabilities(train_data, test_data)
+    scores[INPUT_ALL].append(all_clf.evaluate(test_data))
+
+    keyword_spotting = KeywordSpotting(is_train=True, seed = seed)
+    keyword_spotting.train(train_data)
+    scores[INPUT_KS].append(keyword_spotting.evaluate(test_data))
+
+    solid_clf = SolidClassifier(is_train = True, seed = seed)
+    solid_clf.train(train_data)
+    scores[INPUT_SOLID].append(solid_clf.evaluate(test_data))
+
 #
-#     # first classifier
-#     print "seed: " + str(seed)
-#     commit_clf = BaseClassifier(INPUT_COMMIT, seed)
-#     commit_clf.train(train_data)
-#     commit_clf.save_model()
-#     commit_clf.write_probabilities(train_data, test_data)
-#     scores[INPUT_COMMIT].append(commit_clf.evaluate(test_data))
-#
-#     ci_clf = BaseClassifier(INPUT_CI, seed)
-#     ci_clf.train(train_data)
-#     ci_clf.save_model()
-#     ci_clf.write_probabilities(train_data, test_data)
-#     scores[INPUT_CI].append(ci_clf.evaluate(test_data))
-#
-#     lang_clf = BaseClassifier(INPUT_LANGUAGE, seed)
-#     lang_clf.train(train_data)
-#     lang_clf.save_model()
-#     lang_clf.write_probabilities(train_data, test_data)
-#     scores[INPUT_LANGUAGE].append(lang_clf.evaluate(test_data))
-#
-#     repo_clf = BaseClassifier(INPUT_REPO, seed)
-#     repo_clf.train(train_data)
-#     repo_clf.save_model()
-#     repo_clf.write_probabilities(train_data, test_data)
-#     scores[INPUT_REPO].append(repo_clf.evaluate(test_data))
-#
-#     all_clf = BaseClassifier(INPUT_ALL, seed)
-#     all_clf.train(train_data)
-#     all_clf.save_model()
-#     all_clf.write_probabilities(train_data, test_data)
-#     scores[INPUT_ALL].append(all_clf.evaluate(test_data))
-#
-# dump_score(scores,seeds)
+dump_score(scores,seeds)
 #
 # new_clf = BaseClassifier(INPUT_COMMIT, seed)
 # new_clf.load_model()
@@ -292,12 +303,12 @@ train_data, test_data = train_test_split(data_3, test_size=0.2)
 # tree_clf.evaluate(test_data)
 
 # fourth classifier
-readme_clf = ReadmeClassifier()
-readme_clf.train(train_data)
-readme_clf.save_model()
-# readme_clf.write_probabilities(train_data, test_data)
-readme_clf.evaluate(test_data)
-
-prob_clf = ProbClassifier(is_train=True)
-prob_clf.train(train_data)
-prob_clf.evaluate(test_data)
+# readme_clf = ReadmeClassifier()
+# readme_clf.train(train_data)
+# readme_clf.save_model()
+# # readme_clf.write_probabilities(train_data, test_data)
+# readme_clf.evaluate(test_data)
+#
+# prob_clf = ProbClassifier(is_train=True)
+# prob_clf.train(train_data)
+# prob_clf.evaluate(test_data)

@@ -5,9 +5,12 @@ import numpy as np
 import pandas as pd
 from bs4 import BeautifulSoup
 from sklearn.ensemble import RandomForestClassifier
+from sklearn.metrics import f1_score
 from sklearn.metrics import precision_score
 from sklearn.model_selection import ShuffleSplit
 from sklearn.externals import joblib
+
+from config.constants import INPUT_KS
 from config.helper import Helper
 from settings import STOPWORDS_PATH
 from settings import MODEL_PATH
@@ -21,10 +24,11 @@ STOPWORDS_LANGUAGE = "english"
 PICKLE_FILE_NAME = "keyword_spotting.pkl"
 
 class KeywordSpotting():
-    def __init__(self, is_train):
+    def __init__(self, is_train, seed):
         self.build_keyword_lists()
         self.is_train = is_train
-
+        self.seed = seed
+        self.input_type = INPUT_KS
         self.clf = RandomForestClassifier(n_estimators=500, n_jobs=-1, random_state=1, max_depth=20)
 
     def readmeContent(self, filename):
@@ -175,6 +179,13 @@ class KeywordSpotting():
         print "PRECISION SCORE: "
         print score
         print np.mean(score)
+
+        score = f1_score(Y, output, average='micro')  # aver None? Why not micro/macro?
+        print "\nEvaluating %s BaseClassifier" % self.input_type
+        print "F1 SCORE: "
+        print score
+        print np.mean(score)
+        return score, np.mean(score), self.input_type, self.seed
 
     def train_and_evaluate(self, dataframe, num_iterations=3, test_size=0.3):
         X, Y = self.build_keyword_features(dataframe), self.build_labels(dataframe)
