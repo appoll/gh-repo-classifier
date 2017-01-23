@@ -7,6 +7,7 @@ from bs4 import BeautifulSoup
 from sklearn.ensemble import RandomForestClassifier
 from sklearn.externals import joblib
 from sklearn.feature_extraction.text import TfidfVectorizer
+from sklearn.metrics import f1_score
 from sklearn.metrics import precision_score
 
 from config.constants import *
@@ -17,8 +18,8 @@ STOPWORDS_LANGUAGE = "english"
 
 
 class ReadmeClassifier():
-    def __init__(self):
-        self.clf = RandomForestClassifier(n_estimators=1000, max_depth=30)
+    def __init__(self, seed):
+        self.clf = RandomForestClassifier(n_estimators=1000, max_depth=30, random_state=seed)
 
         self.vectorizer = TfidfVectorizer(analyzer="word",
                                           tokenizer=None,
@@ -26,6 +27,8 @@ class ReadmeClassifier():
                                           ngram_range=(1, 3),
                                           max_features=2000
                                           )
+        self.seed = seed
+        self.input_type = README_CLF
 
     def train(self, train_data):
         """
@@ -59,11 +62,17 @@ class ReadmeClassifier():
 
         output = self.clf.predict(x_test)
 
-        score = precision_score(Y, output, average=None)
-        print "\nEvaluating ReadmeClassifier"
-        print "PRECISION SCORE: "
+        # score = precision_score(Y, output, average=None)
+        # print "\nEvaluating ReadmeClassifier"
+        # print "PRECISION SCORE: "
+        # print score
+        # print np.mean(score)
+        score = f1_score(Y, output, average=None)
+        print "\nEvaluating %s ReadmeClassifier" % self.input_type
+        print "F1 SCORE: "
         print score
         print np.mean(score)
+        return score, np.mean(score), self.input_type, self.seed
 
     def select_features(self, data):
         """

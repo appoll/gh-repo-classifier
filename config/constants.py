@@ -20,5 +20,8 @@ INPUT_LANGUAGE = 'input_language'
 INPUT_REPO = 'input_repo'
 INPUT_PUNCH = 'input_punch'
 INPUT_ALL = 'input_all'
+TREE_CLF = 'tree_clf'
+README_CLF = 'readme_clf'
+PROB_CLF = 'prob_clf'
 
 LANGUAGE_FEATURES_NAME_FILE = "languages.pkl"

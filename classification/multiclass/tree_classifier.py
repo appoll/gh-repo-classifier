@@ -5,16 +5,19 @@ import pandas as pd
 from sklearn.ensemble import RandomForestClassifier
 from sklearn.externals import joblib
 from sklearn.feature_extraction.text import CountVectorizer
-from sklearn.metrics import precision_score
+from sklearn.metrics import f1_score
 
-from config.constants import TREE_FEATURES
+from config.constants import TREE_FEATURES, TREE_CLF
 from config.helper import Helper
 from settings import MODEL_PATH
 
+
 class TreeClassifier():
-    def __init__(self):
-        self.clf = RandomForestClassifier(n_estimators=1000)
-        self.cV = CountVectorizer(ngram_range=(1,4),max_features=7000, binary=True)
+    def __init__(self, seed):
+        self.clf = RandomForestClassifier(n_estimators=1000, random_state=seed)
+        self.cV = CountVectorizer(ngram_range=(1, 2), max_features=7, binary=True)
+        self.seed = seed
+        self.input_type = TREE_CLF
 
     def train(self, train_data):
         """
@@ -32,7 +35,6 @@ class TreeClassifier():
         # transform both training and test data
         x_train = self.cV.transform(train_data_trees['blob_paths_updated'])
 
-
         self.clf.fit(X=x_train, y=Y)
 
     def evaluate(self, test_data):
@@ -49,11 +51,12 @@ class TreeClassifier():
 
         output = self.clf.predict(x_test)
 
-        score = precision_score(Y, output, average=None)
-        print "\nEvaluating TreeClassifier"
-        print "PRECISION SCORE: "
+        score = f1_score(Y, output, average=None)
+        print "\nEvaluating %s TreeClassifier" % self.input_type
+        print "F1 SCORE: "
         print score
         print np.mean(score)
+        return score, np.mean(score), self.input_type, self.seed
 
     def select_features(self, data):
         """
@@ -68,7 +71,7 @@ class TreeClassifier():
         Saves trained model to file.
         """
         joblib.dump(self.clf, self.build_model_filename(), compress=3)
-	joblib.dump(self.cV, self.build_vectorizer_filename(), compress = 7)	
+        joblib.dump(self.cV, self.build_vectorizer_filename(), compress=7)
         print "Successfully saved TreeClassifier!"
 
     def load_model(self):
@@ -108,20 +111,20 @@ class TreeClassifier():
         Helper().write_probabilities(self.clf, x_test, test_repo_names, test_labels, 'prob/prob_%s_test' % 'trees')
 
     def get_train_prob(self, train_data):
-            """
-            Writes log probabilities to file. To be called only with a fitted model.
-            :param train_data: unsliced train data, including 'repo_name' and 'label'
-            :param test_data: unsliced test data, including 'repo_name' and 'label'
-            """
-            train_data_trees = pd.DataFrame(data=self.select_features(train_data))
-            train_data_trees['blob_paths_updated'] = train_data_trees.apply(lambda row: self.row_to_words(row), axis=1)
-            x_train = self.cV.transform(train_data_trees['blob_paths_updated'])
-            # train_repo_names = train_data['repo_name']
-            # train_labels = train_data['label']
-            #
-            #        Helper().write_probabilities(self.clf, x_train, train_repo_names, train_labels, 'prob/prob_%s_train' % 'trees')
+        """
+        Writes log probabilities to file. To be called only with a fitted model.
+        :param train_data: unsliced train data, including 'repo_name' and 'label'
+        :param test_data: unsliced test data, including 'repo_name' and 'label'
+        """
+        train_data_trees = pd.DataFrame(data=self.select_features(train_data))
+        train_data_trees['blob_paths_updated'] = train_data_trees.apply(lambda row: self.row_to_words(row), axis=1)
+        x_train = self.cV.transform(train_data_trees['blob_paths_updated'])
+        # train_repo_names = train_data['repo_name']
+        # train_labels = train_data['label']
+        #
+        #        Helper().write_probabilities(self.clf, x_train, train_repo_names, train_labels, 'prob/prob_%s_train' % 'trees')
 
-            return self.clf.predict_log_proba(x_train)
+        return self.clf.predict_log_proba(x_train)
 
     def get_test_prob(self, test_data):
         test_data_trees = pd.DataFrame(data=self.select_features(test_data))

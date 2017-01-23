@@ -1,9 +1,8 @@
 import csv
 import re
-
-import numpy as np
-import pandas as pd
 import sys
+
+import pandas as pd
 
 from classification.multiclass.prob_classifier import ProbClassifier
 from classification.multiclass.solid_classifier import SolidClassifier
@@ -13,19 +12,10 @@ sys.path.append("../..")
 from classification.multiclass.readme_classifier import ReadmeClassifier
 from classification.multiclass.tree_classifier import TreeClassifier
 from config.constants import *
-from sklearn.ensemble import RandomForestClassifier
-from sklearn.ensemble import AdaBoostClassifier
-from sklearn.feature_extraction.text import CountVectorizer
-from sklearn.metrics import accuracy_score
-from sklearn.metrics import mean_squared_error
-from sklearn.metrics import precision_score
 from sklearn.model_selection import train_test_split
-from sklearn.externals import joblib
-from base_classifier import BaseClassifier
-from config.helper import Helper
-from keyword_spotting import KeywordSpotting
 
 from collection.labels import Labels
+
 csv.field_size_limit(sys.maxsize)
 REPO_FEATURES = ["size", "labels", "tags", "issues", "branches", "languages", "forks", "commits", "comments"]
 COMMIT_FEATURES = ["all_commits", "weekend_commits", "weekday_commits", "work_hrs_commits", "non_work_hrs_commits",
@@ -91,15 +81,16 @@ def cleanString(s):
     newS = re.sub('\W+', ' ', newS)
     return newS.strip().lower()
 
-def dump_score(scores,seeds):
+
+def dump_score(scores, seeds):
     with open('scores.txt', 'w') as file:
         for key in scores.keys():
             label_scores = []
             file.write(key + "\n")
             file.write("seed: | DEV | HW | EDU | DOCS | WEB | DATA | OTHER | MEAN |\n")
             for single_scores, mean_score, input_type, seed in scores[key]:
-                single_scores_string = " | ".join(map(str,single_scores))
-                output = str(seed)+"   : | "+single_scores_string+" | "+str(mean_score)+" |\n"
+                single_scores_string = " | ".join(map(str, single_scores))
+                output = str(seed) + "   : | " + single_scores_string + " | " + str(mean_score) + " |\n"
                 file.write(output)
                 if len(label_scores) == 0:
                     label_scores = single_scores
@@ -135,10 +126,10 @@ readme_features = [get_features(Labels.data, README), get_features(Labels.dev, R
                    get_features(Labels.uncertain, README)]
 
 trees_features = [get_features(Labels.data, TREES), get_features(Labels.dev, TREES),
-                   get_features(Labels.docs, TREES),
-                   get_features(Labels.edu, TREES),
-                   get_features(Labels.hw, TREES), get_features(Labels.web, TREES),
-                   get_features(Labels.uncertain, TREES)]
+                  get_features(Labels.docs, TREES),
+                  get_features(Labels.edu, TREES),
+                  get_features(Labels.hw, TREES), get_features(Labels.web, TREES),
+                  get_features(Labels.uncertain, TREES)]
 
 contents_features = [get_features(Labels.data, CONTENTS), get_features(Labels.dev, CONTENTS),
                      get_features(Labels.docs, CONTENTS),
@@ -201,7 +192,7 @@ data_1 = data_1.merge(lang_data, on=["repo_name", "label"], how="inner")
 print data_1.shape
 data_1.to_csv('data_set_1')
 
-data_2 = data_1.merge(contents_data, on=["repo_name","label"], how="inner")
+data_2 = data_1.merge(contents_data, on=["repo_name", "label"], how="inner")
 print data_2.shape
 data_1.to_csv('data_set_1')
 
@@ -217,65 +208,53 @@ print data_3.shape
 # hack to get language features names by excluding all the other feature names
 
 LANGUAGE_FEATURES = list(data_3.columns.values)
-LANGUAGE_FEATURES = [label for label in LANGUAGE_FEATURES if label not in REPO_FEATURES and label not in CI_FEATURES and label not in COMMIT_FEATURES and label not in ['label','repo_name'] and label not in README_FEATURES and label not in TREE_FEATURES and label not in CONTENT_FEATURES]
+LANGUAGE_FEATURES = [label for label in LANGUAGE_FEATURES if
+                     label not in REPO_FEATURES and label not in CI_FEATURES and label not in COMMIT_FEATURES and label not in [
+                         'label',
+                         'repo_name'] and label not in README_FEATURES and label not in TREE_FEATURES and label not in CONTENT_FEATURES]
 
 scores = {}
-scores[INPUT_COMMIT] = []
-scores[INPUT_CI] = []
-scores[INPUT_LANGUAGE] = []
-scores[INPUT_REPO] = []
-scores[INPUT_ALL] = []
-scores[INPUT_KS] = []
-scores[INPUT_SOLID] = []
+scores[TREE_CLF] = []
+scores[README_CLF] = []
+scores[PROB_CLF] = []
 
-seeds = 10
+# scores[INPUT_COMMIT] = []
+# scores[INPUT_CI] = []
+# scores[INPUT_LANGUAGE] = []
+# scores[INPUT_REPO] = []
+# scores[INPUT_ALL] = []
+# scores[INPUT_KS] = []
+# scores[INPUT_SOLID] = []
+
+seeds = 2
 for seed in range(seeds):
-
-# below dataframes have all the features which need to be separated
+    # below dataframes have all the features which need to be separated
     train_data, test_data = train_test_split(data_3, test_size=0.2)
 
-    # first classifier
-    print "seed: " + str(seed)
-    commit_clf = BaseClassifier(INPUT_COMMIT, seed)
-    commit_clf.train(train_data)
-    # commit_clf.save_model()
-    #commit_clf.write_probabilities(train_data, test_data)
-    scores[INPUT_COMMIT].append(commit_clf.evaluate(test_data))
+    tree_clf = TreeClassifier(seed=seed)
+    tree_clf.train(train_data)
+    tree_clf.save_model()
+    # tree_clf.write_probabilities(train_data, test_data)
+    tree_clf.evaluate(test_data)
+    scores[TREE_CLF].append(tree_clf.evaluate(test_data))
 
-    ci_clf = BaseClassifier(INPUT_CI, seed)
-    ci_clf.train(train_data)
-    # ci_clf.save_model()
-    #ci_clf.write_probabilities(train_data, test_data)
-    scores[INPUT_CI].append(ci_clf.evaluate(test_data))
+    readme_clf = ReadmeClassifier(seed=seed)
+    readme_clf.train(train_data)
+    readme_clf.save_model()
+    # readme_clf.write_probabilities(train_data, test_data)
+    readme_clf.evaluate(test_data)
+    scores[README_CLF].append(readme_clf.evaluate(test_data))
 
-    lang_clf = BaseClassifier(INPUT_LANGUAGE, seed)
-    lang_clf.train(train_data)
-    # lang_clf.save_model()
-    #lang_clf.write_probabilities(train_data, test_data)
-    scores[INPUT_LANGUAGE].append(lang_clf.evaluate(test_data))
+    prob_clf = ProbClassifier(is_train=True, seed=seed)
+    prob_clf.train(train_data)
+    scores[PROB_CLF].append(prob_clf.evaluate(test_data))
 
-    repo_clf = BaseClassifier(INPUT_REPO, seed)
-    repo_clf.train(train_data)
-    # repo_clf.save_model()
-    #repo_clf.write_probabilities(train_data, test_data)
-    scores[INPUT_REPO].append(repo_clf.evaluate(test_data))
-
-    all_clf = BaseClassifier(INPUT_ALL, seed)
-    all_clf.train(train_data)
-    # all_clf.save_model()
-    #all_clf.write_probabilities(train_data, test_data)
-    scores[INPUT_ALL].append(all_clf.evaluate(test_data))
-
-    keyword_spotting = KeywordSpotting(is_train=True, seed = seed)
-    keyword_spotting.train(train_data)
-    scores[INPUT_KS].append(keyword_spotting.evaluate(test_data))
-
-    solid_clf = SolidClassifier(is_train = True, seed = seed)
-    solid_clf.train(train_data)
-    scores[INPUT_SOLID].append(solid_clf.evaluate(test_data))
+    # solid_clf = SolidClassifier(is_train=True, seed=seed)
+    # solid_clf.train(train_data)
+    # scores[INPUT_SOLID].append(solid_clf.evaluate(test_data))
 
 #
-dump_score(scores,seeds)
+dump_score(scores, seeds)
 #
 # new_clf = BaseClassifier(INPUT_COMMIT, seed)
 # new_clf.load_model()
